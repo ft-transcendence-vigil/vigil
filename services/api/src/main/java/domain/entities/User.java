@@ -1,7 +1,7 @@
 package domain.entities;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+// import jakarta.validation.constraints.Email;      //old code — input validation moved to DTOs
+// import jakarta.validation.constraints.NotBlank;   //old code — input validation moved to DTOs
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
@@ -15,16 +15,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotBlank
-    @Email
-    @Column(unique = true)
+    @Column(unique = true,nullable = false)
     private String email;
 
-    @NotBlank
-    @Column(name = "password_hash")
+    @Column(name = "password_hash",nullable = false)
     private String passwordHash;
 
-    @NotBlank
+    @Column(nullable = false)
     private String role;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE} ,orphanRemoval = true)

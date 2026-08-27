@@ -1,7 +1,7 @@
 package domain.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+// import jakarta.validation.constraints.NotBlank;   //old code — input validation moved to DTOs
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,8 +19,7 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "token_hash", unique = true)
-    @NotBlank
+    @Column(name = "token_hash", unique = true, nullable = false)
     private String tokenHash;
 
     @CreationTimestamp
