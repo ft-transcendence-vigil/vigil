@@ -12,12 +12,16 @@ public class RegisterDto {
     @Email(message="you must enter a valid email")
     @NotBlank(message="email can't be empty")
     private String email;
+
+
     @NotBlank(message="password can't be empty")
     @Pattern(
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$",
             message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character, and be at least 8 characters long"
     )
     private String password;
+
+
     @NotBlank(message="role is required")
     @Pattern(
             regexp = "^(admin|viewer)$",
