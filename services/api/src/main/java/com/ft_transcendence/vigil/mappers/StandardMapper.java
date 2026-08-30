@@ -1,4 +1,4 @@
-package mappers;
+package com.ft_transcendence.vigil.mappers;
 
 import org.mapstruct.MappingTarget;
 

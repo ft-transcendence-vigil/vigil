@@ -1,6 +1,6 @@
-package repositories;
+package com.ft_transcendence.vigil.repositories;
 
-import domain.entities.RefreshToken;
+import com.ft_transcendence.vigil.domain.entities.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 

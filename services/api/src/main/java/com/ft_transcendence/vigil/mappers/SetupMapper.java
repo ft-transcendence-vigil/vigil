@@ -1,7 +1,7 @@
-package mappers;
+package com.ft_transcendence.vigil.mappers;
 
-import domain.dtos.SetupDto;
-import domain.entities.User;
+import com.ft_transcendence.vigil.domain.dtos.SetupDto;
+import com.ft_transcendence.vigil.domain.entities.User;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

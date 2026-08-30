@@ -1,4 +1,4 @@
-package exceptions;
+package com.ft_transcendence.vigil.exceptions;
 
 import lombok.Getter;
 import lombok.Setter;

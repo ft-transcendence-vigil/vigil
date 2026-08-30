@@ -1,4 +1,4 @@
-package domain.entities;
+package com.ft_transcendence.vigil.domain.entities;
 import jakarta.persistence.*;
 // import jakarta.validation.constraints.Email;      //old code — input validation moved to DTOs
 // import jakarta.validation.constraints.NotBlank;   //old code — input validation moved to DTOs

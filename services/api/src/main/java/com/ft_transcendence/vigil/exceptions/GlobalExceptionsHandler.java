@@ -1,4 +1,4 @@
-package exceptions;
+package com.ft_transcendence.vigil.exceptions;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;

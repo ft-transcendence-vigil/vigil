@@ -1,4 +1,4 @@
-package domain.entities;
+package com.ft_transcendence.vigil.domain.entities;
 
 
 import jakarta.persistence.*;
