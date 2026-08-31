@@ -90,6 +90,15 @@ public class AuthService {
         return new AuthResult(accessToken, rawRefreshToken, user.getRole());
     }
 
+    @Transactional
+    public void logoutService(String rawRefreshToken){
+        if (rawRefreshToken == null)
+            throw new UnauthorizedException("invalid Refresh Token");
+        String hashedRefreshToken = jjwtService.hashRefreshToken(rawRefreshToken);
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken).orElseThrow(()->new ResourcesNotFoundException("Invalid Refresh Token"));
+        refreshToken.getSession().setRevoked(true);
+        refreshToken.setRevoked(true);
+    }
 
 
 }
