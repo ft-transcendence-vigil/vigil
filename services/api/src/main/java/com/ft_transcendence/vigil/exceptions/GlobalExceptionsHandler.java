@@ -23,12 +23,12 @@ public class GlobalExceptionsHandler {
         private LocalDateTime timestamp  = LocalDateTime.now();
         private int status;
         private String path;
-        private Map<String, String> errors;
+        private Map<String, String> error;
 
         public ApiError(int status, String path, Map<String, String> errors) {
             this.status = status;
             this.path = path;
-            this.errors = errors;
+            this.error = errors;
         }
     }
 

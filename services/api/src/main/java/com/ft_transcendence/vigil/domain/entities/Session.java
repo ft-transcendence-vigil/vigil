@@ -1,9 +1,7 @@
 package com.ft_transcendence.vigil.domain.entities;
 
-
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -12,10 +10,13 @@ import java.time.Instant;
 
 import java.util.List;
 import java.util.UUID;
+@Builder
 @Getter
 @Setter
 @Entity(name="sessions")
 @Table(name = "sessions")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Session {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

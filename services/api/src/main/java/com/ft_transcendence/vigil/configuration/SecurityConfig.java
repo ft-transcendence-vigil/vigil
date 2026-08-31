@@ -1,7 +1,6 @@
 package com.ft_transcendence.vigil.configuration;
 import com.ft_transcendence.vigil.Security.JjwtAuthFilter;
 import lombok.AllArgsConstructor;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -3,8 +3,7 @@ package com.ft_transcendence.vigil.domain.entities;
 import jakarta.persistence.*;
 // import jakarta.validation.constraints.NotBlank;   //old code — input validation moved to DTOs
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -12,8 +11,11 @@ import java.time.Instant;
 import java.util.UUID;
 @Getter
 @Setter
+@Builder
 @Entity(name = "refresh_tokens")
 @Table(name = "refresh_tokens")
+@NoArgsConstructor
+@AllArgsConstructor
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
