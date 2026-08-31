@@ -99,6 +99,23 @@ public class AuthService {
         refreshToken.getSession().setRevoked(true);
         refreshToken.setRevoked(true);
     }
-
+    @Transactional
+    public List<SessionDto> sessionsService(String rawRefreshToken){
+        if (rawRefreshToken == null)
+            throw new UnauthorizedException("invalid Refresh Token");
+        String hashedRefreshToken = jjwtService.hashRefreshToken(rawRefreshToken);
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken).orElseThrow(()->new UnauthorizedException("Invalid Refresh Token"));
+        User user = refreshToken.getUser();
+        UUID currentSessionId = refreshToken.getSession().getId();
+        List<Session> sessions = sessionRepository.findByUserAndRevokedFalse(user);
+        List<SessionDto> sessionsDtos = sessions.stream()
+                .map(session -> {
+                    SessionDto dto = sessionMapper.map(session);
+                    dto.setCurrent(session.getId().equals(currentSessionId));
+                    return dto;
+                })
+                .toList();
+        return sessionsDtos;
+    }
 
 }
