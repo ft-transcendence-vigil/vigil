@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -68,6 +71,27 @@ public class AuthController {
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cleared.toString())
                 .build();
+    }
+
+    @DeleteMapping("/sessions/{id}")
+    public ResponseEntity<Void> revokeSession(
+            @PathVariable("id") UUID id,
+            @CookieValue(name = REFRESH_COOKIE, required = false) String rawRefreshToken) {
+
+        boolean revokedSelf = authService.revokeSessionService(id, rawRefreshToken);
+
+        ResponseEntity.HeadersBuilder<?> response = ResponseEntity.noContent();
+        if (revokedSelf) {
+            ResponseCookie cleared = ResponseCookie.from(REFRESH_COOKIE, "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .sameSite("Strict")
+                    .path("/api/auth")
+                    .maxAge(0)
+                    .build();
+            response = response.header(HttpHeaders.SET_COOKIE, cleared.toString());
+        }
+        return response.build();
     }
 
     @GetMapping("/sessions")

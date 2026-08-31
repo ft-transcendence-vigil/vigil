@@ -61,6 +61,11 @@ public class GlobalExceptionsHandler {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, request, ex.getMessage());
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiError> handleForbidden(ForbiddenException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.FORBIDDEN, request, ex.getMessage());
+    }
+
     @ExceptionHandler(ResourcesNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFound(ResourcesNotFoundException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, request, ex.getMessage());

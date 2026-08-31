@@ -8,6 +8,7 @@ import com.ft_transcendence.vigil.domain.entities.Session;
 import com.ft_transcendence.vigil.domain.entities.User;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.exceptions.DuplicatedResourcesException;
+import com.ft_transcendence.vigil.exceptions.ForbiddenException;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
 import com.ft_transcendence.vigil.exceptions.UnauthorizedException;
 import com.ft_transcendence.vigil.mappers.SessionMapper;
@@ -88,6 +89,20 @@ public class AuthService {
         String rawRefreshToken = createSessionAndRefreshToken(user, request);
         String accessToken = jjwtService.generateToken(new UserPrincipal(user));
         return new AuthResult(accessToken, rawRefreshToken, user.getRole());
+    }
+    @Transactional
+    public boolean revokeSessionService(UUID sessionId, String rawRefreshToken){
+        if (rawRefreshToken == null)
+            throw new UnauthorizedException("invalid Refresh Token");
+        String hashedRefreshToken = jjwtService.hashRefreshToken(rawRefreshToken);
+        RefreshToken callerToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken).orElseThrow(() -> new UnauthorizedException("invalid Refresh Token"));
+        Session target = sessionRepository.findById(sessionId).orElseThrow(() -> new ResourcesNotFoundException("session not found"));
+        if (!target.getUser().getId().equals(callerToken.getUser().getId()))
+            throw new ForbiddenException("forbidden");
+        target.setRevoked(true);
+        target.getRefreshTokens().forEach(rt -> rt.setRevoked(true));
+
+        return target.getId().equals(callerToken.getSession().getId());
     }
 
     @Transactional
