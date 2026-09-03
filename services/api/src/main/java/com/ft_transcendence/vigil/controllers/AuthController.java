@@ -1,6 +1,7 @@
 package com.ft_transcendence.vigil.controllers;
 
 import com.ft_transcendence.vigil.Services.AuthService;
+import com.ft_transcendence.vigil.domain.dtos.LoginDto;
 import com.ft_transcendence.vigil.domain.dtos.SetupDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +25,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    public record AuthResponse(String role, @JsonProperty("access_token") String accessToken) {}
+    public record AuthResponse(String role, String accessToken) {}
 
     @PostMapping("/setup")
     public ResponseEntity<AuthResponse> setup(@Valid @RequestBody SetupDto setupDto,
@@ -42,5 +43,42 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(new AuthResponse(result.role(), result.accessToken()));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @PostMapping("/login")
+
+    ResponseEntity<AuthResponse> loginController(@Valid LoginDto loginDto,HttpServletRequest request)
+    {
+        AuthService.AuthResult authResult = authService.loginService(loginDto,request);
+        ResponseCookie responseCookie = ResponseCookie
+                .from("refresh_token",authResult.rawRefreshToken())
+                .secure(true)
+                .httpOnly(true)
+                .maxAge(Duration.ofDays(30))
+                .sameSite("strict")
+                .path("/api/auth")
+                .build();
+        return ResponseEntity.status(HttpStatus.OK)
+        .body(new AuthResponse(authResult.role(),authResult.accessToken()));
     }
 }
