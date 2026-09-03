@@ -10,6 +10,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -49,6 +50,11 @@ public class GlobalExceptionsHandler {
         );
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), request.getRequestURI(), errors);
         return ResponseEntity.badRequest().body(apiError);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, request, "invalid " + ex.getName());
     }
 
     @ExceptionHandler(BadCredentialsException.class)
