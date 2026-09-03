@@ -1,0 +1,3013 @@
+{
+  "Endpoints": [
+    {
+      "Ai": [
+        {
+          "route": "/api/llm/analyze",
+          "service": "Spring Boot + FastAPI + Ollama + ClickHouse",
+          "owner": "AI Engineer",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": [
+              {
+                "name": "messages",
+                "type": "[{ role: user | assistant, content: string }]",
+                "required": true
+              }
+            ]
+          },
+          "response": {
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }",
+            "503": "{ error: 'Analysis unavailable' }",
+            "chunk": "data: { token: '...' }",
+            "done": "data: { done: true }"
+          },
+          "group": "AI",
+          "tables": [],
+          "tables_actions": {},
+          "constraints": {
+            "criteria": [
+              "Frontend sends full conversation history each turn. Server maintains no turn state.",
+              "Spring Boot proxies the chunked response from FastAPI directly to the client",
+              "This endpoint answers only from the conversation history in the request body — it does not query logs/metrics/traces itself. Telemetry-grounded analysis is a distinct internal flow triggered by alert evaluation, not by this endpoint: Spring Boot forwards { alert_id, service, triggered_at, context: { logs[], metrics[], traces[] } } to FastAPI, and that context field is what carries the actual telemetry rows into the LLM prompt. This endpoint's own request body (messages: [{ role, content }]) has no equivalent field, so it has no basis to read those tables",
+              "400 returned if messages is missing, empty, not an array, or contains an element with role outside user | assistant or a non-string/missing content — validated before the request reaches FastAPI, same 'checked before insert/forward' pattern used on every other enum-typed body field in this spec",
+              "503 above is the formal status code for the 30s LLM-timeout case described in fallback below — listed here explicitly so the response map doesn't silently disagree with the fallback text"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min. Each POST = one request. Returns HTTP 429 on breach.",
+            "realtime": "Tokens delivered as HTTP chunked transfer encoding. Connection closes on completion.",
+            "fallback": "Returns HTTP 503 with { error: 'Analysis unavailable' } on LLM timeout (30s)",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-llm-analyze",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        }
+      ]
+    },
+    {
+      "Alert": [
+        {
+          "route": "/api/alerts/ws",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "WS",
+          "request": {
+            "query": [
+              {
+                "name": "token",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "ack": "{ type: 'ack', alert_id: '<uuid>', status: acknowledged | resolved }"
+          },
+          "response": {
+            "alert": "{ type: 'alert', data: { id: '<uuid>', rule_id: '<uuid> | null', service: '<string>', signal_type: logs | metrics | traces | null, metric_name: '<string>', aggregation: '<string> | null', window_seconds: '<number> | null', threshold: '<number> | null', severity: info | warning | critical, triggered_at: '<iso8601>', llm_analysis: '<string>' } } — metric_name/threshold/severity/signal_type/window_seconds/aggregation are columns on alert_history itself, copied from the matching alert_rules row at insert time (not a live join), so this frame's values stay fixed even if that rule is later edited or deleted; rule_id is null in two distinct cases, not one — (1) a silence-watchdog alert (fired when a service goes quiet for too long, with no alert_rules row ever behind it — metric_name is the fixed sentinel 'service_silent', severity is fixed 'critical', and signal_type/window_seconds/aggregation are all null since no single evaluator produced it), or (2) an ordinary rule-triggered alert whose originating alert_rules row has since been deleted — deleting a rule sets alert_history.rule_id to null (ON DELETE SET NULL) while leaving signal_type/window_seconds/aggregation populated, since those are snapshotted at insert time rather than live-joined. Clients must not treat rule_id === null as self-describing; branch on metric_name === 'service_silent' to distinguish case (1) from case (2)",
+            "llm": "{ type: 'llm', data: { id: '<uuid>', status: '<string>', llm_analysis: '<string>' } }",
+            "status": "{ type: 'status', data: { alert_id: '<uuid>', user_email: '<email>', status: acknowledged | resolved, acked_at: '<iso8601>' } } — user_email here is a display join against users.email at broadcast time, not the alert_acks storage key: alert_acks' actual primary key is (alert_id, user_id), keyed on the immutable users.id so a user changing their own email later can't orphan their ack history",
+            "error": "{ type: 'error', message: '<string>' }",
+            "rateLimited": "{ type: 'error', message: 'rate limited', retry_after_seconds: number }"
+          },
+          "group": "Alerts",
+          "tables": [
+            "alert_acks"
+          ],
+          "tables_actions": {
+            "alert_acks": "Upsert"
+          },
+          "constraints": {
+            "criteria": [
+              "Web Major Real-time features",
+              "single connection handles both push and acknowledgment",
+              "Token validated at the HTTP Upgrade via a HandshakeInterceptor — the token is passed as ?token= on the upgrade request (native WebSocket clients can't set an Authorization header any more than EventSource can) and the connection is rejected outright during the HTTP Upgrade if it's invalid or missing, so there's no post-connect auth window, no auth frame, and no auth-timeout error frame; on token expiry the client just reconnects with a fresh one, no mid-session re-auth frames",
+              "ack frame calls the same service method as PUT /api/alerts/{id} then broadcasts 'status' frame to ALL connected sessions",
+              "PUT /api/alerts/{id} REST endpoint retained for API-key clients; it also broadcasts via the in-memory WebSocketSession registry",
+              "Acks are per-user: each user's read/ack state on an alert is tracked independently in alert_acks, not as a single shared status on the alert"
+            ],
+            "security": [
+              "Any authenticated user may view and ack any alert — no per-service ownership scoping",
+              "ack alert_id is validated to exist before insert/update on alert_acks; unknown id returns 'error' frame, no row written",
+              "Upsert key is (alert_id, user_id) — user_id comes from the authenticated principal resolved off the handshake token, never a client-supplied field — so alert_acks rows survive a caller later changing their own email"
+            ],
+            "rateLimit": "10 req/min per session. Each ack = one request. Over-limit acks receive a 'rateLimited' error frame; connection stays open.",
+            "realtime": "In-memory WebSocketSession registry (per-instance, not distributed). Status changes broadcast to all authenticated sessions immediately. OTLP pipeline broadcasts into the same registry.",
+            "fallback": "On disconnect, client reconnects and re-authenticates; missed frames not replayed — client re-fetches via GET /api/alerts on reconnect",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "WS_AUTH_HANDSHAKE"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-alerts-ws",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/alerts",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "GET",
+          "request": {
+            "query": [
+              {
+                "name": "period",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "service",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "count",
+                "type": "number",
+                "required": false
+              },
+              {
+                "name": "before",
+                "type": "string (ISO8601 — triggered_at of the oldest alert already loaded; omit for first page)",
+                "required": false
+              }
+            ],
+            "body": null
+          },
+          "response": {
+            "200": "{ data: [{ id: '<uuid>', rule_id: '<uuid> | null', service: '<string>', signal_type: logs | metrics | traces | null, metric_name: '<string>', aggregation: '<string> | null', window_seconds: '<number> | null', threshold: '<number> | null', severity: info | warning | critical, triggered_at: '<iso8601>', llm_analysis: '<string>', my_ack: { status: acknowledged | resolved, acked_at: '<iso8601>' } | null }], hasMore: boolean } — metric_name/threshold/severity/signal_type/window_seconds/aggregation are read straight off the alert_history row (they're columns on that table, copied from the matching alert_rules row at insert time), so no runtime join to alert_rules is needed to render them here; signal_type/window_seconds/aggregation are null for silence-watchdog alerts, same reasoning as ep-alerts-ws's alert frame",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Alerts",
+          "tables": [
+            "alert_history",
+            "alert_acks"
+          ],
+          "tables_actions": {
+            "alert_history": "Read",
+            "alert_acks": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "Infinite scroll via keyset (cursor) pagination on triggered_at, not offset — avoids row skip/duplicate drift as new alerts continuously insert ahead of the page",
+              "count defaults to 20 when omitted; hasMore derived server-side: returned.length === count",
+              "400 returned if count is present but non-numeric or outside 1-100, or before is present but not a valid ISO8601 timestamp"
+            ],
+            "security": [
+              "Any authenticated user may view any alert — no per-service ownership scoping"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-alerts-list",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/alerts/rules",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "GET",
+          "request": {
+            "query": [
+              {
+                "name": "count",
+                "type": "number",
+                "required": false
+              },
+              {
+                "name": "offset",
+                "type": "number",
+                "required": false
+              }
+            ],
+            "body": null
+          },
+          "response": {
+            "200": "{ data: [{ id: '<uuid>', service: '<string>', signal_type: logs | metrics | traces, metric_name: '<string>', aggregation: '<string> | null', window_seconds: '<number>', threshold: '<number>', severity: '<string>', enabled: boolean, is_default: boolean }], hasMore: boolean }",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Alerts",
+          "tables": [
+            "alert_rules"
+          ],
+          "tables_actions": {
+            "alert_rules": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "count defaults to 20 when omitted; hasMore derived server-side: returned.length === count",
+              {
+                "text": "400 returned if count is present but non-numeric or outside 1-100, or offset is present but non-numeric or negative",
+                "refs": [
+                  "ep-alerts-list"
+                ]
+              },
+              {
+                "text": "Read grant is ADMIN_/_VIEWER while create/update/delete on this same table are ADMIN-only — confirmed intentional, not over-scoped: viewers need to see configured thresholds/severities on the Alerts page even though only admins may change them",
+                "refs": [
+                  "ep-alert-rules-create",
+                  "ep-alert-rules-update",
+                  "ep-alert-rules-delete"
+                ]
+              },
+              {
+                "text": "Uses offset pagination, not the keyset/before pagination used on the telemetry endpoints and the alerts list — an accepted difference, not an oversight: alert_rules rows are created rarely (operator-configured thresholds) compared to continuously-inserted telemetry/alert rows, so the row-skip/duplicate drift keyset pagination exists to avoid is a negligible risk here",
+                "refs": [
+                  "ep-telemetry-metrics",
+                  "ep-telemetry-traces",
+                  "ep-telemetry-logs",
+                  "ep-alerts-list"
+                ]
+              }
+            ],
+            "security": [
+              "Any authenticated user may view any alert rule — no per-service ownership scoping"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-alert-rules-list",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/alerts/rules",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": [
+              {
+                "name": "signal_type",
+                "type": "logs | metrics | traces",
+                "required": true
+              },
+              {
+                "name": "metric_name",
+                "type": {
+                  "text": "string — enum depends on signal_type: for logs, one of error_count | warning_count | critical_count | total_count; for traces, one of error_rate | span_count | avg_duration_ms | p50_duration_ms | p95_duration_ms | p99_duration_ms | max_duration_ms; for metrics, open vocabulary checked against the known attribute key list"
+                },
+                "required": true
+              },
+              {
+                "name": "aggregation",
+                "type": "latest | avg | sum | min | max | count | p50 | p95 | p99 — required when signal_type = metrics, must be omitted when signal_type = logs | traces",
+                "required": false
+              },
+              {
+                "name": "window_seconds",
+                "type": "integer, minimum 10",
+                "required": true
+              },
+              {
+                "name": "threshold",
+                "type": "number",
+                "required": true
+              },
+              {
+                "name": "severity",
+                "type": "info | warning | critical",
+                "required": true
+              },
+              {
+                "name": "enabled",
+                "type": "boolean",
+                "required": true
+              }
+            ]
+          },
+          "response": {
+            "201": "{ id: '<uuid>', service: '<string>', signal_type: logs | metrics | traces, metric_name: '<string>', aggregation: '<string> | null', window_seconds: '<number>', threshold: '<number>', severity: '<string>', enabled: boolean, is_default: boolean }",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Alerts",
+          "tables": [
+            "alert_rules"
+          ],
+          "tables_actions": {
+            "alert_rules": "Insert"
+          },
+          "constraints": {
+            "criteria": [
+              "is_default is never client-settable; always false on rules created via this endpoint",
+              "Rule triggers when the row's aggregate — computed per signal_type/metric_name/aggregation/window_seconds — is >= threshold at evaluation time — fixed direction, no comparison-operator choice. All three signal types now evaluate rules the same windowed-query way; the only difference between them is which ClickHouse table is queried and which metric_name/aggregation vocabulary applies",
+              "400 returned if signal_type is present but not one of logs | metrics | traces",
+              "400 returned if metric_name doesn't match the enum for the submitted signal_type: for logs, one of error_count | warning_count | critical_count | total_count; for traces, one of error_rate | span_count | avg_duration_ms | p50_duration_ms | p95_duration_ms | p99_duration_ms | max_duration_ms; for metrics, checked against the known attribute key list rather than a fixed enum, since metric names there are open-ended and OTel-exporter-defined",
+              "400 returned if aggregation is missing or not one of latest | avg | sum | min | max | count | p50 | p95 | p99 when signal_type = metrics, or if aggregation is present at all when signal_type = logs | traces (aggregation is already encoded in metric_name's enum for those two signal types)",
+              "400 returned if window_seconds is missing, non-numeric, non-integer, or less than 10",
+              "Frontend may pre-fill this form from an existing rule's values (clone) — purely a frontend UX detail, no API shape change",
+              "400 returned if severity is present but not one of info | warning | critical — same validation pattern as role on the users endpoints",
+              "403 is returned when an authenticated caller lacks the ADMIN role — this endpoint's requiredRole is ADMIN, shown on the Role pill above",
+              {
+                "text": "No dedup key: alert_rules carries no uniqueness constraint, and this endpoint does not check for an existing rule with matching service/signal_type/metric_name/aggregation before insert — a retried or double-submitted POST creates a second, functionally-identical row rather than erroring or upserting. Accepted scope decision for this project: unlike the users/webhooks create endpoints (DB-unique-constraint-backed 409) or the ingest endpoints (explicit hash-based dedup window), duplicate rule creation here is treated as user/client error, not guarded against server-side. An admin who creates a duplicate rule can remove it same as any other non-default rule",
+                "refs": [
+                  "ep-users-create",
+                  "ep-webhooks-create",
+                  "ep-alert-rules-delete"
+                ]
+              }
+            ],
+            "security": [
+              "Caller must hold ADMIN role (this endpoint's requiredRole, shown on the Role pill above); among admins there is no per-service ownership scoping — any admin may create a rule for any service"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-alert-rules-create",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/alerts/rules/{id}",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "PATCH",
+          "request": {
+            "query": [],
+            "body": [
+              {
+                "name": "enabled",
+                "type": "boolean",
+                "required": false
+              },
+              {
+                "name": "service",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "metric_name",
+                "type": {
+                  "text": "string — metric_name itself is editable; its valid values are constrained by the target row's immutable signal_type: for logs, one of error_count | warning_count | critical_count | total_count; for traces, one of error_rate | span_count | avg_duration_ms | p50_duration_ms | p95_duration_ms | p99_duration_ms | max_duration_ms; for metrics, checked against the known attribute key list rather than a fixed enum",
+                  "refs": [
+                    "ep-alert-rules-create"
+                  ]
+                },
+                "required": false
+              },
+              {
+                "name": "aggregation",
+                "type": "latest | avg | sum | min | max | count | p50 | p95 | p99 — only settable if the target row's signal_type = metrics",
+                "required": false
+              },
+              {
+                "name": "window_seconds",
+                "type": "integer, minimum 10",
+                "required": false
+              },
+              {
+                "name": "threshold",
+                "type": "number",
+                "required": false
+              },
+              {
+                "name": "severity",
+                "type": "info | warning | critical",
+                "required": false
+              }
+            ]
+          },
+          "response": {
+            "200": "{ id: '<uuid>', service: '<string>', signal_type: logs | metrics | traces, metric_name: '<string>', aggregation: '<string> | null', window_seconds: '<number>', threshold: '<number>', severity: '<string>', enabled: boolean, is_default: boolean }",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required', code: 'ADMIN_REQUIRED' } | { error: 'cannot modify service, metric_name, aggregation, window_seconds, threshold, or severity on a default rule', code: 'DEFAULT_RULE_PROTECTED' }",
+            "404": "{ error: 'rule not found' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Alerts",
+          "tables": [
+            "alert_rules"
+          ],
+          "tables_actions": {
+            "alert_rules": "Update"
+          },
+          "constraints": {
+            "criteria": [
+              "If is_default: true on the target row, only 'enabled' may be changed — any other field in the request body returns 403 (this already covers window_seconds/aggregation, both fall under 'any other field')",
+              {
+                "text": "signal_type is immutable after creation, default rule or not — 400 returned if it's present in the request body at all, rather than silently ignoring it as an unrecognized field. A client that wants to change which evaluator owns a rule must delete and recreate it (subject to the is_default delete restriction)",
+                "refs": [
+                  "ep-alert-rules-delete"
+                ]
+              },
+              "400 returned if severity is present but not one of info | warning | critical",
+              {
+                "text": "400 returned if metric_name is present but doesn't match the enum for the target row's (unchangeable) signal_type — same enums as on create",
+                "refs": [
+                  "ep-alert-rules-create"
+                ]
+              },
+              "400 returned if aggregation is present and the target row's signal_type is logs | traces (aggregation is only settable on metrics rules), or if aggregation is present but not one of the fixed enum when signal_type = metrics",
+              "400 returned if window_seconds is present but non-numeric, non-integer, or less than 10",
+              "Both 403 causes share the status code but carry distinct 'code' values (ADMIN_REQUIRED vs DEFAULT_RULE_PROTECTED) — clients should branch on 'code', not on the 'error' message text",
+              "400 returned if the {id} path segment isn't a syntactically valid UUID — malformed path params are rejected the same way as malformed body fields above, not left to fall through to an unhandled 500 or a misleading 404"
+            ],
+            "security": [
+              "Caller must hold ADMIN role (this endpoint's requiredRole, shown on the Role pill above); among admins there is no per-service ownership scoping — any admin may update any rule"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-alert-rules-update",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/alerts/rules/{id}",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "DELETE",
+          "request": {
+            "query": [],
+            "body": null
+          },
+          "response": {
+            "204": "Empty response",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required', code: 'ADMIN_REQUIRED' } | { error: 'cannot delete a default rule', code: 'DEFAULT_RULE_PROTECTED' }",
+            "404": "{ error: 'rule not found' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Alerts",
+          "tables": [
+            "alert_rules",
+            "alert_history"
+          ],
+          "tables_actions": {
+            "alert_rules": "Delete",
+            "alert_history": "Update (rule_id set to NULL on any referencing rows, via schema's ON DELETE SET NULL — not a separate application-level step)"
+          },
+          "constraints": {
+            "criteria": [
+              "If is_default: true on the target row, request is rejected with 403 — default rules cannot be deleted, only disabled via PATCH { enabled: false }",
+              "Both 403 causes share the status code but carry distinct 'code' values (ADMIN_REQUIRED vs DEFAULT_RULE_PROTECTED) — clients should branch on 'code', not on the 'error' message text",
+              "Deleting a non-default rule cascades into alert_history: every row whose rule_id referenced this rule has rule_id set to NULL (schema-level ON DELETE SET NULL). Those rows' snapshotted metric_name/threshold/severity/etc. are untouched — only rule_id changes. This produces the same null-rule_id shape as a silence-watchdog alert; consumers distinguish the two by metric_name, not rule_id — metric_name === 'service_silent' is the silence-watchdog case, any other metric_name with rule_id === null is this deleted-rule case",
+              "400 returned if the {id} path segment isn't a syntactically valid UUID — malformed path params are rejected the same way as malformed query params or body fields elsewhere in this spec, not left to fall through to an unhandled 500 or a misleading 404"
+            ],
+            "security": [
+              "Caller must hold ADMIN role (this endpoint's requiredRole, shown on the Role pill above); among admins there is no per-service ownership scoping — any admin may delete any rule"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-alert-rules-delete",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/alerts/{id}",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "PUT",
+          "request": {
+            "query": [],
+            "body": [
+              {
+                "name": "status",
+                "type": "acknowledged | resolved",
+                "required": true
+              }
+            ]
+          },
+          "response": {
+            "200": "{ alert_id: '<uuid>', user_email: '<email>', status: acknowledged | resolved, acked_at: '<iso8601>' } — user_email is a display join against users.email at response time, not the alert_acks storage key",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "404": "{ error: 'alert not found' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Alerts",
+          "tables": [
+            "alert_acks"
+          ],
+          "tables_actions": {
+            "alert_acks": "Upsert"
+          },
+          "constraints": {
+            "criteria": [
+              "Same service method as WebSocket ack",
+              "Upserts on (alert_id, user_id) — re-acking updates the caller's own record, does not create duplicates, and survives the caller later changing their own email",
+              "This REST path and the WS ack frame have independent rate-limit buckets (10 req/min per-IP here vs 10 req/min per-session on the socket). Not a practical double-budget: the frontend only ever acks over its own already-open WebSocket connection — it holds a single long-lived socket per session for exactly this; this REST endpoint exists for API-key clients that aren't holding a socket open, so in normal use only one bucket is ever exercised per caller",
+              "400 returned if the {id} path segment isn't a syntactically valid UUID, same as the existing 400 for a malformed status field — malformed path params get the same treatment as malformed body fields, not an unhandled 500 or a misleading 404"
+            ],
+            "security": [
+              "Any authenticated user may ack any alert — no per-service ownership scoping; ack is scoped to the caller's own user_id (resolved from the auth token, never client-supplied), cannot ack on behalf of another user"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "Broadcasts 'status' frame to all sessions via the same in-memory WebSocketSession registry",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-alert-ack",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        }
+      ]
+    },
+    {
+      "Auth": [
+        {
+          "route": "/api/auth/setup",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": [
+              {
+                "name": "email",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "password",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "cookies": null
+          },
+          "response": {
+            "201": {
+              "body": "{ role: 'admin', access_token }",
+              "cookies": [
+                {
+                  "name": "refresh_token",
+                  "httpOnly": true,
+                  "secure": true,
+                  "sameSite": "Strict",
+                  "path": "/api/auth",
+                  "maxAge": "30d"
+                }
+              ]
+            },
+            "400": "{ error: '<validation message>' }",
+            "409": "{ error: 'setup already completed' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Auth",
+          "tables": [
+            "users",
+            "sessions",
+            "refresh_tokens"
+          ],
+          "tables_actions": {
+            "users": "Read + Insert",
+            "sessions": "Insert",
+            "refresh_tokens": "Insert"
+          },
+          "constraints": {
+            "criteria": [
+              "Hashed/salted passwords",
+              "Frontend + backend validation",
+              "400 returned if email is missing or not a string, or password is missing or not a string",
+              {
+                "text": "This endpoint does not apply a well-formed-address format rule to email; it only checks presence and type because the account being created here always has a fresh, empty users table, so there's no uniqueness collision to protect against and format-checking is left to the frontend for this one-time bootstrap flow",
+                "refs": [
+                  "ep-users-create"
+                ]
+              },
+              "Server checks for an existing row in users before insert — if any user already exists, returns 409 rather than creating a second admin. This is the actual enforcement behind the 'shown only before any user exists' rule described on the Setup page; the frontend route guard is a UX convenience on top of it, not the source of truth",
+              "On the non-409 path: one users row is inserted for the new admin (the Read above is only the existence check, not a substitute for this insert) — tables_actions lists this as 'Read + Insert' for the users table specifically"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "PERMIT_ALL"
+          ],
+          "requiredRole": "NO_AUTH",
+          "id": "ep-auth-setup",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/auth/login",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": [
+              {
+                "name": "email",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "password",
+                "type": "string",
+                "required": true
+              }
+            ],
+            "cookies": null
+          },
+          "response": {
+            "200": {
+              "body": "{ role: admin | viewer, access_token }",
+              "cookies": [
+                {
+                  "name": "refresh_token",
+                  "httpOnly": true,
+                  "secure": true,
+                  "sameSite": "Strict",
+                  "path": "/api/auth",
+                  "maxAge": "30d"
+                }
+              ]
+            },
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Auth",
+          "tables": [
+            "users",
+            "sessions",
+            "refresh_tokens"
+          ],
+          "tables_actions": {
+            "users": "Read",
+            "sessions": "Insert",
+            "refresh_tokens": "Insert"
+          },
+          "constraints": {
+            "criteria": [
+              "Frontend + backend validation"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "PERMIT_ALL"
+          ],
+          "requiredRole": "NO_AUTH",
+          "id": "ep-auth-login",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/auth/refresh",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": null,
+            "cookies": [
+              "refresh_token"
+            ]
+          },
+          "response": {
+            "200": {
+              "body": "{ access_token }",
+              "cookies": [
+                {
+                  "name": "refresh_token",
+                  "httpOnly": true,
+                  "secure": true,
+                  "sameSite": "Strict",
+                  "path": "/api/auth",
+                  "maxAge": "30d"
+                }
+              ]
+            },
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Auth",
+          "tables": [
+            "sessions",
+            "refresh_tokens"
+          ],
+          "tables_actions": {
+            "sessions": "Update (last_used_at)",
+            "refresh_tokens": "Update (mark old row superseded) + Insert (new row)"
+          },
+          "constraints": {
+            "criteria": [],
+            "security": [
+              "Public at the filter level (permitAll), but the refresh cookie's signature and expiry are validated in the service layer — fails closed with 401 if invalid or missing",
+              "Stateful rotation: old refresh_tokens row marked superseded = true, new row inserted — both in one transaction",
+              "Reuse detection: if presented token's row already has superseded = true, every refresh_tokens row and every sessions row sharing that user_id are revoked immediately (not just the one session tied to the reused token) and 401 is returned — this is what makes 'forces full re-login on all devices' actually true, since a user may hold several concurrent sessions rows"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "PERMIT_ALL"
+          ],
+          "requiredRole": "NO_AUTH",
+          "id": "ep-auth-refresh",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/auth/logout",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": null,
+            "cookies": [
+              "refresh_token"
+            ]
+          },
+          "response": {
+            "204": {
+              "body": null,
+              "clears": [
+                "refresh_token"
+              ]
+            },
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Auth",
+          "tables": [
+            "sessions",
+            "refresh_tokens"
+          ],
+          "tables_actions": {
+            "sessions": "Update (revoked)",
+            "refresh_tokens": "Update (revoked)"
+          },
+          "constraints": {
+            "criteria": [],
+            "security": [
+              "Sets revoked = true on the presented session's sessions row and the matching refresh_tokens row — server-side invalidation, not just cookie clearing"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "PERMIT_ALL"
+          ],
+          "requiredRole": "NO_AUTH",
+          "id": "ep-auth-logout",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/auth/sessions",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "GET",
+          "request": {
+            "query": [],
+            "body": null,
+            "cookies": [
+              "refresh_token"
+            ]
+          },
+          "response": {
+            "200": {
+              "body": "{ sessions: [{ id, user_agent, ip_address, last_used_at, current }] }"
+            },
+            "401": "{ error: 'unauthorized' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Auth",
+          "tables": [
+            "sessions"
+          ],
+          "tables_actions": {
+            "sessions": "Read"
+          },
+          "constraints": {
+            "criteria": [],
+            "security": [
+              "Service layer validates refresh cookie to identify the requesting user — the current session is flagged via current: true in the response so the UI can distinguish it"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "PERMIT_ALL"
+          ],
+          "requiredRole": "NO_AUTH",
+          "id": "ep-auth-sessions-list",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/auth/sessions/{id}",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "DELETE",
+          "request": {
+            "query": [],
+            "body": null,
+            "cookies": [
+              "refresh_token"
+            ]
+          },
+          "response": {
+            "204": {
+              "body": null,
+              "clears": [
+                {
+                  "name": "refresh_token",
+                  "note": "only if revoking the caller's own session"
+                }
+              ]
+            },
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'forbidden' }",
+            "404": "{ error: 'not found' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Auth",
+          "tables": [
+            "sessions",
+            "refresh_tokens"
+          ],
+          "tables_actions": {
+            "sessions": "Update (revoked)",
+            "refresh_tokens": "Update (revoked, cascaded from the session revoke)"
+          },
+          "constraints": {
+            "criteria": [
+              "400 returned if the {id} path segment isn't a syntactically valid UUID — malformed path params are rejected the same way as malformed query params or body fields elsewhere in this spec, not left to fall through to an unhandled 500 or a misleading 404"
+            ],
+            "security": [
+              "Service layer validates refresh cookie — only the owning user can revoke their own sessions (403 if session.user_id !== requesting user)",
+              "Revokes the sessions row and all refresh_tokens rows sharing that session_id — if :id is the current session, also clears the refresh cookie (equivalent to logout)"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "PERMIT_ALL"
+          ],
+          "requiredRole": "NO_AUTH",
+          "id": "ep-auth-sessions-revoke",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        }
+      ]
+    },
+    {
+      "Config": [
+        {
+          "route": "/api/config/keys",
+          "service": "Spring Boot",
+          "owner": "Backend Lead",
+          "method": "GET",
+          "request": {
+            "query": [],
+            "body": null
+          },
+          "response": {
+            "200": "{ api_key: '<uuid>', ingestion_key: '<uuid>' }",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Config Keys",
+          "tables": [],
+          "tables_actions": {},
+          "constraints": {
+            "criteria": [
+              {
+                "text": "This endpoint is the current source of truth for both keys' live values. For how api_key comes to exist in the first place",
+                "refs": [
+                  {
+                    "id": "gw-strat-api-key",
+                    "field": "items[1]"
+                  }
+                ]
+              },
+              "Keys are read-only",
+              "api_key and ingestion_key have distinct consumers, which is why they're separate values rather than one key reused: api_key is the general-purpose credential for the public API endpoints that accept JWT or API key auth. ingestion_key has nothing to do with ClickHouse — the collector's write to ClickHouse uses ClickHouse's own credentials, a separate secret this project doesn't specify. ingestion_key is instead the shared secret the collector's own receiver checks incoming telemetry against when a monitored service pushes logs/metrics/traces to it, rejecting anything that doesn't present it — that check happens entirely inside the collector, upstream of both ClickHouse and this API, and is unrelated to the network-isolated internal ingest port, which is isolated by port/network separation rather than by a key",
+              "ingestion_key reaches the collector programmatically, not through an operator: on generation, Spring Boot writes the value to a file on a volume shared with the collector process, rather than holding it in memory only like vigil.api-key does. The collector's own bearertokenauth extension is configured with filename pointed at that same file and applied as the auth.authenticator on its receiver, so it validates every incoming service push against the file's current contents — a key rotated on restart reaches the collector automatically, with no copy-paste step. In a multi-instance Spring Boot deployment, either only one instance should own writing that file, or vigil.ingestion-key should be set explicitly and identically across instances, to avoid a race on first boot leaving the file holding a value not every instance agrees on"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-config-keys",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        }
+      ]
+    },
+    {
+      "Internal": [
+        {
+          "route": "/internal/ingest/v1/logs",
+          "service": "Spring Boot (internal port) + ClickHouse + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": "[{ service, timestamp, severity, message, attributes }] — same batch the collector already inserted into ClickHouse; POSTed here to trigger evaluation only, not to be (re)inserted"
+          },
+          "response": {
+            "204": "Empty response",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Alert Telemetry Evaluation",
+          "internal": true,
+          "tables": [
+            "logs",
+            "alert_rules",
+            "alert_history"
+          ],
+          "tables_actions": {
+            "logs": "Read",
+            "alert_rules": "Read",
+            "alert_history": "Insert + Update (llm_analysis on LLM completion)"
+          },
+          "constraints": {
+            "criteria": [
+              "Batch = the array of log entries in this single POST, already written to ClickHouse by the collector — this endpoint evaluates against it, it does not insert it",
+              "Evaluation runs once per POST: for each enabled alert_rules row with signal_type = 'logs' matching this batch's service (rows with signal_type = 'metrics' or 'traces' are skipped entirely — each alert_rules row declares exactly one signal_type, so exactly one of the three ingest evaluators owns a given rule), compute the aggregate named by metric_name over the row's own window_seconds by querying already-ingested logs rows in ClickHouse, ending at this batch's latest timestamp: error_count/warning_count/critical_count = count of rows with severity = 'error'/'warning'/'critical' respectively in the window, total_count = count of all rows in the window regardless of severity (metric_name is a closed enum for signal_type = logs: error_count | warning_count | critical_count | total_count) — the computation draws on stored history, not solely on the rows in this one request, since a small batch must still be able to trigger a window-based rule; trigger if the computed value >= threshold",
+              "Silence watchdog: cancel and reschedule per-service watchdog task on each batch. One shared timer per service across logs/metrics/traces — a batch on any signal type resets it, not one independent timer per endpoint. Config: vigil.silence-timeout-seconds (Spring Boot @ConfigurationProperties, default 300) — how long a service can go without any batch before the watchdog fires. On fire: runs the exact same 'On trigger' and 'On LLM completion' steps below (write alert_history, forward the alert_id/service/triggered_at/context to FastAPI for analysis, broadcast an alert frame, then on LLM completion rebroadcast an llm frame and POST { alert_uid, title, message, state: 'alerting', link_to_upstream_details, service, metric_name, threshold, severity, triggered_at, signal_type, window_seconds, aggregation } to every registered webhook), just with fixed values in place of a matched alert_rules row: rule_id: null (no alert_rules row backs a silence alert), metric_name: 'service_silent', threshold: null, severity: 'critical' (fixed — a service going dark is always treated as top severity in this pass), signal_type: null, window_seconds: null, aggregation: null (all three are null because no single evaluator produced this alert). Reschedules on the next batch for that service, so a silence alert fires at most once per silence period, not repeatedly while the service stays quiet. Scope: like the WebSocketSession registry (the alert-trigger criteria below), this per-service timer is in-memory and per-instance, not distributed — a batch landing on a different instance than the one currently holding that service's timer does not reset it. Single-instance deployment is the accepted target for this project; a production multi-instance deployment would need this backed by shared state (e.g. a DB row with a next-fire-time) instead of an in-process scheduled task, or every instance would run its own independent watchdog and could each fire a silence alert for the same service near-simultaneously",
+              {
+                "text": "On trigger: write alert_history — metric_name/threshold/severity/signal_type/window_seconds/aggregation are copied from the matching alert_rules row's own values at insert time (not a live join), so this alert's historical record stays fixed even if that rule is later edited or deleted — broadcast alert frame via the in-memory WebSocketSession registry (populated by the alerts WebSocket connections to the public API — this ingest endpoint and that one are the same Spring Boot deployable exposing two ports, an internal one and a public one, so both can reach the same in-process registry), then forward the alert and its telemetry context to FastAPI for analysis",
+                "refs": [
+                  "ep-alerts-ws"
+                ]
+              },
+              "On LLM completion: single write to alert row (Update: llm_analysis only — the Insert above already wrote rule_id/service/triggered_at/metric_name/threshold/severity/signal_type/window_seconds/aggregation), rebroadcast llm frame via the same WebSocketSession registry, POST { alert_uid: alert_history.id, title: '<severity> alert: <metric_name> on <service>', message: llm_analysis, state: 'alerting', link_to_upstream_details: '<vigil.frontend-base-url>/alerts?id=<alert_history.id>', service, metric_name, threshold, severity, triggered_at, signal_type, window_seconds, aggregation } to every registered webhook — fire-and-forget by design (accepted scope decision for this project): no retry, no backoff, no dead-letter, no delivery-status surfaced anywhere in the API"
+            ],
+            "security": [
+              "The collector's direct write to the logs table in ClickHouse (this endpoint only Reads it, per tables_actions above) uses ClickHouse's own credentials — a separate secret this project doesn't specify, unrelated to vigil.ingestion-key. That key instead authenticates a different, earlier hop: services pushing telemetry to the collector itself, before any of it reaches ClickHouse"
+            ],
+            "rateLimit": "N/A",
+            "realtime": {
+              "text": "Triggers WS broadcast (alert frame) to the WebSocketSession registry on new alert. Independently of evaluation/alerting, also pushes every log record in this batch to each subscribed /api/telemetry/logs/live SseEmitter whose service/severity query filters match that record — this is the 'on each OTel batch' push that endpoint's realtime field describes; a batch that matches no alert_rules row and triggers nothing still reaches connected SSE subscribers",
+              "refs": [
+                "ep-telemetry-logs-live"
+              ]
+            },
+            "fallback": "Evaluation errors silent",
+            "dedup": "Not this endpoint's responsibility — dedup (hash of service + severity + message + time bucket, drop if duplicate in last 10 minutes, applied per entry) runs on the collector against its own ClickHouse write, since dedup only makes sense paired with the insert it's guarding. A duplicate batch reaching this endpoint anyway (e.g. retried POST) is not deduped here and can trigger a duplicate evaluation pass."
+          },
+          "authStrategy": [
+            "INTERNAL_ONLY"
+          ],
+          "id": "ep-ingest-logs",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/internal/ingest/v1/metrics",
+          "service": "Spring Boot (internal port) + ClickHouse + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": "[{ service, timestamp, name, value, attributes }] — same batch the collector already inserted into ClickHouse; POSTed here to trigger evaluation only, not to be (re)inserted"
+          },
+          "response": {
+            "204": "Empty response",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Alert Telemetry Evaluation",
+          "internal": true,
+          "tables": [
+            "metrics",
+            "alert_rules",
+            "alert_history"
+          ],
+          "tables_actions": {
+            "metrics": "Read",
+            "alert_rules": "Read",
+            "alert_history": "Insert + Update (llm_analysis on LLM completion)"
+          },
+          "constraints": {
+            "criteria": [
+              "Batch = the array of metric points in this single POST, already written to ClickHouse by the collector — this endpoint evaluates against it, it does not insert it",
+              "Evaluation runs once per POST: for each enabled alert_rules row with signal_type = 'metrics' matching this batch's service (rows with signal_type = 'logs' or 'traces' are skipped entirely — each alert_rules row declares exactly one signal_type, so exactly one of the three ingest evaluators owns a given rule), compute the row's aggregation over its own window_seconds by querying already-ingested metrics rows in ClickHouse — not solely the points in this one request, same as the other two ingest evaluators — where name = metric_name, ending at this batch's latest timestamp: 'latest' takes the single most recent matching point's value (this is the exact equivalent of the old pre-windowing instantaneous check, so existing rule behavior remains expressible), avg/sum/min/max/count/p50/p95/p99 apply that statistic to 'value' across every matching point in the window; trigger if the computed value >= threshold. Evaluation now uses the same windowed ClickHouse-query mechanism as the other two ingest evaluators — the only differences between the three evaluators are which ClickHouse table is queried and which metric_name/aggregation vocabulary applies for that signal_type",
+              "Silence watchdog: cancel and reschedule per-service watchdog task on each batch. One shared timer per service across logs/metrics/traces — a batch on any signal type resets it, not one independent timer per endpoint. Config: vigil.silence-timeout-seconds (Spring Boot @ConfigurationProperties, default 300) — how long a service can go without any batch before the watchdog fires. On fire: runs the exact same 'On trigger' and 'On LLM completion' steps below (write alert_history, forward the alert_id/service/triggered_at/context to FastAPI for analysis, broadcast an alert frame, then on LLM completion rebroadcast an llm frame and POST { alert_uid, title, message, state: 'alerting', link_to_upstream_details, service, metric_name, threshold, severity, triggered_at, signal_type, window_seconds, aggregation } to every registered webhook), just with fixed values in place of a matched alert_rules row: rule_id: null (no alert_rules row backs a silence alert), metric_name: 'service_silent', threshold: null, severity: 'critical' (fixed — a service going dark is always treated as top severity in this pass), signal_type: null, window_seconds: null, aggregation: null (all three are null because no single evaluator produced this alert). Reschedules on the next batch for that service, so a silence alert fires at most once per silence period, not repeatedly while the service stays quiet. Scope: like the WebSocketSession registry (the alert-trigger criteria below), this per-service timer is in-memory and per-instance, not distributed — a batch landing on a different instance than the one currently holding that service's timer does not reset it. Single-instance deployment is the accepted target for this project; a production multi-instance deployment would need this backed by shared state (e.g. a DB row with a next-fire-time) instead of an in-process scheduled task, or every instance would run its own independent watchdog and could each fire a silence alert for the same service near-simultaneously",
+              {
+                "text": "On trigger: write alert_history — metric_name/threshold/severity/signal_type/window_seconds/aggregation are copied from the matching alert_rules row's own values at insert time (not a live join), so this alert's historical record stays fixed even if that rule is later edited or deleted — broadcast alert frame via the in-memory WebSocketSession registry (populated by the alerts WebSocket connections to the public API — this ingest endpoint and that one are the same Spring Boot deployable exposing two ports, an internal one and a public one, so both can reach the same in-process registry), then forward the alert and its telemetry context to FastAPI for analysis",
+                "refs": [
+                  "ep-alerts-ws"
+                ]
+              },
+              "On LLM completion: single write to alert row (Update: llm_analysis only — the Insert above already wrote rule_id/service/triggered_at/metric_name/threshold/severity/signal_type/window_seconds/aggregation), rebroadcast llm frame via the same WebSocketSession registry, POST { alert_uid: alert_history.id, title: '<severity> alert: <metric_name> on <service>', message: llm_analysis, state: 'alerting', link_to_upstream_details: '<vigil.frontend-base-url>/alerts?id=<alert_history.id>', service, metric_name, threshold, severity, triggered_at, signal_type, window_seconds, aggregation } to every registered webhook — fire-and-forget by design (accepted scope decision for this project): no retry, no backoff, no dead-letter, no delivery-status surfaced anywhere in the API"
+            ],
+            "security": [
+              "The collector's direct write to the metrics table in ClickHouse (this endpoint only Reads it, per tables_actions above) uses ClickHouse's own credentials — a separate secret this project doesn't specify, unrelated to vigil.ingestion-key. That key instead authenticates a different, earlier hop: services pushing telemetry to the collector itself, before any of it reaches ClickHouse"
+            ],
+            "rateLimit": "N/A",
+            "realtime": {
+              "text": "Triggers WS broadcast (alert frame) to the WebSocketSession registry on new alert. Independently of evaluation/alerting, also pushes every metric point in this batch to each subscribed /api/telemetry/metrics/live SseEmitter whose service query filter matches that point — this is the 'on each OTel batch' push that endpoint's realtime field describes; a batch that matches no alert_rules row and triggers nothing still reaches connected SSE subscribers",
+              "refs": [
+                "ep-telemetry-metrics-live"
+              ]
+            },
+            "fallback": "Evaluation errors silent",
+            "dedup": "Not this endpoint's responsibility — dedup (hash of metric_name + service + time bucket, using metrics' 'name' field as metric_name, drop if duplicate in last 10 minutes, applied per point) runs on the collector against its own ClickHouse write, since dedup only makes sense paired with the insert it's guarding. A duplicate batch reaching this endpoint anyway (e.g. retried POST) is not deduped here and can trigger a duplicate evaluation pass."
+          },
+          "authStrategy": [
+            "INTERNAL_ONLY"
+          ],
+          "id": "ep-ingest-metrics",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/internal/ingest/v1/traces",
+          "service": "Spring Boot (internal port) + ClickHouse + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": "[{ trace_id, span_id, parent_span_id, name, service, timestamp, duration_ms, status, attributes }] — same batch the collector already inserted into ClickHouse; POSTed here to trigger evaluation only, not to be (re)inserted"
+          },
+          "response": {
+            "204": "Empty response",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Alert Telemetry Evaluation",
+          "internal": true,
+          "tables": [
+            "traces",
+            "alert_rules",
+            "alert_history"
+          ],
+          "tables_actions": {
+            "traces": "Read",
+            "alert_rules": "Read",
+            "alert_history": "Insert + Update (llm_analysis on LLM completion)"
+          },
+          "constraints": {
+            "criteria": [
+              "Batch = the array of spans in this single POST, already written to ClickHouse by the collector — this endpoint evaluates against it, it does not insert it",
+              "Evaluation runs once per POST: for each enabled alert_rules row with signal_type = 'traces' matching this batch's service (rows with signal_type = 'logs' or 'metrics' are skipped entirely — each alert_rules row declares exactly one signal_type, so exactly one of the three ingest evaluators owns a given rule), compute the aggregate named by metric_name over the row's own window_seconds by querying already-ingested traces rows in ClickHouse, ending at this batch's latest timestamp: error_rate = count of status='error' spans / count of all spans in the window (a 0..1 fraction), span_count = count of all spans in the window, avg_duration_ms/p50_duration_ms/p95_duration_ms/p99_duration_ms/max_duration_ms = that statistic applied to duration_ms across all spans in the window (metric_name is a closed enum for signal_type = traces: error_rate | span_count | avg_duration_ms | p50_duration_ms | p95_duration_ms | p99_duration_ms | max_duration_ms) — the computation draws on stored history, not solely on the spans in this one request; trigger if the computed value >= threshold",
+              "Silence watchdog: cancel and reschedule per-service watchdog task on each batch. One shared timer per service across logs/metrics/traces — a batch on any signal type resets it, not one independent timer per endpoint. Config: vigil.silence-timeout-seconds (Spring Boot @ConfigurationProperties, default 300) — how long a service can go without any batch before the watchdog fires. On fire: runs the exact same 'On trigger' and 'On LLM completion' steps below (write alert_history, forward the alert_id/service/triggered_at/context to FastAPI for analysis, broadcast an alert frame, then on LLM completion rebroadcast an llm frame and POST { alert_uid, title, message, state: 'alerting', link_to_upstream_details, service, metric_name, threshold, severity, triggered_at, signal_type, window_seconds, aggregation } to every registered webhook), just with fixed values in place of a matched alert_rules row: rule_id: null (no alert_rules row backs a silence alert), metric_name: 'service_silent', threshold: null, severity: 'critical' (fixed — a service going dark is always treated as top severity in this pass), signal_type: null, window_seconds: null, aggregation: null (all three are null because no single evaluator produced this alert). Reschedules on the next batch for that service, so a silence alert fires at most once per silence period, not repeatedly while the service stays quiet. Scope: like the WebSocketSession registry (the alert-trigger criteria below), this per-service timer is in-memory and per-instance, not distributed — a batch landing on a different instance than the one currently holding that service's timer does not reset it. Single-instance deployment is the accepted target for this project; a production multi-instance deployment would need this backed by shared state (e.g. a DB row with a next-fire-time) instead of an in-process scheduled task, or every instance would run its own independent watchdog and could each fire a silence alert for the same service near-simultaneously",
+              {
+                "text": "On trigger: write alert_history — metric_name/threshold/severity/signal_type/window_seconds/aggregation are copied from the matching alert_rules row's own values at insert time (not a live join), so this alert's historical record stays fixed even if that rule is later edited or deleted — broadcast alert frame via the in-memory WebSocketSession registry (populated by the alerts WebSocket connections to the public API — this ingest endpoint and that one are the same Spring Boot deployable exposing two ports, an internal one and a public one, so both can reach the same in-process registry), then forward the alert and its telemetry context to FastAPI for analysis",
+                "refs": [
+                  "ep-alerts-ws"
+                ]
+              },
+              "On LLM completion: single write to alert row (Update: llm_analysis only — the Insert above already wrote rule_id/service/triggered_at/metric_name/threshold/severity/signal_type/window_seconds/aggregation), rebroadcast llm frame via the same WebSocketSession registry, POST { alert_uid: alert_history.id, title: '<severity> alert: <metric_name> on <service>', message: llm_analysis, state: 'alerting', link_to_upstream_details: '<vigil.frontend-base-url>/alerts?id=<alert_history.id>', service, metric_name, threshold, severity, triggered_at, signal_type, window_seconds, aggregation } to every registered webhook — fire-and-forget by design (accepted scope decision for this project): no retry, no backoff, no dead-letter, no delivery-status surfaced anywhere in the API"
+            ],
+            "security": [
+              "The collector's direct write to the traces table in ClickHouse (this endpoint only Reads it, per tables_actions above) uses ClickHouse's own credentials — a separate secret this project doesn't specify, unrelated to vigil.ingestion-key. That key instead authenticates a different, earlier hop: services pushing telemetry to the collector itself, before any of it reaches ClickHouse"
+            ],
+            "rateLimit": "N/A",
+            "realtime": {
+              "text": "Triggers WS broadcast (alert frame) to the WebSocketSession registry on new alert. Independently of evaluation/alerting, also pushes every span in this batch to each subscribed /api/telemetry/traces/live SseEmitter whose service query filter matches that span — this is the 'on each OTel batch' push that endpoint's realtime field describes; a batch that matches no alert_rules row and triggers nothing still reaches connected SSE subscribers",
+              "refs": [
+                "ep-telemetry-traces-live"
+              ]
+            },
+            "fallback": "Evaluation errors silent",
+            "dedup": "Not this endpoint's responsibility — dedup (hash of service + name + status + time bucket, drop if duplicate in last 10 minutes, applied per span) runs on the collector against its own ClickHouse write, since dedup only makes sense paired with the insert it's guarding. A duplicate batch reaching this endpoint anyway (e.g. retried POST) is not deduped here and can trigger a duplicate evaluation pass."
+          },
+          "authStrategy": [
+            "INTERNAL_ONLY"
+          ],
+          "id": "ep-ingest-traces",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/internal/llm/forward",
+          "service": "FastAPI + Ollama",
+          "owner": "AI Engineer",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": "{ alert_id, service, triggered_at, context: { logs[], metrics[], traces[] } }"
+          },
+          "response": {
+            "chunk": "data: { token: '...' }",
+            "done": "data: { done: true }"
+          },
+          "group": "LLM Alert Summarization",
+          "internal": true,
+          "tables": [],
+          "tables_actions": {},
+          "constraints": {
+            "criteria": [
+              "Called for every alert trigger regardless of signal type",
+              "Spring Boot owns the WS and webhook lifecycle — FastAPI only runs inference"
+            ],
+            "security": [],
+            "rateLimit": "N/A",
+            "realtime": "Streams token frames back to Spring Boot caller. Spring Boot writes final analysis to alert row and rebroadcasts an llm frame via the in-memory WebSocketSession registry — the same registry the public alerts WebSocket connections are held in, since this internal endpoint and the public API are the same Spring Boot deployable exposing two ports, not separate microservices.",
+            "fallback": "30s timeout. Spring Boot writes 'Analysis unavailable' to alert row, rebroadcasts, proceeds to webhooks.",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "INTERNAL_ONLY"
+          ],
+          "id": "ep-fastapi-analyze",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        }
+      ]
+    },
+    {
+      "Telemetry": [
+        {
+          "route": "/api/telemetry/metrics",
+          "service": "Spring Boot + ClickHouse",
+          "owner": "Telemetry Engineer",
+          "method": "GET",
+          "request": {
+            "query": [
+              {
+                "name": "period",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "service",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "count",
+                "type": "number",
+                "required": false
+              },
+              {
+                "name": "before",
+                "type": "string (ISO8601 — timestamp of the oldest row already loaded; omit for first page)",
+                "required": false
+              },
+              {
+                "name": "vigil.internal",
+                "type": "boolean — filters on attributes['internal'] = 'true' in the metrics row's attributes Map; there is no first-class 'internal' column on the metrics table, so this is an attribute-key lookup, not a column filter. Rows without an 'internal' attribute key are treated as vigil.internal=false",
+                "required": false
+              },
+              {
+                "name": "format",
+                "type": "json | csv (default json); 400 if any other value is supplied",
+                "required": false
+              }
+            ],
+            "body": null
+          },
+          "response": {
+            "200": "{ data[], hasMore: boolean } — or, when format=csv, a text/csv body of the full matching dataset",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Telemetry",
+          "tables": [
+            "metrics"
+          ],
+          "tables_actions": {
+            "metrics": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "Infinite scroll via keyset (cursor) pagination on timestamp, not offset — avoids row skip/duplicate drift as new metrics continuously insert ahead of the page",
+              "count defaults to 50 when omitted (json mode only; ignored under format=csv); hasMore derived server-side: returned.length === count",
+              "400 returned if count is present but non-numeric or outside 1-500, or before is present but not a valid ISO8601 timestamp",
+              "400 also returned if period is present but not one of the recognized values (1h | 24h | 7d | 30d); service has no fixed vocabulary — an unrecognized value is treated as a legitimate filter that simply matches no rows, not a validation error",
+              "400 returned if format is present but not one of json | csv",
+              "Status page passes ?vigil.internal=true for infra metrics panel — intentional dual-call (service vs infra)",
+              "format=csv ignores count/before/offset and returns every row matching period/service/vigil.internal as one unpaginated CSV response — this is the actual mechanism behind the page's 'CSV export' feature, distinct from the paginated JSON view. Not exempt from the standard bucket, but doesn't need to be: the DEFAULT bucket (10 tokens, +10/60s, keyed by client IP) counts requests, not rows, so this one unpaginated response still consumes exactly one token, same as any small paginated GET"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-telemetry-metrics",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/telemetry/traces",
+          "service": "Spring Boot + ClickHouse",
+          "owner": "Telemetry Engineer",
+          "method": "GET",
+          "request": {
+            "query": [
+              {
+                "name": "period",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "service",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "sort",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "count",
+                "type": "number",
+                "required": false
+              },
+              {
+                "name": "before",
+                "type": "string (ISO8601 — timestamp of the oldest row already loaded; used when sort is unset/default)",
+                "required": false
+              },
+              {
+                "name": "offset",
+                "type": "number (fallback pagination when sort is set to a non-default field — a stable cursor isn't well-defined for arbitrary sort keys)",
+                "required": false
+              },
+              {
+                "name": "format",
+                "type": "json | csv (default json); 400 if any other value is supplied",
+                "required": false
+              }
+            ],
+            "body": null
+          },
+          "response": {
+            "200": "{ data[], hasMore: boolean } — or, when format=csv, a text/csv body of the full matching dataset",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Telemetry",
+          "tables": [
+            "traces"
+          ],
+          "tables_actions": {
+            "traces": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "Default (time-descending) infinite scroll uses keyset pagination via 'before' — avoids row skip/duplicate drift under continuous inserts",
+              "Non-default sort falls back to 'offset'; drift under continuous inserts is an accepted limitation in that mode only, since sorted-but-not-by-time views are inherently harder to cursor",
+              "count defaults to 50 when omitted (json mode only; ignored under format=csv); hasMore derived server-side: returned.length === count",
+              {
+                "text": "400 returned if count/offset are present but non-numeric or outside 1-500 (same bound as the metrics endpoint), or before is present but not a valid ISO8601 timestamp, or sort references an unknown field",
+                "refs": [
+                  "ep-telemetry-metrics"
+                ]
+              },
+              "400 also returned if period is present but not one of the recognized values (1h | 24h | 7d | 30d); service has no fixed vocabulary — an unrecognized value is treated as a legitimate filter that simply matches no rows, not a validation error",
+              "400 returned if format is present but not one of json | csv",
+              "format=csv ignores count/before/offset/sort and returns every row matching period/service as one unpaginated CSV response — this is the actual mechanism behind the page's 'CSV export' feature, distinct from the paginated JSON view. Not exempt from the standard bucket, but doesn't need to be: the DEFAULT bucket (10 tokens, +10/60s, keyed by client IP) counts requests, not rows, so this one unpaginated response still consumes exactly one token, same as any small paginated GET"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-telemetry-traces",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/telemetry/logs",
+          "service": "Spring Boot + ClickHouse",
+          "owner": "Telemetry Engineer",
+          "method": "GET",
+          "request": {
+            "query": [
+              {
+                "name": "period",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "service",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "severity",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "search",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "sort",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "count",
+                "type": "number",
+                "required": false
+              },
+              {
+                "name": "before",
+                "type": "string (ISO8601 — timestamp of the oldest row already loaded; used when sort is unset/default)",
+                "required": false
+              },
+              {
+                "name": "offset",
+                "type": "number (fallback pagination when sort is set to a non-default field — a stable cursor isn't well-defined for arbitrary sort keys)",
+                "required": false
+              },
+              {
+                "name": "format",
+                "type": "json | csv (default json); 400 if any other value is supplied",
+                "required": false
+              }
+            ],
+            "body": null
+          },
+          "response": {
+            "200": "{ data[], hasMore: boolean } — or, when format=csv, a text/csv body of the full matching dataset",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Telemetry",
+          "tables": [
+            "logs"
+          ],
+          "tables_actions": {
+            "logs": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "Default (time-descending) infinite scroll uses keyset pagination via 'before' — avoids row skip/duplicate drift under continuous inserts",
+              "Non-default sort falls back to 'offset'; drift under continuous inserts is an accepted limitation in that mode only, since sorted-but-not-by-time views are inherently harder to cursor",
+              "count defaults to 50 when omitted (json mode only; ignored under format=csv); hasMore derived server-side: returned.length === count",
+              {
+                "text": "400 returned if count/offset are present but non-numeric or outside 1-500 (same bound as the metrics endpoint), or before is present but not a valid ISO8601 timestamp, or sort references an unknown field",
+                "refs": [
+                  "ep-telemetry-metrics"
+                ]
+              },
+              "400 also returned if period is present but not one of the recognized values (1h | 24h | 7d | 30d); service has no fixed vocabulary — an unrecognized value is treated as a legitimate filter that simply matches no rows, not a validation error",
+              "400 returned if format is present but not one of json | csv",
+              "format=csv ignores count/before/offset/sort and returns every row matching period/service/severity/search as one unpaginated CSV response — this is the actual mechanism behind the page's 'CSV export' feature, distinct from the paginated JSON view. Not exempt from the standard bucket, but doesn't need to be: the DEFAULT bucket (10 tokens, +10/60s, keyed by client IP) counts requests, not rows, so this one unpaginated response still consumes exactly one token, same as any small paginated GET"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-telemetry-logs",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/telemetry/logs/live",
+          "service": "Spring Boot + ClickHouse",
+          "owner": "Telemetry Engineer",
+          "method": "SSE",
+          "request": {
+            "query": [
+              {
+                "name": "service",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "severity",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "token",
+                "type": {
+                  "text": "string (the only auth channel for this connection — native EventSource cannot set an Authorization header, so this must be present or the Upgrade is rejected; same requirement as the alerts WS handshake token)",
+                  "refs": [
+                    "ep-alerts-ws"
+                  ]
+                },
+                "required": true
+              }
+            ],
+            "body": null
+          },
+          "response": {
+            "event": "{ service: '<string>', timestamp: '<iso8601>', trace_id: '<string>', severity: '<string>', message: '<string>', attributes: {} }"
+          },
+          "group": "Telemetry",
+          "tables": [
+            "logs"
+          ],
+          "tables_actions": {
+            "logs": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "Frame shape identical to single REST log record"
+            ],
+            "security": [
+              "Token passed as ?token= query param since native EventSource cannot set headers — accepted tradeoff for this project; token lands in server access logs and browser history. Same token as the Authorization header carries, still short-lived."
+            ],
+            "rateLimit": "Not exempt: the initial HTTP GET that opens this SSE stream consumes one token from the DEFAULT bucket (10 tokens, +10/60s, keyed by client IP), same as any other GET; once the stream is established, server-push frames over it are not further limited",
+            "realtime": {
+              "text": "SseEmitter per subscriber. Pushes matching new log records as each batch reaches /internal/ingest/v1/logs — that endpoint's own realtime field is the other side of this same push. Accepts ?token= for JWT or API key (native EventSource cannot set headers).",
+              "refs": [
+                "ep-ingest-logs"
+              ]
+            },
+            "fallback": "Browser EventSource reconnects automatically",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-telemetry-logs-live",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/telemetry/traces/live",
+          "service": "Spring Boot + ClickHouse",
+          "owner": "Telemetry Engineer",
+          "method": "SSE",
+          "request": {
+            "query": [
+              {
+                "name": "service",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "token",
+                "type": {
+                  "text": "string (the only auth channel for this connection — native EventSource cannot set an Authorization header, so this must be present or the Upgrade is rejected; same requirement as the alerts WS handshake token)",
+                  "refs": [
+                    "ep-alerts-ws"
+                  ]
+                },
+                "required": true
+              }
+            ],
+            "body": null
+          },
+          "response": {
+            "event": "{ trace_id: '<string>', span_id: '<string>', parent_span_id: '<string>', name: '<string>', service: '<string>', timestamp: '<iso8601>', duration_ms: number, status: ok | error, attributes: {} }"
+          },
+          "group": "Telemetry",
+          "tables": [
+            "traces"
+          ],
+          "tables_actions": {
+            "traces": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "Frame shape identical to single REST trace record"
+            ],
+            "security": [
+              "Token passed as ?token= query param since native EventSource cannot set headers — accepted tradeoff for this project; token lands in server access logs and browser history. Same token as the Authorization header carries, still short-lived."
+            ],
+            "rateLimit": "Not exempt: the initial HTTP GET that opens this SSE stream consumes one token from the DEFAULT bucket (10 tokens, +10/60s, keyed by client IP), same as any other GET; once the stream is established, server-push frames over it are not further limited",
+            "realtime": {
+              "text": "SseEmitter per subscriber. Pushes matching new trace records as each batch reaches /internal/ingest/v1/traces — that endpoint's own realtime field is the other side of this same push. Accepts ?token= for JWT or API key (native EventSource cannot set headers).",
+              "refs": [
+                "ep-ingest-traces"
+              ]
+            },
+            "fallback": "Browser EventSource reconnects automatically",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-telemetry-traces-live",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/telemetry/metrics/live",
+          "service": "Spring Boot + ClickHouse",
+          "owner": "Telemetry Engineer",
+          "method": "SSE",
+          "request": {
+            "query": [
+              {
+                "name": "service",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "token",
+                "type": {
+                  "text": "string (the only auth channel for this connection — native EventSource cannot set an Authorization header, so this must be present or the Upgrade is rejected; same requirement as the alerts WS handshake token)",
+                  "refs": [
+                    "ep-alerts-ws"
+                  ]
+                },
+                "required": true
+              }
+            ],
+            "body": null
+          },
+          "response": {
+            "event": "{ service: '<string>', timestamp: '<iso8601>', name: '<string>', value: number, attributes: {} }"
+          },
+          "group": "Telemetry",
+          "tables": [
+            "metrics"
+          ],
+          "tables_actions": {
+            "metrics": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "Frame shape identical to single REST metric record"
+            ],
+            "security": [
+              "Token passed as ?token= query param since native EventSource cannot set headers — accepted tradeoff for this project; token lands in server access logs and browser history. Same token as the Authorization header carries, still short-lived."
+            ],
+            "rateLimit": "Not exempt: the initial HTTP GET that opens this SSE stream consumes one token from the DEFAULT bucket (10 tokens, +10/60s, keyed by client IP), same as any other GET; once the stream is established, server-push frames over it are not further limited",
+            "realtime": {
+              "text": "SseEmitter per subscriber. Pushes matching new metric records as each batch reaches /internal/ingest/v1/metrics — that endpoint's own realtime field is the other side of this same push. Accepts ?token= for JWT or API key (native EventSource cannot set headers).",
+              "refs": [
+                "ep-ingest-metrics"
+              ]
+            },
+            "fallback": "Browser EventSource reconnects automatically",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-telemetry-metrics-live",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/telemetry/attributes",
+          "service": "Spring Boot + ClickHouse",
+          "owner": "Telemetry Engineer",
+          "method": "GET",
+          "request": {
+            "query": [],
+            "body": null
+          },
+          "response": {
+            "200": "[{ key: '<string>', values: ['<string>'] }]",
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Telemetry",
+          "tables": [
+            "logs",
+            "metrics",
+            "traces"
+          ],
+          "tables_actions": {
+            "logs": "Read (last 7 days)",
+            "metrics": "Read (last 7 days)",
+            "traces": "Read (last 7 days)"
+          },
+          "constraints": {
+            "criteria": [
+              "Used by ADMIN callers to validate custom alert rule attributes when creating/editing metrics-type rules — the form behind POST/PATCH /api/alerts/rules checks a submitted metric_name against this endpoint's key/value list before allowing a signal_type = metrics rule to be saved (those two write endpoints are ADMIN-only). Not used for signal_type = logs | traces rules — metric_name there is validated against a fixed enum baked into the endpoints themselves, not against this dynamic key list",
+              "Also used by VIEWER callers to power search/filter-suggestion dropdowns on the telemetry views (logs/traces/metrics pages) — this is the reason the role grant is ADMIN_/_VIEWER rather than ADMIN-only; confirmed intentional, not over-scoped"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-telemetry-attributes",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        }
+      ]
+    },
+    {
+      "Users": [
+        {
+          "route": "/api/users",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "GET",
+          "request": {
+            "query": [],
+            "body": null
+          },
+          "response": {
+            "200": "[{ id: '<uuid>', email: '<email>', role: admin | viewer }]",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Users",
+          "tables": [
+            "users"
+          ],
+          "tables_actions": {
+            "users": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "Unpaginated by design, unlike the telemetry/alerts list endpoints: this is an admin-managed directory of provisioned accounts, not a continuously-inserted table, so it's expected to stay small enough that a bare array with no page size, offset, or hasMore is an accepted scope decision rather than an oversight"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-users-list",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/users",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": [
+              {
+                "name": "email",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "password",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "role",
+                "type": "admin | viewer",
+                "required": true
+              }
+            ]
+          },
+          "response": {
+            "201": "{ id: '<uuid>', email: '<email>', role: admin | viewer }",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required' }",
+            "409": "{ error: 'email already registered' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Users",
+          "tables": [
+            "users"
+          ],
+          "tables_actions": {
+            "users": "Insert"
+          },
+          "constraints": {
+            "criteria": [
+              {
+                "text": "400 returned if email isn't a well-formed address (local-part@domain, no whitespace, standard RFC 5322-subset check) — validated before the uniqueness lookup below, same 'checked before insert' pattern used throughout this spec. This is the only endpoint that defines the rule; the update and self-update endpoints reuse it verbatim since they write the same column. The setup endpoint's email field is validated for presence/type only, not this format rule",
+                "refs": [
+                  "ep-users-update",
+                  "ep-users-me",
+                  "ep-auth-setup"
+                ]
+              },
+              "409 returned if email collides with the existing unique constraint on users.email — checked before insert, not left as an unhandled DB constraint violation",
+              "400 returned if role is present but not one of admin | viewer — same validation pattern as severity on the alert rules endpoints"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-users-create",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/users/me",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "GET",
+          "request": {
+            "query": [],
+            "body": null
+          },
+          "response": {
+            "200": "{ id: '<uuid>', email: '<email>', role: admin | viewer }",
+            "401": "{ error: 'unauthorized' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Users",
+          "tables": [
+            "users"
+          ],
+          "tables_actions": {
+            "users": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "Identity resolved from the SecurityContext principal (JWT) — no path param, always the caller's own row",
+              "Closes the gap left by login/setup only returning { role, access_token }: this is the documented way the frontend gets its own id/email (e.g. to pre-fill the change-email form behind PATCH /api/users/me), rather than decoding the opaque access token client-side",
+              {
+                "text": "Read grant is ADMIN_/_VIEWER here vs. ADMIN-only on the full-directory users list endpoint — confirmed intentional, not over-scoped: this endpoint only ever returns the caller's own row (see above), so it carries none of the full-directory disclosure that endpoint's ADMIN gate exists to prevent; same reasoning pattern used elsewhere for ADMIN_/_VIEWER grants on otherwise-sensitive tables"
+              }
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-users-me-get",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/users/me",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "PATCH",
+          "request": {
+            "query": [],
+            "body": [
+              {
+                "name": "email",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "password",
+                "type": "string",
+                "required": false
+              }
+            ]
+          },
+          "response": {
+            "200": "{ id: '<uuid>', email: '<email>', role: admin | viewer }",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "409": "{ error: 'email already registered' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Users",
+          "tables": [
+            "users"
+          ],
+          "tables_actions": {
+            "users": "Update"
+          },
+          "constraints": {
+            "criteria": [
+              {
+                "text": "400 returned if email is present but malformed — same well-formed-address check as on create, not a separately-specified rule",
+                "refs": [
+                  "ep-users-create"
+                ]
+              },
+              "409 returned if a requested email collides with another user's users.email unique constraint"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN_/_VIEWER",
+          "id": "ep-users-me",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/users/{id}",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "PATCH",
+          "request": {
+            "query": [],
+            "body": [
+              {
+                "name": "email",
+                "type": "string",
+                "required": false
+              },
+              {
+                "name": "role",
+                "type": "admin | viewer",
+                "required": false
+              },
+              {
+                "name": "password",
+                "type": "string",
+                "required": false
+              }
+            ]
+          },
+          "response": {
+            "200": "{ id: '<uuid>', email: '<email>', role: admin | viewer }",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required' }",
+            "404": "{ error: 'user not found' }",
+            "409": "{ error: 'cannot demote the last remaining admin', code: 'LAST_ADMIN' } | { error: 'email already registered', code: 'EMAIL_TAKEN' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Users",
+          "tables": [
+            "users"
+          ],
+          "tables_actions": {
+            "users": "Update"
+          },
+          "constraints": {
+            "criteria": [
+              {
+                "text": "If role: viewer is requested and the target is currently the only user with role: admin, request is rejected with 409 — same guard as on delete, since demotion is functionally equivalent to removal",
+                "refs": [
+                  "ep-users-delete"
+                ]
+              },
+              "If email is requested and collides with another user's users.email unique constraint, request is rejected with 409 — both 409 causes share the status code but carry distinct 'code' values (LAST_ADMIN vs EMAIL_TAKEN); clients should branch on 'code', not the 'error' message text",
+              {
+                "text": "400 returned if email is present but malformed — same well-formed-address check as on create, not a separately-specified rule",
+                "refs": [
+                  "ep-users-create"
+                ]
+              },
+              "400 returned if role is present but not one of admin | viewer — same validation pattern as severity on the alert rules endpoints, checked before the 409 last-admin guard",
+              "400 returned if the {id} path segment isn't a syntactically valid UUID — malformed path params are rejected the same way as malformed body fields above, not left to fall through to an unhandled 500 or a misleading 404"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-users-update",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/users/{id}",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "DELETE",
+          "request": {
+            "query": [],
+            "body": null
+          },
+          "response": {
+            "204": "Empty response",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required' }",
+            "404": "{ error: 'user not found' }",
+            "409": "{ error: 'cannot delete the last remaining admin', code: 'LAST_ADMIN' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Users",
+          "tables": [
+            "users",
+            "sessions",
+            "refresh_tokens",
+            "alert_acks"
+          ],
+          "tables_actions": {
+            "users": "Delete",
+            "sessions": "Cascade Delete",
+            "refresh_tokens": "Cascade Delete",
+            "alert_acks": "Cascade Delete"
+          },
+          "constraints": {
+            "criteria": [
+              "If the target is currently the only user with role: admin, request is rejected with 409 — prevents the deployment from ending up with zero admins",
+              "sessions.user_id and refresh_tokens.user_id are declared ON DELETE CASCADE — deleting a user removes all of their sessions and refresh_tokens rows in the same transaction as the users delete, so the 204 path never hits a dangling FK constraint",
+              "alert_acks.user_id is also ON DELETE CASCADE — a deleted user's alert acknowledgment history is removed with them; this is an explicit, accepted product decision (not silent data loss) since re-showing acks for a deleted account has no meaningful owner to display",
+              "400 returned if the {id} path segment isn't a syntactically valid UUID — malformed path params are rejected the same way as malformed query params or body fields elsewhere in this spec, not left to fall through to an unhandled 500 or a misleading 404"
+            ],
+            "security": [
+              {
+                "text": "Deleting a user cascades sessions/refresh_tokens immediately (their next /api/auth/refresh will fail), but does not and cannot revoke any access token already issued to them — validates signature/expiry only, no DB hit per request. A just-deleted user (including a self-deleted admin) can keep making authenticated calls on that still-valid token until it naturally expires, up to the full 15-minute TTL. This is the same claims-lag tradeoff already accepted for demotion, extended here to deletion rather than a separate gap",
+                "refs": [
+                  "gw-strat-jwt"
+                ]
+              }
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-users-delete",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        }
+      ]
+    },
+    {
+      "Webhooks": [
+        {
+          "route": "/api/webhooks",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "GET",
+          "request": {
+            "query": [],
+            "body": null
+          },
+          "response": {
+            "200": "[{ id: '<uuid>', url: '<url>' }]",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Webhooks",
+          "tables": [
+            "webhooks"
+          ],
+          "tables_actions": {
+            "webhooks": "Read"
+          },
+          "constraints": {
+            "criteria": [
+              "Unpaginated by design, unlike the telemetry/alerts list endpoints: this is an admin-managed list of registered webhook targets, not a continuously-inserted table, so it's expected to stay small enough that a bare array with no page size, offset, or hasMore is an accepted scope decision rather than an oversight"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-webhooks-list",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/webhooks",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "POST",
+          "request": {
+            "query": [],
+            "body": [
+              {
+                "name": "url",
+                "type": "string (must be a well-formed https:// URL)",
+                "required": true
+              }
+            ]
+          },
+          "response": {
+            "201": "{ id: '<uuid>', url: '<url>' }",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required' }",
+            "409": "{ error: 'webhook url already registered' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Webhooks",
+          "tables": [
+            "webhooks"
+          ],
+          "tables_actions": {
+            "webhooks": "Insert"
+          },
+          "constraints": {
+            "criteria": [
+              "400 if url isn't a well-formed https:// URL",
+              "409 if url collides with the existing unique constraint on webhooks.url — checked before insert, not left as an unhandled DB constraint violation",
+              "Delivery payload POSTed to url on alert (previously unspecified): { alert_uid: '<alert_history.id>', title: '<severity> alert: <metric_name> on <service>', message: '<llm_analysis>', state: 'alerting', link_to_upstream_details: '<vigil.frontend-base-url>/alerts?id=<alert_history.id>', service, metric_name, threshold: number | null, severity: info | warning | critical, triggered_at, signal_type: logs | metrics | traces | null, window_seconds: number | null, aggregation: string | null }. First five fields match Grafana OnCall's Formatted Webhook inbound integration field-for-field — a url pointed at an OnCall Formatted Webhook URL needs no translation layer (OnCall OSS has been archived since March 2026, grafana/oncall is read-only with development continuing in Grafana Cloud IRM, but the OSS integration endpoint and this payload shape remain usable for self-hosted OnCall). The rest are Vigil-native, appended for receivers that aren't OnCall — signal_type/window_seconds/aggregation are null for silence-watchdog alerts, same reasoning as everywhere else these columns appear",
+              "Fires once, after LLM completion — or after FastAPI's 30-second analysis timeout, at which point Spring Boot writes 'Analysis unavailable' as llm_analysis and proceeds to webhooks anyway — not at initial trigger, since llm_analysis is the payload's message body",
+              "state is always 'alerting', never 'ok': Vigil alerts are closed by a person acknowledging or resolving them (PUT /api/alerts/{id} with { status: acknowledged | resolved }, or the equivalent WS ack frame), not by any automatic condition clearing, so there is no resolve event this pipeline could ever send",
+              "link_to_upstream_details requires a new Spring Boot @ConfigurationProperties value, vigil.frontend-base-url (operator-provided, e.g. the deployed frontend's origin) — nothing else in the spec previously required the backend to know its own frontend's URL"
+            ],
+            "security": [
+              "ADMIN-gated, which bounds who can register a target; server additionally resolves the hostname at registration time and rejects (400) targets resolving to private/loopback/link-local ranges or the cloud metadata address (169.254.169.254) — this narrows but does not eliminate SSRF risk (DNS can still change post-registration), which remains an accepted residual scope limitation for this project"
+            ],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "Delivery failures are silent — no retry, no backoff, no dead-letter, no delivery-status surfaced anywhere in the API. Accepted scope decision for this project: webhook delivery is fire-and-forget by design, same treatment as the SSRF residual-risk note above. A production system would want at minimum a retry-with-backoff policy and a visible delivery-failure indicator per webhooks row.",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-webhooks-create",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        },
+        {
+          "route": "/api/webhooks/{id}",
+          "service": "Spring Boot + PostgreSQL",
+          "owner": "Backend Lead",
+          "method": "DELETE",
+          "request": {
+            "query": [],
+            "body": null
+          },
+          "response": {
+            "204": "Empty response",
+            "400": "{ error: '<validation message>' }",
+            "401": "{ error: 'unauthorized' }",
+            "403": "{ error: 'admin role required' }",
+            "404": "{ error: 'webhook not found' }",
+            "429": "{ error: 'rate limited' }",
+            "500": "{ error: 'server error' }"
+          },
+          "group": "Webhooks",
+          "tables": [
+            "webhooks"
+          ],
+          "tables_actions": {
+            "webhooks": "Delete"
+          },
+          "constraints": {
+            "criteria": [
+              "400 returned if the {id} path segment isn't a syntactically valid UUID — malformed path params are rejected the same way as malformed query params or body fields elsewhere in this spec, not left to fall through to an unhandled 500 or a misleading 404"
+            ],
+            "security": [],
+            "rateLimit": "10 req/min",
+            "realtime": "None",
+            "fallback": "None",
+            "dedup": "None"
+          },
+          "authStrategy": [
+            "JWT",
+            "API_KEY"
+          ],
+          "requiredRole": "ADMIN",
+          "id": "ep-webhooks-delete",
+          "lastUpdated": "2026-07-19T06:45:25+01:00"
+        }
+      ]
+    }
+  ],
+  "Security": {
+    "Auth strategies": {
+      "PERMIT_ALL": {
+        "id": "gw-strat-permit-all",
+        "tag": "PERMIT ALL",
+        "tagType": "permit",
+        "label": "No auth: SecurityConfig.permitAll()",
+        "items": [],
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      "JWT": {
+        "id": "gw-strat-jwt",
+        "tag": "JWT",
+        "tagType": "sec",
+        "label": "Authorization: Bearer <access_token>",
+        "items": [
+          "15-minute TTL — short-lived; frontend holds it in memory only — never written to a cookie or localStorage, so it can't be read by an XSS payload",
+          "Lost on hard refresh — this is the expected missing-token case; the boot guard calls /api/auth/refresh on every page load and falls back to /login or /setup on 401",
+          "AuthFilter validates signature and expiry only, then sets the SecurityContext principal — no DB hit on every request",
+          "On expiry the next API call returns 401; frontend calls /api/auth/refresh which validates the refresh_token cookie against the refresh_tokens table, rotates the row, and reissues a new access token and refresh cookie",
+          "Claims in a live access token are explicitly designed to lag DB state until the next refresh — the tradeoff for no DB hit on every request. Scope of the re-check: 'admin endpoints' means every endpoint whose requiredRole is ADMIN, GET included, not writes only — a demoted admin's still-live token gets a 403 on their very next call to any ADMIN-tier route (e.g. GET /api/config/keys, GET /api/users), it just isn't caught until that next request happens, per the claims-lag tradeoff above. ADMIN_/_VIEWER-tier reads are not re-checked beyond signature/expiry, since any authenticated role already satisfies them",
+          {
+            "text": "The same claims-lag tradeoff applies to account deletion, not just demotion: deleting a user cascades their sessions/refresh_tokens rows immediately (their next /api/auth/refresh fails), but does not and cannot revoke an access token already issued to them, since AuthFilter never hits the DB per request. A just-deleted user (including a self-deleted admin) can keep making authenticated calls on that still-valid token, indistinguishable from any other valid JWT, until it naturally expires — up to the full 15-minute TTL. Accepted as the same tradeoff already made for demotion above, not a separate gap",
+            "refs": [
+              "ep-users-delete"
+            ]
+          },
+          "Signing key: HMAC secret sourced from a Spring Boot @ConfigurationProperties bean (vigil.jwt-secret) — auto-generated as a random secret at startup via @PostConstruct and held in memory only if the property is left unset. This in-memory default is a dev-mode convenience, not the production design: a restart or a multi-instance deployment where vigil.jwt-secret isn't set identically everywhere invalidates every outstanding access token silently (the instance that issued it and the instance validating it disagree on the secret). Accepted for this project's scope; production deployment requires vigil.jwt-secret to be set explicitly and identically across instances"
+        ],
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      "API_KEY": {
+        "id": "gw-strat-api-key",
+        "tag": "API KEY",
+        "tagType": "rate",
+        "label": "Authorization: ApiKey <key>",
+        "items": [
+          "Program-level lifetime",
+          "vigil.api-key: sourced from the same @ConfigurationProperties bean, auto-generated as a UUID via @PostConstruct at startup and held in memory only if left unset — this auto-generated, in-memory-only behavior is the intended design as-is, not a dev-mode default awaiting a production override. Accepted tradeoff of that design: a restart silently rotates it, breaking any external API client holding the old value with no warning, and a multi-instance deployment mints a different key per instance since nothing pins it identically everywhere",
+          "Not tied to a users row, so it has no role of its own — treated as ADMIN-equivalent on every endpoint that accepts it, including ADMIN-only ones. It is an operator/service credential (used by external API clients, etc.), not a per-person credential — anyone holding it has full API access regardless of the endpoint's requiredRole"
+        ],
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      "INTERNAL_ONLY": {
+        "id": "gw-strat-internal-only",
+        "tag": "INTERNAL",
+        "tagType": "dedup",
+        "label": "Internal port only",
+        "items": [
+          "Bound to an internal port; unreachable from outside the deployment network",
+          "Called exclusively by trusted internal services"
+        ],
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      "WS_AUTH_HANDSHAKE": {
+        "id": "gw-strat-ws-auth-handshake",
+        "tag": "WS AUTH",
+        "tagType": "sec",
+        "label": "WebSocket, JWT validated at handshake via HandshakeInterceptor",
+        "items": [
+          {
+            "text": "Resolves role/identity identically, off the same signed claims — this is a JWT validated at a different point in the request lifecycle (HTTP Upgrade instead of every request's AuthFilter), not a distinct credential type or a fixed/implicit role",
+            "refs": [
+              "gw-strat-jwt"
+            ]
+          },
+          "Token passed as ?token= on the upgrade request — same tradeoff as SSE (native WebSocket clients can't set an Authorization header either); accepted for this project",
+          "Connection rejected during the HTTP Upgrade if the token is invalid or missing — an unauthenticated client never completes the handshake, so there's no post-connect auth window or frame protocol",
+          "On token expiry, client reconnects with a fresh token; no mid-session re-auth frames"
+        ],
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      }
+    },
+    "Filter chain": [
+      {
+        "tag": "IN",
+        "tagType": "dedup",
+        "label": "CLIENT",
+        "sub": "inbound HTTP",
+        "muted": true,
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      {
+        "tag": "CORS",
+        "tagType": "dedup",
+        "label": "CorsFilter",
+        "sub": "Spring · preflight OPTIONS",
+        "muted": true,
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      {
+        "tag": "RL",
+        "tagType": "rate",
+        "label": "RateLimitFilter",
+        "sub": "Bucket4j · 10 req/min per IP · 429 on breach",
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      {
+        "tag": "AUTH",
+        "tagType": "sec",
+        "label": "AuthFilter",
+        "sub": "Spring Security · JWT or ApiKey → SecurityContext",
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      {
+        "tag": "CTRL",
+        "tagType": "crit",
+        "label": "Controller",
+        "sub": "identity already resolved",
+        "muted": true,
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      }
+    ],
+    "Rate limiting info": [
+      {
+        "tag": "DEFAULT",
+        "tagType": "rate",
+        "label": "10 req/min per IP · token-bucket · applies to all routes unless noted below",
+        "items": [
+          "Capacity: 10 tokens. Refill: +10 every 60 s.",
+          "Keyed by client IP — shared bucket across all endpoints for that IP, not one bucket per route",
+          "429 Too Many Requests + Retry-After header on exhaustion",
+          "Rate check runs before auth — an exhausted IP never reaches AuthFilter",
+          "Bucket counts requests, not rows: GET ?format=csv on the telemetry endpoints (metrics/traces/logs) ignores pagination and returns the full matching dataset as one unpaginated text/csv response, but still consumes exactly one token, same as a normal small page — this is what makes CSV export viable without a separate rate-limit carve-out",
+          "Known simplification: a single page load can consume several tokens at once (e.g. Overview: 3 REST GETs + 3 SSE upgrades = 6 of 10), and the bucket is shared per-IP, so multiple users behind the same NAT/proxy draw from the same 10. Acceptable for project scope; a production system would key per-user and/or size buckets per-route."
+        ],
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      {
+        "tag": "EXEMPT",
+        "tagType": "crit",
+        "label": "Routes excluded from rate limiting",
+        "items": [
+          "/internal/ingest/** — internal port, network-isolated; no HTTP rate limiting applies",
+          "The internal LLM-forwarding route — same internal port, same network isolation; no HTTP rate limiting applies"
+        ],
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      {
+        "tag": "SSE / WS",
+        "tagType": "realtime",
+        "label": "Rate limiting on the initial upgrade GET only",
+        "items": [
+          "The HTTP GET opening the stream consumes one token at connection time",
+          "Server-push frames over the established stream are not rate-limited",
+          "The alerts WebSocket upgrade — single long-lived connection per client; the upgrade GET counts once against the DEFAULT bucket, subsequent frames do not"
+        ],
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      }
+    ],
+    "Role enforcement info": {
+      "note": {
+        "text": "The filter resolves identity only — it answers \"who is this?\". Role checks (@PreAuthorize or explicit) live in the controller or service layer, not the filter. The roles below describe JWT-authenticated callers; a valid API_KEY satisfies every tier including ADMIN, since it carries no role of its own.",
+        "refs": [
+          "gw-strat-api-key"
+        ]
+      },
+      "roles": [
+        {
+          "tag": "ADMIN",
+          "tagType": "sec",
+          "label": "hasRole('ADMIN') required",
+          "items": [
+            "GET /api/config/keys · POST /api/users · GET /api/users",
+            "PATCH /api/users/{id} · DELETE /api/users/{id} (both 409 if the action would leave zero admins)",
+            "GET + POST + DELETE /api/webhooks",
+            {
+              "text": "POST /api/alerts/rules · PATCH /api/alerts/rules/{id} · DELETE /api/alerts/rules/{id}",
+              "refs": [
+                "ep-alert-rules-create",
+                "ep-alert-rules-update",
+                "ep-alert-rules-delete"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "ADMIN / VIEWER",
+          "tagType": "crit",
+          "label": "Any authenticated caller — JWT or API key, any role",
+          "items": [
+            "All telemetry reads · GET + PATCH /api/users/me",
+            "POST /api/llm/analyze · all SSE streams",
+            {
+              "text": "GET /api/alerts · GET /api/alerts/rules · PUT /api/alerts/{id}",
+              "refs": [
+                "ep-alerts-list",
+                "ep-alert-rules-list",
+                "ep-alert-ack"
+              ]
+            },
+            {
+              "text": "WS alerts stream — a WebSocket, not an SSE stream; grouped here rather than under \"all SSE streams\" above since it isn't one",
+              "refs": [
+                "ep-alerts-ws"
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "NO AUTH",
+          "tagType": "permit",
+          "label": "No authentication required — permitAll()",
+          "items": [
+            "POST /api/auth/setup · POST /api/auth/login",
+            "POST /api/auth/refresh · POST /api/auth/logout",
+            "GET /api/auth/sessions · DELETE /api/auth/sessions/{id}"
+          ]
+        }
+      ],
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    "Startup sequence": [
+      {
+        "tag": "KEYS",
+        "tagType": "rate",
+        "label": "Generate vigil.api-key + vigil.ingestion-key",
+        "sub": "Whichever key is unset on the config bean gets generated via UUID.randomUUID(). vigil.api-key stays in memory only; vigil.ingestion-key is also written to a shared file for the collector to read. Live values are fetched via a GET request.",
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      {
+        "tag": "CHAIN",
+        "tagType": "dedup",
+        "label": "Assemble filter chain",
+        "sub": "CorsFilter, RateLimitFilter (Bucket4j), and AuthFilter are wired in — AuthFilter checks incoming ApiKey headers against vigil.api-key, so it can only exist once that key is generated.",
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      },
+      {
+        "tag": "LISTEN",
+        "tagType": "crit",
+        "label": "Open public + internal ports",
+        "sub": "Public port opens after CHAIN, so AuthFilter is already enforcing vigil.api-key from the first request. Internal port opens at the same time, gated by network isolation rather than a key. vigil.ingestion-key's shared file is already written by this point, so the collector's own auth extension can start validating service pushes as soon as it comes up.",
+        "lastUpdated": "2026-07-19T06:45:25+01:00"
+      }
+    ]
+  },
+  "Pages": [
+    {
+      "name": "Setup",
+      "path": "/setup",
+      "desc": "First-boot admin account creation, shown only before any user exists. Enforcement lives server-side",
+      "role": "Frontend Lead",
+      "group": "Auth",
+      "endpointIds": [
+        "ep-auth-setup"
+      ],
+      "id": "page-setup",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    {
+      "name": "Login",
+      "path": "/login",
+      "desc": "Email and password authentication. Route guard enforced on every page load.",
+      "role": "Frontend Lead",
+      "group": "Auth",
+      "endpointIds": [
+        "ep-auth-login",
+        "ep-auth-refresh"
+      ],
+      "id": "page-login",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    {
+      "name": "Overview",
+      "path": "/overview",
+      "desc": "Live dashboard. Gauges, request lifecycle chart, recent logs, compact AI chat widget.",
+      "role": "Frontend Lead",
+      "group": "Dashboard",
+      "endpointIds": [
+        "ep-telemetry-metrics",
+        "ep-telemetry-traces",
+        "ep-telemetry-logs",
+        "ep-alerts-ws",
+        "ep-telemetry-logs-live",
+        "ep-telemetry-traces-live",
+        "ep-telemetry-metrics-live",
+        "ep-llm-analyze",
+        "ep-auth-logout"
+      ],
+      "id": "page-overview",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    {
+      "name": "Logs",
+      "path": "/logs",
+      "desc": "Infinite scroll log viewer with text search, severity filters, sorting, and CSV export.",
+      "role": "Frontend Lead + Telemetry Engineer",
+      "group": "Telemetry",
+      "endpointIds": [
+        "ep-alerts-ws",
+        "ep-telemetry-logs",
+        "ep-telemetry-logs-live",
+        "ep-auth-logout"
+      ],
+      "id": "page-logs",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    {
+      "name": "Traces",
+      "path": "/traces",
+      "desc": "Infinite scroll trace viewer with period and service filters, sorting, and CSV export.",
+      "role": "Frontend Lead + Telemetry Engineer",
+      "group": "Telemetry",
+      "endpointIds": [
+        "ep-alerts-ws",
+        "ep-telemetry-traces",
+        "ep-telemetry-traces-live",
+        "ep-auth-logout"
+      ],
+      "id": "page-traces",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    {
+      "name": "Metrics",
+      "path": "/metrics",
+      "desc": "Interactive charts with live updates, infinite scroll, filters, and CSV export.",
+      "role": "Frontend Lead + Telemetry Engineer",
+      "group": "Telemetry",
+      "endpointIds": [
+        "ep-alerts-ws",
+        "ep-telemetry-metrics",
+        "ep-telemetry-metrics-live",
+        "ep-auth-logout"
+      ],
+      "id": "page-metrics",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    {
+      "name": "Alerts",
+      "path": "/alerts",
+      "desc": "Alert history feed with infinite scroll, filters, and rules tab. Alert Telemetry Evaluation pipeline terminates here.",
+      "role": "Frontend Lead + Backend Lead",
+      "group": "Alerts",
+      "endpointIds": [
+        "ep-alerts-ws",
+        "ep-alerts-list",
+        "ep-alert-rules-list",
+        "ep-alert-rules-create",
+        "ep-alert-rules-update",
+        "ep-alert-rules-delete",
+        "ep-telemetry-attributes",
+        "ep-auth-logout"
+      ],
+      "id": "page-alerts",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    {
+      "name": "AI Insights",
+      "path": "/ai-insights",
+      "desc": "Full-page streaming chat. Frontend maintains full conversation history between turns.",
+      "role": "Frontend Lead + AI Engineer",
+      "group": "AI",
+      "endpointIds": [
+        "ep-alerts-ws",
+        "ep-llm-analyze",
+        "ep-auth-logout"
+      ],
+      "id": "page-ai",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    {
+      "name": "Settings",
+      "path": "/settings",
+      "desc": "User CRUD, role management, webhook management, and read-only display of the startup-generated API key and ingestion key (sourced from Spring Boot @ConfigurationProperties, listed in Endpoints used below). Config export is client-side: fetches alert rules and webhooks via existing GETs and downloads as JSON. Import iterates existing POST endpoints with the imported payload. Session management section lists all active sessions for the current user (device, IP, last active) with per-session revoke; the calling session is flagged as current.",
+      "role": "Frontend Lead + Backend Lead",
+      "group": "Settings",
+      "endpointIds": [
+        "ep-alerts-ws",
+        "ep-config-keys",
+        "ep-users-list",
+        "ep-users-create",
+        "ep-users-me-get",
+        "ep-users-me",
+        "ep-users-update",
+        "ep-users-delete",
+        "ep-webhooks-list",
+        "ep-webhooks-create",
+        "ep-webhooks-delete",
+        "ep-auth-sessions-list",
+        "ep-auth-sessions-revoke"
+      ],
+      "id": "page-settings",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    {
+      "name": "Status",
+      "path": "/status",
+      "desc": "Infrastructure health page. Calls /api/telemetry/metrics twice: once without filter for service health panels, once with ?vigil.internal=true for infrastructure gauges. Dual-call is intentional — two distinct data sets feed two distinct UI sections.",
+      "role": "Frontend Lead + Telemetry Engineer + Platform Engineer",
+      "group": "Status",
+      "endpointIds": [
+        "ep-alerts-ws",
+        "ep-telemetry-metrics",
+        "ep-auth-logout"
+      ],
+      "id": "page-status",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    {
+      "name": "Privacy Policy + ToS",
+      "path": "/privacy + /terms",
+      "desc": "Fully static pages. Linked in persistent footer.",
+      "role": "Frontend Lead",
+      "group": "Static",
+      "endpointIds": [],
+      "id": "page-static",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    }
+  ],
+  "Schema": {
+    "users": {
+      "db": "PostgreSQL",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "pk": true,
+          "notes": "gen_random_uuid()"
+        },
+        {
+          "name": "email",
+          "type": "TEXT",
+          "unique": true
+        },
+        {
+          "name": "password_hash",
+          "type": "TEXT",
+          "notes": "bcrypt"
+        },
+        {
+          "name": "role",
+          "type": "TEXT",
+          "notes": "admin | viewer"
+        }
+      ],
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    "sessions": {
+      "db": "PostgreSQL",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "pk": true,
+          "notes": "gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "UUID",
+          "fk": {
+            "table": "users",
+            "column": "id",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
+          "name": "user_agent",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "ip_address",
+          "type": "TEXT",
+          "nullable": true
+        },
+        {
+          "name": "last_used_at",
+          "type": "TIMESTAMPTZ",
+          "notes": "updated in-place on every token rotation"
+        },
+        {
+          "name": "revoked",
+          "type": "BOOLEAN",
+          "notes": "DEFAULT false; true = session killed (logout or reuse detected)"
+        }
+      ],
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    "refresh_tokens": {
+      "db": "PostgreSQL",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "pk": true,
+          "notes": "gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "UUID",
+          "fk": {
+            "table": "users",
+            "column": "id",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
+          "name": "session_id",
+          "type": "UUID",
+          "fk": {
+            "table": "sessions",
+            "column": "id",
+            "onDelete": "CASCADE"
+          }
+        },
+        {
+          "name": "token_hash",
+          "type": "TEXT",
+          "unique": true,
+          "notes": "SHA-256 of the raw token; raw value never stored. No application-level pre-insert uniqueness check is specified for this column, unlike users.email/webhooks.url: a collision would require two distinct randomly-generated tokens hashing identically, which is cryptographically negligible. Accepted scope decision — relies on the DB constraint alone, deliberately, rather than an oversight"
+        },
+        {
+          "name": "issued_at",
+          "type": "TIMESTAMPTZ",
+          "notes": "DEFAULT now()"
+        },
+        {
+          "name": "expires_at",
+          "type": "TIMESTAMPTZ"
+        },
+        {
+          "name": "superseded",
+          "type": "BOOLEAN",
+          "notes": "DEFAULT false; false = still the current token in chain, true = rotated away (set on the old row at the moment a refresh mints its replacement)"
+        },
+        {
+          "name": "revoked",
+          "type": "BOOLEAN",
+          "notes": "DEFAULT false; true = session killed (logout or reuse detected)"
+        }
+      ],
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    "alert_rules": {
+      "db": "PostgreSQL",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "pk": true,
+          "notes": "gen_random_uuid()"
+        },
+        {
+          "name": "service",
+          "type": "TEXT"
+        },
+        {
+          "name": "signal_type",
+          "type": "TEXT",
+          "notes": {
+            "text": "logs | metrics | traces — which ingest evaluator owns this rule. Each ingest endpoint only matches and evaluates alert_rules rows whose signal_type equals its own table; the other two skip the row entirely. This is what makes it well-defined for a rule to be evaluated by exactly one evaluator instead of being independently (and inconsistently) interpreted by all three. Set at creation, immutable thereafter — not accepted by the update endpoint's PATCH body under any circumstance, default-rule or not",
+            "refs": [
+              "ep-ingest-logs",
+              "ep-ingest-metrics",
+              "ep-ingest-traces",
+              "ep-alert-rules-update"
+            ]
+          }
+        },
+        {
+          "name": "metric_name",
+          "type": "TEXT",
+          "notes": {
+            "text": "meaning and validation depend on signal_type. metrics: open vocabulary, matched literally against the ingested point's own 'name' field — validated at create/update time against the known attribute key list (unchanged behavior from before signal_type existed). logs: closed enum, one of error_count | warning_count | critical_count | total_count — maps to a severity filter (total_count = no severity filter); any other value is a 400 at create/update. traces: closed enum, one of error_rate | span_count | avg_duration_ms | p50_duration_ms | p95_duration_ms | p99_duration_ms | max_duration_ms; any other value is a 400 at create/update. The logs/traces enums exist specifically so metric_name never depends on an undocumented mapping inside the evaluator — every value it can take is enumerated here and in the create/update endpoints' 400 criteria",
+            "refs": [
+              "ep-alert-rules-create",
+              "ep-alert-rules-update"
+            ]
+          }
+        },
+        {
+          "name": "aggregation",
+          "type": "TEXT",
+          "nullable": true,
+          "notes": "one of latest | avg | sum | min | max | count | p50 | p95 | p99. Required and meaningful only when signal_type = metrics: applied to 'value' across every point matching name = metric_name within the window, ending at the triggering batch's latest timestamp — 'latest' takes just the single most recent matching point (this is the direct equivalent of the old pre-windowing instantaneous check, so existing metrics-rule behavior is expressible, not lost). Must be null when signal_type = logs | traces, since the aggregation there is already baked into metric_name's closed enum (e.g. p95_duration_ms already says 'p95 of duration_ms' — a separate aggregation value would be redundant and could disagree with it). A non-null aggregation on a logs/traces rule, or a null aggregation on a metrics rule, is a 400 at create/update time"
+        },
+        {
+          "name": "window_seconds",
+          "type": "INTEGER",
+          "notes": "how far back from the triggering batch's latest timestamp the evaluator looks when computing this rule's aggregate, for all three signal_types uniformly — this is the field that makes logs/traces/metrics evaluation symmetric; previously logs/traces referenced an undefined 'configured time window' with no backing column, and metrics had no window concept at all. Required at create time, minimum 10 (400 below that). Not the same knob as vigil.silence-timeout-seconds: that config is how long a service can go without ANY batch before the separate silence watchdog fires; window_seconds is how far back a single threshold rule looks once a batch does arrive — the two are unrelated and can differ freely"
+        },
+        {
+          "name": "threshold",
+          "type": "NUMERIC",
+          "notes": "rule triggers when the aggregated value (per aggregation/metric_name above) is >= threshold; one direction only, no operator choice. Units follow metric_name: raw counts for *_count/span_count, a 0..1 fraction for error_rate (0.05 = 5%), milliseconds for *_duration_ms, and whatever unit the underlying point carries for signal_type = metrics"
+        },
+        {
+          "name": "severity",
+          "type": "TEXT",
+          "notes": "info | warning | critical"
+        },
+        {
+          "name": "enabled",
+          "type": "BOOLEAN",
+          "notes": "DEFAULT true"
+        },
+        {
+          "name": "is_default",
+          "type": "BOOLEAN",
+          "notes": "DEFAULT false; default rules not deletable"
+        }
+      ],
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    "alert_history": {
+      "db": "PostgreSQL",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "pk": true,
+          "notes": "gen_random_uuid()"
+        },
+        {
+          "name": "rule_id",
+          "type": "UUID",
+          "fk": {
+            "table": "alert_rules",
+            "column": "id",
+            "onDelete": "SET NULL"
+          },
+          "nullable": true,
+          "notes": "SET NULL, not CASCADE — alert_history is a historical record; deleting the rule that produced a past alert should not delete the alert. Non-default alert_rules rows are deletable (default rows can only be disabled, never deleted), so this is the one FK in this schema where the parent side actually needs a story. null is genuinely ambiguous on its own — it means EITHER 'rule since deleted' (this SET NULL firing) OR 'no rule ever matched' (a silence-watchdog alert — fired when a service goes quiet for too long, never backed by an alert_rules row to begin with). The two cases are distinguished by metric_name, not by rule_id: metric_name === 'service_silent' is the silence-watchdog case; any other metric_name with rule_id === null is the deleted-rule case. Consumers must branch on metric_name, not treat null rule_id as self-describing. This is a deliberate tradeoff, not an oversight: a dedicated discriminator column (e.g. source: 'rule' | 'silence_watchdog') would remove the ambiguity at the schema level, but was judged not worth a fourth column when metric_name already forces every consumer to branch on it anyway for unrelated reasons (rendering the alert's title/description) — reusing that existing branch point over adding a column whose only job would be disambiguation"
+        },
+        {
+          "name": "service",
+          "type": "TEXT"
+        },
+        {
+          "name": "triggered_at",
+          "type": "TIMESTAMPTZ"
+        },
+        {
+          "name": "metric_name",
+          "type": "TEXT",
+          "notes": "snapshotted from the matching alert_rules row's own metric_name at insert time — not a live join, so the API can render this value on an alert straight off this table with no join to alert_rules, and it stays fixed even if that rule is later edited or has its own metric_name changed (rule_id going null via the SET NULL above covers the deleted case)"
+        },
+        {
+          "name": "signal_type",
+          "type": "TEXT",
+          "nullable": true,
+          "notes": "snapshotted from alert_rules at insert time, same reasoning as metric_name. Null specifically for a silence-watchdog alert (rule_id also null there) — a silence alert isn't produced by any one signal type's evaluator, since the shared watchdog timer resets on a batch of any signal type; treat signal_type === null the same way as metric_name === 'service_silent' (an expected, self-describing case), not as a missing/erroneous value"
+        },
+        {
+          "name": "window_seconds",
+          "type": "INTEGER",
+          "nullable": true,
+          "notes": "snapshotted from alert_rules at insert time, same reasoning as metric_name. Null for a silence-watchdog alert, same reasoning as signal_type above — there's no window to snapshot when no rule fired"
+        },
+        {
+          "name": "aggregation",
+          "type": "TEXT",
+          "nullable": true,
+          "notes": "snapshotted from alert_rules at insert time, same reasoning as metric_name. Null both for a silence-watchdog alert and for any logs/traces-sourced alert, since aggregation is only ever non-null on signal_type = metrics rules to begin with"
+        },
+        {
+          "name": "threshold",
+          "type": "NUMERIC",
+          "notes": "snapshotted from alert_rules at insert time, same reasoning as metric_name"
+        },
+        {
+          "name": "severity",
+          "type": "TEXT",
+          "notes": "info | warning | critical; snapshotted from alert_rules at insert time, same reasoning as metric_name"
+        },
+        {
+          "name": "llm_analysis",
+          "type": "TEXT",
+          "nullable": true,
+          "notes": "null until FastAPI completes; 'Analysis unavailable' on timeout"
+        }
+      ],
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    "alert_acks": {
+      "db": "PostgreSQL",
+      "columns": [
+        {
+          "name": "alert_id",
+          "type": "UUID",
+          "pk": true,
+          "fk": {
+            "table": "alert_history",
+            "column": "id"
+          },
+          "notes": {
+            "text": "no onDelete needed: no endpoint in this spec deletes alert_history rows (alerts are only acknowledged/resolved, never removed), so this FK's parent is never actually deleted — unlike alert_rules, which is deletable and whose FK (alert_history.rule_id) does declare SET NULL",
+            "refs": [
+              "ep-alert-ack"
+            ]
+          }
+        },
+        {
+          "name": "user_id",
+          "type": "UUID",
+          "pk": true,
+          "fk": {
+            "table": "users",
+            "column": "id",
+            "onDelete": "CASCADE"
+          },
+          "notes": "keyed on the immutable users.id, not email — a user changing their email (PATCH /api/users/me or /api/users/{id}) must not orphan their own ack history"
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notes": "acknowledged | resolved"
+        },
+        {
+          "name": "acked_at",
+          "type": "TIMESTAMPTZ"
+        }
+      ],
+      "notes": "PK is (alert_id, user_id) — per-user ack state, not a shared status. API responses still surface the acking user's email by joining to users.email at read time, since that's what the frontend displays; the join is just not the storage key.",
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    "webhooks": {
+      "db": "PostgreSQL",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "pk": true,
+          "notes": "gen_random_uuid()"
+        },
+        {
+          "name": "url",
+          "type": "TEXT",
+          "unique": true
+        }
+      ],
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    "logs": {
+      "db": "ClickHouse",
+      "columns": [
+        {
+          "name": "service",
+          "type": "String"
+        },
+        {
+          "name": "timestamp",
+          "type": "DateTime64(3)"
+        },
+        {
+          "name": "severity",
+          "type": "String"
+        },
+        {
+          "name": "message",
+          "type": "String"
+        },
+        {
+          "name": "attributes",
+          "type": "Map(String, String)",
+          "nullable": true
+        }
+      ],
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    "metrics": {
+      "db": "ClickHouse",
+      "columns": [
+        {
+          "name": "service",
+          "type": "String"
+        },
+        {
+          "name": "timestamp",
+          "type": "DateTime64(3)"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "value",
+          "type": "Float64"
+        },
+        {
+          "name": "attributes",
+          "type": "Map(String, String)",
+          "nullable": true,
+          "notes": {
+            "text": "The metrics endpoint's ?vigil.internal=true filter is implemented as attributes['internal'] = 'true' here — there is no dedicated 'internal' column",
+            "refs": [
+              "ep-telemetry-metrics"
+            ]
+          }
+        }
+      ],
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    },
+    "traces": {
+      "db": "ClickHouse",
+      "columns": [
+        {
+          "name": "trace_id",
+          "type": "String"
+        },
+        {
+          "name": "span_id",
+          "type": "String"
+        },
+        {
+          "name": "parent_span_id",
+          "type": "String",
+          "nullable": true
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "service",
+          "type": "String"
+        },
+        {
+          "name": "timestamp",
+          "type": "DateTime64(3)"
+        },
+        {
+          "name": "duration_ms",
+          "type": "UInt32"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "attributes",
+          "type": "Map(String, String)",
+          "nullable": true
+        }
+      ],
+      "lastUpdated": "2026-07-19T06:45:25+01:00"
+    }
+  }
+}
