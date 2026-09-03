@@ -32,6 +32,7 @@ public class AuthController {
     private final AuthService authService;
 
     public record AuthResponse(String role, String accessToken) {}
+    public record RefreshResponse(String accessToken) {}
     public record SessionsResponse(List<SessionDto> sessions) {}
 
     private static final String REFRESH_COOKIE = "refresh_token";
@@ -52,6 +53,25 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(new AuthResponse(result.role(), result.accessToken()));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshResponse> refresh(
+            @CookieValue(name = REFRESH_COOKIE, required = false) String rawRefreshToken) {
+
+        AuthService.RefreshResult result = authService.refreshService(rawRefreshToken);
+
+        ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE, result.rawRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path("/api/auth")
+                .maxAge(Duration.ofDays(30))
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(new RefreshResponse(result.accessToken()));
     }
 
     @PostMapping("/logout")
