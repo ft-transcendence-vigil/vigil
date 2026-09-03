@@ -1,6 +1,7 @@
 package com.ft_transcendence.vigil.configuration;
 import com.ft_transcendence.vigil.Security.JjwtAuthFilter;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,4 +42,9 @@ class SecurityConfig {
         return c.getAuthenticationManager();
     }
 
+    @Bean
+    @ConfigurationProperties(prefix = "vigil")
+    VigilProperties vigilProperties() {
+        return new VigilProperties();
+    }
 }
