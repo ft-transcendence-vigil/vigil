@@ -105,6 +105,40 @@ public class AuthService {
         return target.getId().equals(callerToken.getSession().getId());
     }
 
+    public record RefreshResult(String accessToken, String rawRefreshToken) {}
+
+    @Transactional
+    public RefreshResult refreshService(String rawRefreshToken){
+        if (rawRefreshToken == null)
+            throw new UnauthorizedException("invalid Refresh Token");
+        String hashedRefreshToken = jjwtService.hashRefreshToken(rawRefreshToken);
+        RefreshToken rawHashToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken)
+                .orElseThrow(() -> new UnauthorizedException("invalid Refresh Token"));
+        User user = rawHashToken.getUser();
+        if (rawHashToken.isSuperseded()) {
+            user.getSessions().forEach(s -> s.setRevoked(true));
+            user.getRefreshTokens().forEach(t -> t.setRevoked(true));
+            throw new UnauthorizedException("invalid Refresh Token");
+        }
+        if (rawHashToken.isRevoked() || rawHashToken.getExpiresAt().isBefore(Instant.now()))
+            throw new UnauthorizedException("invalid Refresh Token");
+        Session session = rawHashToken.getSession();
+        if (session.isRevoked())
+            throw new UnauthorizedException("invalid Refresh Token");
+        rawHashToken.setSuperseded(true);
+        String newRaw = jjwtService.generateRefreshToken();
+        RefreshToken rotated = RefreshToken.builder()
+                .tokenHash(jjwtService.hashRefreshToken(newRaw))
+                .user(user)
+                .session(session)
+                .expiresAt(Instant.now().plusMillis(jjwtService.getRefrechTokenExpiration()))
+                .build();
+        refreshTokenRepository.save(rotated);
+        session.setLastUsedAt(Instant.now());
+        String accessToken = jjwtService.generateToken(new UserPrincipal(user));
+        return new RefreshResult(accessToken, newRaw);
+    }
+
     @Transactional
     public void logoutService(String rawRefreshToken){
         if (rawRefreshToken == null)
