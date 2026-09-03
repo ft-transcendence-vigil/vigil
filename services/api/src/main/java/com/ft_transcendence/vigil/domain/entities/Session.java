@@ -35,9 +35,9 @@ public class Session {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean revoked = false;
 
-    @ManyToOne()
+    @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "session", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE} ,orphanRemoval = true)

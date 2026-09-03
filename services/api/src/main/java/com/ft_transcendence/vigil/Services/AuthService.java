@@ -8,7 +8,7 @@ import com.ft_transcendence.vigil.domain.entities.User;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.exceptions.DuplicatedResourcesException;
 import com.ft_transcendence.vigil.mappers.SetupMapper;
-import com.ft_transcendence.vigil.repositories.RefrechTokenRepository;
+import com.ft_transcendence.vigil.repositories.RefreshTokenRepository;
 import com.ft_transcendence.vigil.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -31,7 +31,7 @@ public class AuthService {
     private final JjwtService jjwtService;
     private final SetupMapper setupMapper;
     private final UserRepository userRepository;
-    private final RefrechTokenRepository refrechTokenRepository;
+    private final RefreshTokenRepository refrechTokenRepository;
 
     // I create a session and refresh token and return the string of  refresh token
     public String createSessionAndRefreshToken(User user, HttpServletRequest request)
