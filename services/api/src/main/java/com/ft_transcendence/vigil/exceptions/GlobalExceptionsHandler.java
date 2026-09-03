@@ -56,6 +56,11 @@ public class GlobalExceptionsHandler {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, request, "Invalid username or password");
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorized(UnauthorizedException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, request, ex.getMessage());
+    }
+
     @ExceptionHandler(ResourcesNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFound(ResourcesNotFoundException ex, HttpServletRequest request) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, request, ex.getMessage());
