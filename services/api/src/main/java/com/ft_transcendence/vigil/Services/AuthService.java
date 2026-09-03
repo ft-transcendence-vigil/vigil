@@ -107,7 +107,7 @@ public class AuthService {
 
     public record RefreshResult(String accessToken, String rawRefreshToken) {}
 
-    @Transactional
+    @Transactional(dontRollbackOn = UnauthorizedException.class)
     public RefreshResult refreshService(String rawRefreshToken){
         if (rawRefreshToken == null)
             throw new UnauthorizedException("invalid Refresh Token");
@@ -142,12 +142,12 @@ public class AuthService {
     @Transactional
     public void logoutService(String rawRefreshToken){
         if (rawRefreshToken == null)
-            return;
+            throw new UnauthorizedException("invalid Refresh Token");
         String hashedRefreshToken = jjwtService.hashRefreshToken(rawRefreshToken);
-        refreshTokenRepository.findByTokenHash(hashedRefreshToken).ifPresent(refreshToken -> {
-            refreshToken.getSession().setRevoked(true);
-            refreshToken.setRevoked(true);
-        });
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken)
+                .orElseThrow(() -> new UnauthorizedException("invalid Refresh Token"));
+        refreshToken.getSession().setRevoked(true);
+        refreshToken.setRevoked(true);
     }
     @Transactional
     public List<SessionDto> sessionsService(String rawRefreshToken){
