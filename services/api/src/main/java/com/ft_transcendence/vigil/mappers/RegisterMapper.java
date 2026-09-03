@@ -10,6 +10,4 @@ import org.mapstruct.Mapping;
 public interface RegisterMapper {
     @Mapping(target = "passwordHash", source = "password")
     User map(RegisterDto registerDto);
-    @InheritInverseConfiguration
-    RegisterDto map(User user);
 }

@@ -57,7 +57,7 @@ public class AuthService {
                 .tokenHash(jjwtService.hashRefreshToken(raw))
                 .user(user)
                 .session(session)
-                .expiresAt(Instant.now().plusMillis(jjwtService.getRefrechTokenExpiration()))
+                .expiresAt(Instant.now().plusMillis(jjwtService.getRefreshTokenExpiration()))
                 .build();
 
         sessionRepository.save(session);
@@ -131,7 +131,7 @@ public class AuthService {
                 .tokenHash(jjwtService.hashRefreshToken(newRaw))
                 .user(user)
                 .session(session)
-                .expiresAt(Instant.now().plusMillis(jjwtService.getRefrechTokenExpiration()))
+                .expiresAt(Instant.now().plusMillis(jjwtService.getRefreshTokenExpiration()))
                 .build();
         refreshTokenRepository.save(rotated);
         session.setLastUsedAt(Instant.now());

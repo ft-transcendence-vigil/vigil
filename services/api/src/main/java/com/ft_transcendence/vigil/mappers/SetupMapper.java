@@ -10,7 +10,5 @@ public interface SetupMapper {
 
         @Mapping(target = "passwordHash", source = "password")
         User map(SetupDto setupDto);
-        @InheritInverseConfiguration
-        SetupDto map(User user);
 
 }
