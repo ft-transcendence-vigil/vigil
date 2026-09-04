@@ -1,8 +1,8 @@
 package com.ft_transcendence.vigil.Services;
 import com.ft_transcendence.vigil.Security.JjwtService;
-import com.ft_transcendence.vigil.domain.dtos.LoginDto;
-import com.ft_transcendence.vigil.domain.dtos.SessionDto;
-import com.ft_transcendence.vigil.domain.dtos.SetupDto;
+import com.ft_transcendence.vigil.domain.dtos.auth.LoginDto;
+import com.ft_transcendence.vigil.domain.dtos.auth.SessionDto;
+import com.ft_transcendence.vigil.domain.dtos.auth.SetupDto;
 import com.ft_transcendence.vigil.domain.entities.RefreshToken;
 import com.ft_transcendence.vigil.domain.entities.Session;
 import com.ft_transcendence.vigil.domain.entities.User;

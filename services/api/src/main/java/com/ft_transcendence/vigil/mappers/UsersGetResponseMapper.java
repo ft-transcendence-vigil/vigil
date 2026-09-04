@@ -1,6 +1,6 @@
 package com.ft_transcendence.vigil.mappers;
 
-import com.ft_transcendence.vigil.domain.dtos.UsersGetAndPostResponseDto;
+import com.ft_transcendence.vigil.domain.dtos.users.UsersGetAndPostResponseDto;
 import com.ft_transcendence.vigil.domain.entities.User;
 import org.mapstruct.Mapper;
 

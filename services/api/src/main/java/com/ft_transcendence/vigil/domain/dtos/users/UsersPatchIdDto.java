@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.domain.dtos;
+package com.ft_transcendence.vigil.domain.dtos.users;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;

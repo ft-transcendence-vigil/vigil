@@ -1,9 +1,9 @@
 package com.ft_transcendence.vigil.controllers;
 
 import com.ft_transcendence.vigil.Services.AuthService;
-import com.ft_transcendence.vigil.domain.dtos.LoginDto;
-import com.ft_transcendence.vigil.domain.dtos.SessionDto;
-import com.ft_transcendence.vigil.domain.dtos.SetupDto;
+import com.ft_transcendence.vigil.domain.dtos.auth.LoginDto;
+import com.ft_transcendence.vigil.domain.dtos.auth.SessionDto;
+import com.ft_transcendence.vigil.domain.dtos.auth.SetupDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

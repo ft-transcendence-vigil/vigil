@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.domain.dtos;
+package com.ft_transcendence.vigil.domain.dtos.users;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,5 +11,4 @@ public class UsersGetAndPostResponseDto {
     private UUID id;
     private String email;
     private String role;
-
 }

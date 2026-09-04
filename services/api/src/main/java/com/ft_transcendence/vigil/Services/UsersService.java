@@ -1,6 +1,6 @@
 package com.ft_transcendence.vigil.Services;
 
-import com.ft_transcendence.vigil.domain.dtos.*;
+import com.ft_transcendence.vigil.domain.dtos.users.*;
 import com.ft_transcendence.vigil.domain.entities.User;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.exceptions.DuplicatedResourcesException;
@@ -80,7 +80,7 @@ public class UsersService {
             user.setPasswordHash(passwordEncoder.encode( usersPatchIdDto.getPassword()));
         if (usersPatchIdDto.getRole() != null)
         {
-            if (user.getRole().equals("ADMIN") && userRepository.countByRole("ADMIN") == 1)
+            if (user.getRole().equals("ADMIN") && userRepository.countByRole("ADMIN") == 1 && !usersPatchIdDto.getRole().equals("ADMIN"))
                 throw new DuplicatedResourcesException("cannot demote the last remaining admin");
             user.setRole(usersPatchIdDto.getRole());
         }
@@ -90,7 +90,7 @@ public class UsersService {
     @Transactional
     public void usersDeleteIdService(UUID id) {
         User user = userRepository.findById(id).orElseThrow(()->new ResourcesNotFoundException("user not found"));
-        if ( user.getRole().equals("ADMIN") && userRepository.countByRole("ADMIN") == 1)
+        if (user.getRole().equals("ADMIN") && userRepository.countByRole("ADMIN") == 1)
             throw new DuplicatedResourcesException("cannot delete the last remaining admin");
         userRepository.delete(user);
     }

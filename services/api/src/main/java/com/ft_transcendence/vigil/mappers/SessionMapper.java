@@ -1,6 +1,6 @@
 package com.ft_transcendence.vigil.mappers;
 
-import com.ft_transcendence.vigil.domain.dtos.SessionDto;
+import com.ft_transcendence.vigil.domain.dtos.auth.SessionDto;
 import com.ft_transcendence.vigil.domain.entities.Session;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
