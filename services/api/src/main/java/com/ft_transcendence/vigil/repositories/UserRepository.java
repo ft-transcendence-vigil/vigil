@@ -11,4 +11,5 @@ import java.util.UUID;
 @Component
 public interface UserRepository extends JpaRepository<User, UUID> {
     public Optional<User> findByEmail(String email) throws ResourcesNotFoundException;
+    public int countByRole(String role) throws ResourcesNotFoundException;
 }
