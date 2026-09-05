@@ -1,0 +1,7 @@
+notes :
+secure: true test porlbem
+protocol https also problem
+
+@ratelimnit
+
+the service patch id and delete need to check if role is admin and its the last user
