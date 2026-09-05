@@ -12,7 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-@Entity(name = "refresh_tokens")
+@Entity()
 @Table(name = "refresh_tokens")
 @NoArgsConstructor
 @AllArgsConstructor

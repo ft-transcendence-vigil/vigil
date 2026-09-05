@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 @Getter
 @Setter
-@Entity(name="sessions")
+@Entity()
 @Table(name = "sessions")
 @NoArgsConstructor
 @AllArgsConstructor
