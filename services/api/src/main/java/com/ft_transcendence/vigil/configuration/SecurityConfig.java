@@ -23,11 +23,12 @@ class SecurityConfig {
     private JjwtAuthFilter jjwtAuthFilter;
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
-        http
+        http.addFilterBefore(jjwtAuthFilter,UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/home").permitAll()
+                        .requestMatchers("/api/auth/setup").hasRole("admin")
+                        .requestMatchers("/api/auth/login", "/api/auth/refresh").permitAll()
                         .anyRequest().authenticated()
-                ).addFilterBefore(jjwtAuthFilter,UsernamePasswordAuthenticationFilter.class)
+                )
                 .csrf(c->c.disable())
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .logout(LogoutConfigurer::permitAll);
