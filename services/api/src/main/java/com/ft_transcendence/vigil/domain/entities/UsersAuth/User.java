@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.domain.entities;
+package com.ft_transcendence.vigil.domain.entities.UsersAuth;
 import jakarta.persistence.*;
 // import jakarta.validation.constraints.Email;      //old code — input validation moved to DTOs
 // import jakarta.validation.constraints.NotBlank;   //old code — input validation moved to DTOs
@@ -21,7 +21,7 @@ public class User {
     @Column(unique = true,nullable = false)
     private String email;
 
-    @Column(name = "password_hash",nullable = false)
+    @Column(nullable = false)
     private String passwordHash;
 
     @Column(nullable = false)

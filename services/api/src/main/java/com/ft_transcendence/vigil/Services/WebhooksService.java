@@ -1,7 +1,7 @@
 package com.ft_transcendence.vigil.Services;
 
 import com.ft_transcendence.vigil.domain.dtos.webhooks.WebhooksGetAndPostDto;
-import com.ft_transcendence.vigil.domain.entities.Webhook;
+import com.ft_transcendence.vigil.domain.entities.Webhook.Webhook;
 import com.ft_transcendence.vigil.exceptions.DuplicatedResourcesException;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
 import com.ft_transcendence.vigil.mappers.WebhooksMapper;

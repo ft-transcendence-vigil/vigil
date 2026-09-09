@@ -1,7 +1,7 @@
 package com.ft_transcendence.vigil.Services;
 
 import com.ft_transcendence.vigil.domain.dtos.users.*;
-import com.ft_transcendence.vigil.domain.entities.User;
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.exceptions.DuplicatedResourcesException;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;

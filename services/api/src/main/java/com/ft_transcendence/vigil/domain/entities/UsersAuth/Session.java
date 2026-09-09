@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.domain.entities;
+package com.ft_transcendence.vigil.domain.entities.UsersAuth;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,22 +22,20 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "user_agent")
     private String userAgent;
 
-    @Column(name = "ip_address")
     private String ipAddress;
 
     @UpdateTimestamp
-    @Column(name = "last_used_at", nullable = false,columnDefinition = "TIMESTAMPTZ default now()")
+    @Column(nullable = false,columnDefinition = "TIMESTAMPTZ default now()")
     private Instant lastUsedAt;
 
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean revoked = false;
 
-    @ManyToOne(optional = false)
+    @ManyToOne()
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "session", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE} ,orphanRemoval = true)

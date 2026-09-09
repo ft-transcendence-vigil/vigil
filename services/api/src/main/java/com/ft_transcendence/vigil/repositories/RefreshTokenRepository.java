@@ -1,6 +1,6 @@
 package com.ft_transcendence.vigil.repositories;
 
-import com.ft_transcendence.vigil.domain.entities.RefreshToken;
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.RefreshToken;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;

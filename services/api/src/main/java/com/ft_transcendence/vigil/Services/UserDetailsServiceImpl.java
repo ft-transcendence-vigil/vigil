@@ -1,6 +1,6 @@
 package com.ft_transcendence.vigil.Services;
 
-import com.ft_transcendence.vigil.domain.entities.User;
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

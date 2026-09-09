@@ -1,9 +1,8 @@
 package com.ft_transcendence.vigil.repositories;
 
-import com.ft_transcendence.vigil.domain.entities.User;
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
