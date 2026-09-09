@@ -1,7 +1,7 @@
 notes :
 secure: true test porlbem
-protocol https also problem
+protocol https also a test problem
 
 @ratelimnit
-
-the service patch id and delete need to check if role is admin and its the last user
+fix one to many lazy loading later in auth entities
+change the role to enum later
