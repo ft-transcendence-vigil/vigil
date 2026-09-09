@@ -5,3 +5,20 @@ protocol https also a test problem
 @ratelimnit
 fix one to many lazy loading later in auth entities
 change the role to enum later
+contineu api key later
+
+the apis i will do in order ->
+
+Alerts — the 50% you picked
+4. POST /api/alerts/rules — conditional validation (signal_type decides which metric_name values are legal, aggregation only required for metrics). Nothing new, just if/else in the service.
+5. GET /api/alerts — keyset pagination (WHERE triggered_at < :before ORDER BY triggered_at DESC LIMIT :count). One custom @Query.
+6. PUT /api/alerts/{id} — upsert into alert_acks, composite PK (alert_id, user_id). Learn @IdClass or @EmbeddedId.
+7. WS /api/alerts/ws — the big one. TextWebSocketHandler, HandshakeInterceptor for the ?token= check, ConcurrentHashMap session registry. This is the CV talking point.
+
+Telemetry SSE
+8. GET /api/telemetry/logs/live — learn SseEmitter here
+9. GET /api/telemetry/traces/live — same shape as logs
+10. GET /api/telemetry/metrics/live — same shape as logs
+
+last
+3. GET /api/config/keys — returns { api_key, ingestion_key }. You already have apiKey on VigilProperties; add ingestionKey the same way and it's a one-method controller. Admin-only. Nothing new to learn.
