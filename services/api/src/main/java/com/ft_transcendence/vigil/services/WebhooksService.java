@@ -1,11 +1,11 @@
-package com.ft_transcendence.vigil.Services;
+package com.ft_transcendence.vigil.services;
 
 import com.ft_transcendence.vigil.domain.dtos.webhooks.WebhooksGetAndPostDto;
 import com.ft_transcendence.vigil.domain.entities.Webhook.Webhook;
 import com.ft_transcendence.vigil.exceptions.DuplicatedResourcesException;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
 import com.ft_transcendence.vigil.mappers.WebhooksMapper;
-import com.ft_transcendence.vigil.repositories.WebhookRepository;
+import com.ft_transcendence.vigil.repositories.webhook.WebhookRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

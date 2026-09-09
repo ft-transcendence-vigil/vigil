@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.repositories;
+package com.ft_transcendence.vigil.repositories.UsersAuth;
 
 import com.ft_transcendence.vigil.domain.entities.UsersAuth.RefreshToken;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;

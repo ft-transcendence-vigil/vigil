@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.Services;
+package com.ft_transcendence.vigil.services;
 
 import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import com.ft_transcendence.vigil.repositories.UserRepository;
+import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 
 @AllArgsConstructor
 @Service

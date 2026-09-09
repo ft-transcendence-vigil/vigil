@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.Services;
+package com.ft_transcendence.vigil.services;
 
 import com.ft_transcendence.vigil.domain.dtos.users.*;
 import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
@@ -6,7 +6,7 @@ import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.exceptions.DuplicatedResourcesException;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
 import com.ft_transcendence.vigil.mappers.UsersGetResponseMapper;
-import com.ft_transcendence.vigil.repositories.UserRepository;
+import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
