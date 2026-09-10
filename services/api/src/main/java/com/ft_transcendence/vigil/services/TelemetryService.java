@@ -4,9 +4,11 @@ import com.ft_transcendence.vigil.exceptions.InvalidRequestException;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Log;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Metric;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Trace;
+import com.ft_transcendence.vigil.repositories.clickhouse.AttributesRepository;
 import com.ft_transcendence.vigil.repositories.clickhouse.LogRepository;
 import com.ft_transcendence.vigil.repositories.clickhouse.MetricsRepository;
 import com.ft_transcendence.vigil.repositories.clickhouse.TraceRepository;
+import com.ft_transcendence.vigil.domain.dtos.telemetry.AttributeResponse;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.TelemetryPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,7 @@ public class TelemetryService {
     private final LogRepository logRepository;
     private final MetricsRepository metricsRepository;
     private final TraceRepository traceRepository;
+    private final AttributesRepository attributesRepository;
 
     public TelemetryPage<Log> getLogs(
             String period,
@@ -126,6 +129,10 @@ public class TelemetryService {
         period(period);
 
         return consumer -> traceRepository.streamAllTraces(service, period, consumer);
+    }
+
+    public List<AttributeResponse> getAttributes() {
+        return attributesRepository.findAttributes();
     }
 
     public boolean isCsv(String format) {

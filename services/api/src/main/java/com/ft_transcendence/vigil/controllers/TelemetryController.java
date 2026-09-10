@@ -3,6 +3,7 @@ package com.ft_transcendence.vigil.controllers;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Log;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Metric;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Trace;
+import com.ft_transcendence.vigil.domain.dtos.telemetry.AttributeResponse;
 import com.ft_transcendence.vigil.services.TelemetryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -78,4 +79,8 @@ public class TelemetryController {
                 telemetryService.getTraces(service, period, sort, count, before, offset));
     }
 
+    @GetMapping("/attributes")
+    ResponseEntity<List<AttributeResponse>> getAttributes() {
+        return ResponseEntity.status(HttpStatus.OK).body(telemetryService.getAttributes());
+    }
 }
