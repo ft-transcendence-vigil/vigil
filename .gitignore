@@ -1,0 +1,50 @@
+# === Java / Maven (services/api, services/api/telemetry) ===
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+HELP.md
+.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# === Python / FastAPI (services/llm) ===
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.venv/
+**/.venv/
+.pytest_cache/
+**/.pytest_cache/
+
+# === Environment / secrets (anywhere in the repo) ===
+.env
+.env.*
+!.env.example
+
+# === IDEs ===
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+
+# === OS noise ===
+.DS_Store
+Thumbs.db
