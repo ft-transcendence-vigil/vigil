@@ -4,6 +4,7 @@ import com.ft_transcendence.vigil.domain.dtos.auth.LoginDto;
 import com.ft_transcendence.vigil.domain.dtos.auth.SessionDto;
 import com.ft_transcendence.vigil.domain.dtos.auth.SetupDto;
 import com.ft_transcendence.vigil.domain.entities.RefreshToken;
+import com.ft_transcendence.vigil.domain.entities.Role;
 import com.ft_transcendence.vigil.domain.entities.Session;
 import com.ft_transcendence.vigil.domain.entities.User;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
@@ -34,7 +35,7 @@ import java.util.UUID;
 
 
 public class AuthService {
-    public record AuthResult(String accessToken, String rawRefreshToken, String role) {}
+    public record AuthResult(String accessToken, String rawRefreshToken, Role role) {}
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final JjwtService jjwtService;
@@ -74,7 +75,7 @@ public class AuthService {
         }
         User user = setupMapper.map(setupDto);
         user.setPasswordHash(passwordEncoder.encode(setupDto.getPassword()));
-        user.setRole("admin");
+        user.setRole(Role.ADMIN);
         userRepository.save(user);
         String rawRefreshToken = createSessionAndRefreshToken(user, request);
         String accessToken = jjwtService.generateToken(new UserPrincipal(user));

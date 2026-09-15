@@ -4,6 +4,7 @@ import com.ft_transcendence.vigil.Services.AuthService;
 import com.ft_transcendence.vigil.domain.dtos.auth.LoginDto;
 import com.ft_transcendence.vigil.domain.dtos.auth.SessionDto;
 import com.ft_transcendence.vigil.domain.dtos.auth.SetupDto;
+import com.ft_transcendence.vigil.domain.entities.Role;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    public record AuthResponse(String role, String accessToken) {}
+    public record AuthResponse(Role role, String accessToken) {}
     public record RefreshResponse(String accessToken) {}
     public record SessionsResponse(List<SessionDto> sessions) {}
 
