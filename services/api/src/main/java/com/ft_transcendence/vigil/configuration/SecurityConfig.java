@@ -25,8 +25,13 @@ class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http.addFilterBefore(jjwtAuthFilter,UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/auth/setup").hasRole("admin")
-                        .requestMatchers("/api/auth/login", "/api/auth/refresh").permitAll()
+                        .requestMatchers(
+                                "/api/auth/setup",
+                                "/api/auth/login",
+                                "/api/auth/refresh",
+                                "/api/auth/logout",
+                                "/api/auth/sessions",
+                                "/api/auth/sessions/*").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(c->c.disable())
