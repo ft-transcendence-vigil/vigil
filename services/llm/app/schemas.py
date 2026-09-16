@@ -38,8 +38,8 @@ class TracesRow(TelemetryRow):
 
 class AlertsContext(TelemetryRow):
     logs: list[LogRow] = Field(default_factory=list)
-    Metrics: list[MetricsRow] = Field(default_factory=list)
-    Traces: list[TracesRow] = Field(default_factory=list)
+    metrics: list[MetricsRow] = Field(default_factory=list)
+    traces: list[TracesRow] = Field(default_factory=list)
 
 #for POST /internal/llm/forward
 class ForwardRequest(TelemetryRow):
