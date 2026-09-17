@@ -1,9 +1,10 @@
 package com.ft_transcendence.vigil.Security;
 
+import com.ft_transcendence.vigil.configuration.VigilProperties;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -12,26 +13,20 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
-
+@RequiredArgsConstructor
 @Service
 public class JjwtService {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    @Value("${jwt.secret}")
-    private String key;
+    private final VigilProperties vigilProperties;
 
-    @Value("${jwt.expiration}")
-    private long expiration;
-
-    @Value("${jwt.refrech_expiration}")
-    private long refrechTokenExpiration;
 
     public String generateToken(UserDetails userDetails) {
         String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
 
         Date now = new Date();
-        Date expirationDate = new Date(now.getTime() + expiration);
+        Date expirationDate = new Date(now.getTime() + vigilProperties.getAccessTokenExpiration());
 
         SecretKey secretKey = createSecretKey();
 
@@ -43,50 +38,41 @@ public class JjwtService {
                 .signWith(secretKey)
                 .compact();
     }
-    public String getUserName(String accessToken) {
 
-            return Jwts.parser().
-                    verifyWith(createSecretKey()).
-                    build().
-                    parseSignedClaims(accessToken).
-                    getPayload().
-                    getSubject();
+    public String getUserName(String accessToken) {
+        return Jwts.parser().
+                verifyWith(createSecretKey()).
+                build().
+                parseSignedClaims(accessToken).
+                getPayload().
+                getSubject();
     }
 
-
-
-    public boolean isTokenExpired(String accesToken)
-    {
+    public boolean isTokenExpired(String accesToken) {
         Date date = Jwts.parser().verifyWith(createSecretKey()).build().parseSignedClaims(accesToken).getPayload().getExpiration();
         return (new Date().after(date));
     }
 
-    public boolean isTokenValid(String accesToken,UserDetails userDetails)
-    {
+    public boolean isTokenValid(String accesToken, UserDetails userDetails) {
         try {
-        String userName = getUserName(accesToken);
-        return userDetails.getUsername().equals(userName) && !isTokenExpired(accesToken);
-        }
-        catch (JwtException e)
-        {
+            String userName = getUserName(accesToken);
+            return userDetails.getUsername().equals(userName) && !isTokenExpired(accesToken);
+        } catch (JwtException e) {
             return false;
-    }
         }
-
-    public SecretKey createSecretKey()
-    {
-        return Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateRefreshToken()
-    {
+    public SecretKey createSecretKey() {
+        return Keys.hmacShaKeyFor(vigilProperties.getJwtSecret().getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String generateRefreshToken() {
         byte[] bytes = new byte[32];
         SECURE_RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    public String hashRefreshToken(String rawRefreshToken)
-    {
+    public String hashRefreshToken(String rawRefreshToken) {
         try {
             byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
                     .digest(rawRefreshToken.getBytes(StandardCharsets.UTF_8));
@@ -96,8 +82,7 @@ public class JjwtService {
         }
     }
 
-    public long getRefrechTokenExpiration() {
-        return refrechTokenExpiration;
+    public long getRefreshTokenExpiration() {
+        return vigilProperties.getRefreshTokenExpiration();
     }
 }
-

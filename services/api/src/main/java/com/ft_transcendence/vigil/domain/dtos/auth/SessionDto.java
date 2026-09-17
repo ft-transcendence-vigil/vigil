@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.domain.dtos;
+package com.ft_transcendence.vigil.domain.dtos.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
