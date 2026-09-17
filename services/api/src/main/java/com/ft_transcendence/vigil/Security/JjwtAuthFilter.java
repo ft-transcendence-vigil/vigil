@@ -28,6 +28,9 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
     private final UserDetailsServiceImpl userDetailsService;
     private final VigilProperties vigilProperties;
 
+    // there is no users row behind an api key request, this stands in as the principal name
+    private static final String API_KEY_PRINCIPAL = "api-key";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -40,7 +43,19 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
         }
         if (header.startsWith("ApiKey "))
         {
-            // i will implement this later
+            String requestKey = header.substring(7);
+            String ourKey = vigilProperties.getApiKey();
+            boolean validKey = ourKey != null && MessageDigest.isEqual(
+                    requestKey.getBytes(StandardCharsets.UTF_8),
+                    ourKey.getBytes(StandardCharsets.UTF_8));
+
+            if (validKey && SecurityContextHolder.getContext().getAuthentication() == null)
+            {
+                UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(
+                        API_KEY_PRINCIPAL, null, List.of(new SimpleGrantedAuthority("ROLE_admin")));
+                token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(token);
+            }
             filterChain.doFilter(request,response);
             return;
         }
