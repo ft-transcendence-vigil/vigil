@@ -1,6 +1,6 @@
 package com.ft_transcendence.vigil.controllers;
 
-import com.ft_transcendence.vigil.Services.WebhooksService;
+import com.ft_transcendence.vigil.services.WebhooksService;
 import com.ft_transcendence.vigil.domain.dtos.webhooks.WebhooksGetAndPostDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
