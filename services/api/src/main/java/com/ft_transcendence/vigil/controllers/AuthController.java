@@ -1,6 +1,6 @@
 package com.ft_transcendence.vigil.controllers;
 
-import com.ft_transcendence.vigil.Services.AuthService;
+import com.ft_transcendence.vigil.services.AuthService;
 import com.ft_transcendence.vigil.domain.dtos.auth.LoginDto;
 import com.ft_transcendence.vigil.domain.dtos.auth.SessionDto;
 import com.ft_transcendence.vigil.domain.dtos.auth.SetupDto;

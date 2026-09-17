@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.domain.entities;
+package com.ft_transcendence.vigil.domain.entities.UsersAuth;
 
 import jakarta.persistence.*;
 // import jakarta.validation.constraints.NotBlank;   //old code — input validation moved to DTOs
@@ -21,14 +21,14 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "token_hash", unique = true, nullable = false)
+    @Column(unique = true, nullable = false)
     private String tokenHash;
 
     @CreationTimestamp
-    @Column(name = "issued_at",columnDefinition = "TIMESTAMPTZ default now()",nullable = false)
+    @Column(columnDefinition = "TIMESTAMPTZ default now()",nullable = false)
     private Instant issuedAt;
 
-    @Column(name = "expires_at",nullable = false,columnDefinition = "TIMESTAMPTZ")
+    @Column(nullable = false,columnDefinition = "TIMESTAMPTZ")
     private Instant expiresAt;
 
     @Column(nullable = false, columnDefinition = "boolean default false")
@@ -37,14 +37,14 @@ public class RefreshToken {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean revoked = false;
 
-    @ManyToOne(optional = false)
+    @ManyToOne()
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(nullable = false)
     private User user;
 
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "session_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Session session;
 
 

@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.domain.entities;
+package com.ft_transcendence.vigil.domain.entities.Webhook;
 
 import jakarta.persistence.*;
 import lombok.*;
