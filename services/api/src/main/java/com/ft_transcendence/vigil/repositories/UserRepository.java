@@ -1,5 +1,6 @@
 package com.ft_transcendence.vigil.repositories;
 
+import com.ft_transcendence.vigil.domain.entities.Role;
 import com.ft_transcendence.vigil.domain.entities.User;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,5 @@ import java.util.UUID;
 @Component
 public interface UserRepository extends JpaRepository<User, UUID> {
     public Optional<User> findByEmail(String email) throws ResourcesNotFoundException;
+    public int countByRole(Role role);
 }
