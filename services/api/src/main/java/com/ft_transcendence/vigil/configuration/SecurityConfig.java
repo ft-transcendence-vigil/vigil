@@ -1,6 +1,5 @@
 package com.ft_transcendence.vigil.configuration;
 import com.ft_transcendence.vigil.Security.JjwtAuthFilter;
-import lombok.AllArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,14 +14,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-@AllArgsConstructor
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 class SecurityConfig {
-    private JjwtAuthFilter jjwtAuthFilter;
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, JjwtAuthFilter jjwtAuthFilter) {
         http.addFilterBefore(jjwtAuthFilter,UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(
