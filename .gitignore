@@ -48,3 +48,6 @@ __pycache__/
 # === OS noise ===
 .DS_Store
 Thumbs.db
+
+# === Markdown ===
+*.md
