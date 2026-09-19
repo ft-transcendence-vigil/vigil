@@ -37,10 +37,10 @@ public class AlertRules {
     @Enumerated(EnumType.STRING)
     private Severity severity;
 
-    @Column(nullable = false,columnDefinition = "BOOLEAN DEFAULT true")
-    private boolean isDefault;
-
     @Column(nullable = false)
     private boolean enabled;
 
+    @Column(nullable = false,columnDefinition = "BOOLEAN DEFAULT true")
+    private boolean isDefault;
+    
 }
