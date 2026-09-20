@@ -8,6 +8,7 @@ import java.time.temporal.ChronoUnit;
 import com.ft_transcendence.vigil.domain.entities.Alerts.*;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
+import com.ft_transcendence.vigil.exceptions.ForbiddenException;
 import com.ft_transcendence.vigil.exceptions.InvalidRequestException;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
 import com.ft_transcendence.vigil.mappers.AlertRulesGetAndPatchResponseMapper;
@@ -174,7 +175,7 @@ public class AlertsService {
     {
         AlertRules alertRules = alertRuleRepository.findById(id).orElseThrow(() -> new ResourcesNotFoundException("Invalid alert rule with id: " + id));
         if (alertRules.isDefault())
-            throw new InvalidRequestException("Cannot delete a default rule");
+            throw new ForbiddenException("cannot delete a default rule");
         alertRuleRepository.deleteById(id);
     }
 
