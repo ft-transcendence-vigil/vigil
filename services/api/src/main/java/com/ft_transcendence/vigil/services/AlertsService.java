@@ -76,12 +76,14 @@ public class AlertsService {
     public AlertRulesPostDtoResponse rulesPostService(AlertRulesPostRequestDto alertRulesPostRequestDto) {
         CheckAlertParsingRules.validateTheMetrics(alertRulesPostRequestDto.getSignalType(),alertRulesPostRequestDto.getMetricName(),alertRulesPostRequestDto.getAggregation());
         AlertRules alertRules = alertRulesPostRequestMapper.map(alertRulesPostRequestDto);
+        alertRules.setDefault(false);
         alertRuleRepository.save(alertRules);
         return alertRulesPostResponseMapper.map(alertRules);
     }
 
-    public PaginationResponse<AlertRulesGetAndPatchResponseDto>getAlertRulesService(int count, UUID offset) {
-        List<AlertRules> result = alertRuleRepository.getAlertRulesByCountAndOffset(count + 1, offset);
+    public PaginationResponse<AlertRulesGetAndPatchResponseDto>getAlertRulesService(int count, Integer offset) {
+        int startAt = offset == null ? 0 : offset;
+        List<AlertRules> result = alertRuleRepository.getAlertRulesByCountAndOffset(count + 1, startAt);
         boolean hasMore = result.size() > count;
         if (hasMore)
             result.remove(result.size() - 1);
@@ -120,6 +122,7 @@ public class AlertsService {
                 a -> {
                     return AlertsGetResponseDto.builder()
                             .id(a.getId())
+                            .service(a.getService())
                             .aggregation(a.getAggregation())
                             .metricName(a.getMetricName())
                             .myAck(alertAcksMap.get(a.getId()) != null ? new AlertsGetResponseDto.MyAck(alertAcksMap.get(a.getId()).getStatus(), alertAcksMap.get(a.getId()).getAckedAt()) : null)

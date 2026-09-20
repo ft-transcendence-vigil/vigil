@@ -28,7 +28,7 @@ public class AlertsController {
     }
 
     @GetMapping("/rules")
-    public ResponseEntity<PaginationResponse<AlertRulesGetAndPatchResponseDto>> alertRulesgetController(@RequestParam(defaultValue = "20") Integer count, @RequestParam(required = false) UUID offset)
+    public ResponseEntity<PaginationResponse<AlertRulesGetAndPatchResponseDto>> alertRulesgetController(@RequestParam(defaultValue = "20") Integer count, @RequestParam(required = false) Integer offset)
     {
         PaginationResponse<AlertRulesGetAndPatchResponseDto> response = alertsService.getAlertRulesService(count,offset);
         return ResponseEntity.status(HttpStatus.OK).body(response);
