@@ -40,7 +40,7 @@ public class AlertRules {
     @Column(nullable = false)
     private boolean enabled;
 
-    @Column(nullable = false,columnDefinition = "BOOLEAN DEFAULT true")
+    @Column(nullable = false,columnDefinition = "BOOLEAN DEFAULT false")
     private boolean isDefault;
     
 }

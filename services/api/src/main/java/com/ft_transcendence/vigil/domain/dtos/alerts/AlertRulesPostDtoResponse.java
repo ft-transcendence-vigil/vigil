@@ -1,6 +1,7 @@
 package com.ft_transcendence.vigil.domain.dtos.alerts;
 
 import com.ft_transcendence.vigil.domain.entities.Alerts.Severity;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ft_transcendence.vigil.domain.entities.Alerts.SignalType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,5 +21,6 @@ public class AlertRulesPostDtoResponse {
     private Double threshold;
     private Severity severity;
     private Boolean enabled;
+    @JsonProperty("is_default")
     private Boolean isDefault;
 }
