@@ -8,6 +8,7 @@ protocol https also a test problem
 
 
 7. WS /api/alerts/ws — the big one. TextWebSocketHandler, HandshakeInterceptor for the ?token= check, ConcurrentHashMap session registry. This is the CV talking point.
+// later fix the security context inside the handle message by adding the user to the registry and then making a different put for ws
 
 Telemetry SSE
 8. GET /api/telemetry/logs/live — learn SseEmitter here
