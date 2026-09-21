@@ -43,8 +43,15 @@ __pycache__/
 *.iws
 *.iml
 *.ipr
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 
 # === OS noise ===
 .DS_Store
 Thumbs.db
+
+# === Node / Vite / React (services/web) ===
+node_modules/
+dist/
+dist-ssr/
+*.local
