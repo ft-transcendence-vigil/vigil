@@ -1,10 +1,15 @@
 package com.ft_transcendence.vigil.websocket;
 
 import com.ft_transcendence.vigil.domain.dtos.alerts.*;
+import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.exceptions.*;
+import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 import com.ft_transcendence.vigil.services.AlertsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -13,7 +18,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.Instant;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -22,6 +27,7 @@ public class AlertSocketHandler extends TextWebSocketHandler {
     private final AlertSessionRegistry registry;
     private final ObjectMapper mapper;
     private final AlertsService alertsService;
+    final private UserRepository userRepository;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
@@ -48,9 +54,21 @@ public class AlertSocketHandler extends TextWebSocketHandler {
                 sendError(session, "type must be ack");
                 return;
             }
-            AlertAcksPutDtoResponse ackDto = alertsService.alertAcksPutService(request.alert_id(), request.status());
-            WebSocketStatusResponse.Data data = new WebSocketStatusResponse.Data(ackDto.getAlertId(),session.getAttributes().get("userEmail").toString(),ackDto.getStatus(), ackDto.getAckedAt());
-            registry.podcastStatus(WebSocketStatusResponse.builder().type(Type.status).data(data).build());
+            try{
+
+
+            UUID userId = (UUID) session.getAttributes().get("userId");
+            User user = userRepository.findById(userId).orElseThrow();
+
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    new UserPrincipal(user), null, new UserPrincipal(user).getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            alertsService.alertAcksPutService(request.alert_id(), request.status());
+            }
+            finally {
+                SecurityContextHolder.clearContext();
+            }
         }
         catch (ResourcesNotFoundException | InvalidRequestException e) {
             sendError(session, "invalid ack");

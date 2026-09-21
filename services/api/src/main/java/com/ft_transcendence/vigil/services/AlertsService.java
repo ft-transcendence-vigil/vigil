@@ -17,6 +17,7 @@ import com.ft_transcendence.vigil.mappers.AlertRulesPostResponseMapper;
 import com.ft_transcendence.vigil.repositories.alertsrepository.AlertAcksRepository;
 import com.ft_transcendence.vigil.repositories.alertsrepository.AlertHistoryRepository;
 import com.ft_transcendence.vigil.repositories.alertsrepository.AlertRuleRepository;
+import com.ft_transcendence.vigil.websocket.AlertSessionRegistry;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class AlertsService {
     final private AlertAcksRepository alertAcksRepository;
+    private final AlertSessionRegistry registry;
     final private AlertRuleRepository alertRuleRepository;
     final private AlertHistoryRepository alertHistoryRepository;
     final private AlertRulesPostResponseMapper alertRulesPostResponseMapper;
@@ -179,9 +181,9 @@ public class AlertsService {
         alertRuleRepository.deleteById(id);
     }
 
-    public AlertAcksPutDtoResponse alertAcksPutService(UUID id, Status status)
-    {
-        AlertHistory alertHistory = alertHistoryRepository.findById(id).orElseThrow(() -> new ResourcesNotFoundException("No alert with id: " + id));
+    public AlertAcksPutDtoResponse alertAcksPutService(UUID id, Status status) {
+        AlertHistory alertHistory = alertHistoryRepository.findById(id)
+                .orElseThrow(() -> new ResourcesNotFoundException("No alert with id: " + id));
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userPrincipal.getUser();
         AlertAcksId alertAcksId = new AlertAcksId(id, user.getId());
@@ -195,7 +197,20 @@ public class AlertsService {
         }
         alertAcks.setStatus(status);
         alertAcksRepository.save(alertAcks);
-        return new AlertAcksPutDtoResponse(alertHistory.getId(), user.getEmail(), alertAcks.getStatus(), alertAcks.getAckedAt());
-    }
 
+        AlertAcksPutDtoResponse response = new AlertAcksPutDtoResponse(
+                alertHistory.getId(), user.getEmail(), alertAcks.getStatus(), alertAcks.getAckedAt());
+
+        registry.podcastStatus(
+                WebSocketStatusResponse.builder()
+                        .type(Type.status)
+                        .data(new WebSocketStatusResponse.Data(
+                                response.getAlertId(),
+                                response.getUserEmail(),
+                                response.getStatus(),
+                                response.getAckedAt()))
+                        .build());
+
+        return response;
+    }
 }
