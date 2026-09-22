@@ -1,4 +1,4 @@
-package com.ft_transcendence.vigil.Security;
+package com.ft_transcendence.vigil.security;
 
 import com.ft_transcendence.vigil.configuration.VigilProperties;
 import io.jsonwebtoken.JwtException;
