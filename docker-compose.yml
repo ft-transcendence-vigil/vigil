@@ -1,60 +1,75 @@
 services:
+
   api:
-    container_name: api
     build:
       context: ./services/api
     ports:
-      - "8080:8080"
+      - "${API_PORT:-8080}:8080"
     environment:
-      - POSTGRES_USER=$POSTGRES_USER
-      - CLICKHOUSE_USER=$CLICKHOUSE_USER
-      - CLICKHOUSE_PASSWORD=$CLICKHOUSE_PASSWORD
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/lopo
-      - SPRING_DATASOURCE_USERNAME=$POSTGRES_USER
-      - SPRING_DATASOURCE_PASSWORD=$POSTGRES_PASSWORD
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      POSTGRES_USER: "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
+      CLICKHOUSE_USER: "${CLICKHOUSE_USER:?Set CLICKHOUSE_USER in .env}"
+      CLICKHOUSE_PASSWORD: "${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD in .env}"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-lopo}"
+      SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
+      SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}"
+      JWT_SECRET: "${JWT_SECRET:?Set JWT_SECRET in .env}"
     depends_on:
       postgres:
         condition: service_healthy
       clickhouse:
         condition: service_healthy
 
-
   postgres:
-    container_name: postgres
-    image: cgr.dev/chainguard/postgres:latest
+    image: "${POSTGRES_IMAGE:-cgr.dev/chainguard/postgres:latest}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_DB=lopo
-    healthcheck:
-      test: "pg_isready -U $POSTGRES_USER"
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-
-  clickhouse:
-    container_name: clickhouse
-    image: clickhouse/clickhouse-server:26.8.6.5-distroless
-    environment:
-      CLICKHOUSE_USER: $CLICKHOUSE_USER
-      CLICKHOUSE_PASSWORD: $CLICKHOUSE_PASSWORD
-      CLICKHOUSE_DB: default
+      POSTGRES_USER: "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      POSTGRES_DB: "${POSTGRES_DB:-lopo}"
     healthcheck:
       test:
-        [
-          "CMD",
-          "clickhouse-client",
-          "--host",
-          "localhost",
-          "--user",
-          "$CLICKHOUSE_USER",
-          "--password",
-          "$CLICKHOUSE_PASSWORD",
-          "--query",
-          "SELECT 1"
-        ]
+        - CMD
+        - pg_isready
+        - -U
+        - "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
+        - -d
+        - "${POSTGRES_DB:-lopo}"
       interval: 10s
       timeout: 5s
       retries: 5
+
+  clickhouse:
+    image: "${CLICKHOUSE_IMAGE:-clickhouse/clickhouse-server:26.8.6.5-distroless}"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    environment:
+      CLICKHOUSE_USER: "${CLICKHOUSE_USER:?Set CLICKHOUSE_USER in .env}"
+      CLICKHOUSE_PASSWORD: "${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD in .env}"
+      CLICKHOUSE_DB: "${CLICKHOUSE_DB:-default}"
+    healthcheck:
+      test:
+        - CMD
+        - clickhouse-client
+        - --host
+        - localhost
+        - --user
+        - "${CLICKHOUSE_USER:?Set CLICKHOUSE_USER in .env}"
+        - --password
+        - "${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD in .env}"
+        - --database
+        - "${CLICKHOUSE_DB:-default}"
+        - --query
+        - SELECT 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+
+  postgres_data:
+    name: postgres_data
+
+  clickhouse_data:
+    name: clickhouse_data

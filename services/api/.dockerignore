@@ -1,0 +1,51 @@
+# Maven build output
+target/
+
+# Local Maven cache/configuration
+.mvn/
+mvnw
+mvnw.cmd
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# IDE configuration
+.idea/
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+*.iml
+*.ipr
+*.iws
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+
+# Test and coverage output
+coverage/
+*.exec
+
+# Documentation not required by the image build
+README*
+*.md
+
+# Local Docker files not needed in the build context
+docker-compose*.yml
+compose*.yml
