@@ -1,6 +1,6 @@
-package com.ft_transcendence.vigil.Security;
+package com.ft_transcendence.vigil.security;
 
-import com.ft_transcendence.vigil.Services.UserDetailsServiceImpl;
+import com.ft_transcendence.vigil.services.UserDetailsServiceImpl;
 import com.ft_transcendence.vigil.configuration.VigilProperties;
 
 import jakarta.servlet.FilterChain;
@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -17,9 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.List;
 
 @Component
 @AllArgsConstructor

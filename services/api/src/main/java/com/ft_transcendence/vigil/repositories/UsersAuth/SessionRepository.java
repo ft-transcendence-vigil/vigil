@@ -1,7 +1,7 @@
-package com.ft_transcendence.vigil.repositories;
+package com.ft_transcendence.vigil.repositories.UsersAuth;
 
-import com.ft_transcendence.vigil.domain.entities.Session;
-import com.ft_transcendence.vigil.domain.entities.User;
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.Session;
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 

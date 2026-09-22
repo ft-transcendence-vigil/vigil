@@ -1,6 +1,6 @@
-package com.ft_transcendence.vigil.repositories;
+package com.ft_transcendence.vigil.repositories.webhook;
 
-import com.ft_transcendence.vigil.domain.entities.Webhook;
+import com.ft_transcendence.vigil.domain.entities.Webhook.Webhook;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

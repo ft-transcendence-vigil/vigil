@@ -1,5 +1,5 @@
 package com.ft_transcendence.vigil.configuration;
-import com.ft_transcendence.vigil.Security.JjwtAuthFilter;
+import com.ft_transcendence.vigil.security.JjwtAuthFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
