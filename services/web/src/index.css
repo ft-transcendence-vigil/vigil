@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme {
+    --color-vigil-bg: #050910;
+    --color-vigil-surface: #0d1320;
+    --color-vigil-border: #1a2333;
+    --color-vigil-border-muted: rgba(26, 35, 51, 0.6);
+    --color-vigil-cyan: #16d9f3;
+    --color-vigil-muted: #6b7da8;
+}
+
+@utility center-absolute {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+body {
+    font-family: "Inter", sans-serif;
+    color: white;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Poppins", sans-serif;
+}
+
+.login,
+.setup {
+    position: relative;
+    isolation: isolate;
+}
+
+.login::before,
+.setup::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url(./assets/login-setup-bg.jpg);
+    background-position: center;
+    background-size: cover;
+    opacity: 0.03;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.branding-panel {
+    @apply flex flex-col justify-center lg:justify-between px-20 py-12 text-center lg:text-start w-full col-span-12 lg:col-span-7 border-b lg:border-r border-vigil-border-muted;
+}
+
+.branding-panel .content .tagline {
+    @apply uppercase text-vigil-muted text-[13px] tracking-[2px] [word-spacing:3px];
+}
+
+.branding-panel .content .title {
+    @apply my-7 text-[30px] sm:text-[40px] lg:text-[50px] leading-[1.2];
+}
+
+.branding-panel .content .caption {
+    @apply w-full lg:w-87.5 text-vigil-muted mb-7 lg:mb-12 text-[17px] leading-[1.7];
+}
+
+.branding-panel .content ul.features {
+    @apply uppercase text-vigil-muted flex justify-center lg:justify-start space-x-3 lg:space-x-6 text-[9px] lg:text-[13px] tracking-[1px] mb-6 lg:mb-0;
+}
+
+.branding-panel .content ul.features li .dot {
+    box-shadow: 0 0px 10px 3px rgba(0, 214, 143, 0.2);
+    @apply inline-block w-2 h-2 rounded bg-vigil-cyan me-0.75;
+}
+
+.branding-panel .footer-text {
+    @apply text-vigil-muted uppercase text-[12px] tracking-[2px] [word-spacing:3px];
+}
+
+/* form panel */
+
+.form-panel {
+    @apply w-full py-5 col-span-12 lg:col-span-5 flex justify-center items-center;
+}
+
+.form-panel form .input input {
+    width: 100%;
+    background-color: #0a0f1e;
+    border: 1px solid #1a2333;
+    padding: 15px;
+    outline: none;
+}
+
+.form-panel form .input input:focus {
+    outline: 1px solid #16d9f3;
+}
+
+.form-panel form input[type='submit'] {
+    width: 100%;
+    padding: 15px;
+    background-color: #16d9f3;
+    color: #000;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.5s;
+    margin-bottom: 30px;
+}
+
+.form-panel form input[type='submit']:hover {
+    opacity: 0.7;
+}
+
+.form-panel form .input-wrapper {
+    position: relative;
+}
+
+.form-panel form .input-wrapper:hover::after {
+    color: #fff;
+}
+
+.form-panel form .input-wrapper .show-btn {
+    @apply uppercase absolute right-5 top-1/2 -translate-y-1/2 text-vigil-muted text-[12px] cursor-pointer transition-colors duration-300 hover:text-white
+}
