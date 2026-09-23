@@ -11,7 +11,7 @@ export default function LoginPage() {
           <Branding
             tagline="observability platform"
             title={{ white: 'Every signal,', blue: 'one command center.' }}
-            caption="              Alerts, logs, metrics, and traces, correlated and explained, so
+            caption="Alerts, logs, metrics, and traces, correlated and explained, so
               you find root cause before your users do."
             features={{
               one: 'api reachable',
