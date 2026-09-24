@@ -4,7 +4,7 @@ import Logo from '../../components/shared/Logo';
 
 export default function SetupPage() {
   return (
-    <div className="setup bg-vigil-bg h-screen">
+    <div className="setup bg-vigil-bg min-h-screen lg:h-screen">
       <div className="mx-auto grid grid-cols-12 h-full">
         <div className="branding-panel">
           <Logo />

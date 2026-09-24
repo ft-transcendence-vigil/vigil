@@ -2,6 +2,7 @@
 
 @theme {
     --color-vigil-bg: #050910;
+    --color-vigil-bg-input: #0a0f1e;
     --color-vigil-surface: #0d1320;
     --color-vigil-border: #1a2333;
     --color-vigil-border-muted: rgba(26, 35, 51, 0.6);

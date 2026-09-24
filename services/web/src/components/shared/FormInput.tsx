@@ -3,9 +3,16 @@ interface Data {
   type: string;
   placeholder: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  error: string;
 }
 
-export default function FormInput({ title, type, placeholder, onChange }: Data) {
+export default function FormInput({
+  title,
+  type,
+  placeholder,
+  onChange,
+  error,
+}: Data) {
   return (
     <div className="input mb-6.25">
       <label htmlFor="email" className="text-vigil-muted block mb-2">
@@ -17,8 +24,9 @@ export default function FormInput({ title, type, placeholder, onChange }: Data) 
         id={type}
         placeholder={placeholder}
         onChange={onChange}
-        className="placeholder:text-vigil-muted"
+        className={`placeholder:text-vigil-muted ${error ? 'border! border-red-400! focus:outline-0!' : ''}`}
       />
+      {error && <div className="text-xs text-red-400 mt-2">{error}</div>}
     </div>
   );
 }
