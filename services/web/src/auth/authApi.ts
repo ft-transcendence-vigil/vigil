@@ -9,7 +9,9 @@ async function login(email: string, password: string): Promise<AuthResponse> {
   });
   if (!response.ok) {
     const errorData: ApiError = await response.json();
-    throw new Error(errorData.error);
+    console.log(errorData.error);
+
+    throw new Error(errorData.error.message);
   }
   const data: AuthResponse = await response.json();
   return data;

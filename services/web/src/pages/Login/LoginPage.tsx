@@ -4,7 +4,7 @@ import Branding from '../../components/shared/Branding';
 
 export default function LoginPage() {
   return (
-    <div className="login bg-vigil-bg h-screen">
+    <div className="login bg-vigil-bg min-h-screen lg:h-screen">
       <div className="mx-auto grid grid-cols-12 h-full">
         <div className="branding-panel">
           <Logo />

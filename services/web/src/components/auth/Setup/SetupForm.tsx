@@ -2,8 +2,21 @@ import FormInput from '../../shared/FormInput';
 import PasswordInput from '../../shared/PasswordInput';
 import FormButton from '../../shared/FormButton';
 import { Link } from 'react-router-dom';
+import useAuhForm from '../../../auth/useAuhForm';
 
 export default function SetupForm() {
+  const {
+    // email,
+    // password,
+    emailError,
+    passwordError,
+    // formError: loginError,
+    // setFormError: setLoginError,
+    handleEmailChange,
+    handlePasswordChange,
+    // validate,
+  } = useAuhForm();
+
   return (
     <div className="setup-form w-full px-20 sm:px-40 lg:px-0 lg:w-3/5">
       <h1 className="title text-[33px] text-center lg:text-start">
@@ -14,9 +27,9 @@ export default function SetupForm() {
         by an admin.
       </p>
       <form>
-        <FormInput title="Email" type="email" placeholder="you@company.com" />
-        <PasswordInput />
-        <PasswordInput />
+        <FormInput onChange={handleEmailChange} title="Email" type="text" placeholder="you@company.com" error={emailError} />
+        <PasswordInput onChange={handlePasswordChange} error={passwordError}/>
+        <PasswordInput onChange={handlePasswordChange} error={passwordError}/>
         <FormButton value="Create admin account" />
         <div className="create-account-link text-vigil-muted text-center">
           Already set up?{' '}
