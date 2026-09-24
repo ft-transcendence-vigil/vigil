@@ -90,4 +90,10 @@ public class TelemetryController {
     ResponseEntity<List<AttributeResponse>> getAttributes() {
         return ResponseEntity.status(HttpStatus.OK).body(telemetryService.getAttributes());
     }
+    @GetMapping("/logs/live")
+    SseEmitter loveLogsHandler(@RequestParam(required = false) String service, @RequestParam(required = false) String severity)
+    {
+        SseEmitter emitter = logSseRegistry.addSseEmitter(severity, service);
+        return emitter;
+    }
 }
