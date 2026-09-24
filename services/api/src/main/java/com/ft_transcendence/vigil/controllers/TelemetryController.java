@@ -5,6 +5,7 @@ import com.ft_transcendence.vigil.domain.dtos.telemetry.Metric;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Trace;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.AttributeResponse;
 import com.ft_transcendence.vigil.serversentevents.LogSseRegistry;
+import com.ft_transcendence.vigil.serversentevents.TraceSseRegistry;
 import com.ft_transcendence.vigil.services.TelemetryService;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Null;
@@ -29,6 +30,8 @@ public class TelemetryController {
 
     private final TelemetryService telemetryService;
     private final LogSseRegistry logSseRegistry;
+
+    private final TraceSseRegistry traceSseRegistry;
 
 
     @GetMapping("/logs")
@@ -94,6 +97,12 @@ public class TelemetryController {
     SseEmitter loveLogsHandler(@RequestParam(required = false) String service, @RequestParam(required = false) String severity)
     {
         SseEmitter emitter = logSseRegistry.addSseEmitter(severity, service);
+        return emitter;
+    }
+    @GetMapping("/logs/trace")
+    SseEmitter traceLogsHandler(@RequestParam(required = false) String service)
+    {
+        SseEmitter emitter = traceSseRegistry.addSseEmitter(service);
         return emitter;
     }
 }
