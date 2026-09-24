@@ -1,14 +1,10 @@
 package com.ft_transcendence.vigil.serversentevents;
-
-
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Trace;
-
 import com.ft_transcendence.vigil.repositories.clickhouse.TraceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -16,7 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @RequiredArgsConstructor
 @Component
 public class TraceSseRegistry {
-    private final TraceRepository traceRepository;
     private record SseData(String service,SseEmitter emitter) {
 
     }

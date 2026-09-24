@@ -1,13 +1,10 @@
 package com.ft_transcendence.vigil.serversentevents;
-
-
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Metric;
 import com.ft_transcendence.vigil.repositories.clickhouse.MetricsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -15,7 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @RequiredArgsConstructor
 @Component
 public class MetricSseRegistry {
-    private final MetricsRepository metricsRepository;
     private record SseData(String service,SseEmitter emitter) {
 
     }
