@@ -4,7 +4,10 @@ import com.ft_transcendence.vigil.domain.dtos.telemetry.Log;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Metric;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Trace;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.AttributeResponse;
+import com.ft_transcendence.vigil.serversentevents.LogSseRegistry;
 import com.ft_transcendence.vigil.services.TelemetryService;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.yaml.snakeyaml.emitter.Emitter;
 
 import java.util.List;
 
@@ -23,6 +28,8 @@ import java.util.List;
 public class TelemetryController {
 
     private final TelemetryService telemetryService;
+    private final LogSseRegistry logSseRegistry;
+
 
     @GetMapping("/logs")
     ResponseEntity<?> getLogs(
