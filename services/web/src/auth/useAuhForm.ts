@@ -37,7 +37,7 @@ export default function useAuhForm() {
       setEmailError('Email is required');
       isValid = false;
     }
-    if (!password.trim()) {
+    if (password.length === 0) {
       setPasswordError('Password is required');
       isValid = false;
     }

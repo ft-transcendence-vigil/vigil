@@ -18,4 +18,15 @@ export interface AuthState {
   role: Role | null;
   accessToken: string | null;
   signIn: (email: string, password: string) => Promise<void>;
+  isAuthChecking: boolean;
+}
+
+export interface RefreshResponse {
+  access_token: string;
+}
+
+export interface CurrentUser {
+  id: string;
+  email: string;
+  role: Role;
 }
