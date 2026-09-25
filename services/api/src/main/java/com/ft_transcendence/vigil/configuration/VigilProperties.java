@@ -18,6 +18,7 @@ public class VigilProperties {
     private String apiKey;
     private long accessTokenExpiration;
     private long refreshTokenExpiration;
+    private String frontEndUrl;
 
     @PostConstruct
     void init() {
@@ -29,5 +30,7 @@ public class VigilProperties {
         if (apiKey == null || apiKey.isBlank()) {
             apiKey = UUID.randomUUID().toString();
         }
+        if (frontEndUrl == null || frontEndUrl.isBlank())
+            frontEndUrl = "http://localhost:3000";
     }
 }
