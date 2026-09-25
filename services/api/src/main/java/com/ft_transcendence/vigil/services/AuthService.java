@@ -169,4 +169,8 @@ public class AuthService {
         return sessionsDtos;
     }
 
+    public boolean getSetupHandler()
+    {
+        return userRepository.countByRole(Role.ADMIN) > 0;
+    }
 }
