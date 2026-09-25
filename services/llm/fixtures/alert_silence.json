@@ -1,0 +1,6 @@
+{
+  "alert_id": "22222222-2222-2222-2222-222222222222",
+  "service": "email-worker",
+  "triggered_at": "2026-08-31T03:05:00Z",
+  "context": {"logs": [], "metrics": [], "traces": []}
+}

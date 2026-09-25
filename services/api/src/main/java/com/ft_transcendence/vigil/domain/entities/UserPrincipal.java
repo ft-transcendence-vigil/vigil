@@ -1,5 +1,6 @@
 package com.ft_transcendence.vigil.domain.entities;
 
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
@@ -15,7 +16,7 @@ public class UserPrincipal implements UserDetails {
     final private User user;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getValue()));
     }
 
     @Override

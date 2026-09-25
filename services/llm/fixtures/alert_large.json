@@ -1,0 +1,2149 @@
+{
+  "alert_id": "33333333-3333-3333-3333-333333333333",
+  "service": "payment-api",
+  "triggered_at": "2026-08-31T03:00:14Z",
+  "context": {
+    "logs": [
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:00Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 0)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:01Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 1)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:02Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 2)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:03Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 3)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:04Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 4)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:05Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 5)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:06Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 6)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:07Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 7)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:08Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 8)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:09Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 9)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:10Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 10)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:11Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 11)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:12Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 12)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:13Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 13)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:14Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 14)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:15Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 15)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:16Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 16)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:17Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 17)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:18Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 18)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:19Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 19)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:20Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 20)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:21Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 21)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:22Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 22)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:23Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 23)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:24Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 24)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:25Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 25)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:26Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 26)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:27Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 27)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:28Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 28)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:29Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 29)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:30Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 30)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:31Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 31)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:32Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 32)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:33Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 33)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:34Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 34)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:35Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 35)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:36Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 36)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:37Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 37)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:38Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 38)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:39Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 39)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:40Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 40)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:41Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 41)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:42Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 42)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:43Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 43)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:44Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 44)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:45Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 45)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:46Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 46)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:47Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 47)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:48Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 48)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:49Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 49)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:50Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 50)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:51Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 51)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:52Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 52)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:53Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 53)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:54Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 54)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:55Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 55)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:56Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 56)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:57Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 57)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:58Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 58)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:59Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 59)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:00Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 60)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:01Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 61)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:02Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 62)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:03Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 63)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:04Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 64)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:05Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 65)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:06Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 66)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:07Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 67)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:08Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 68)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:09Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 69)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:10Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 70)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:11Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 71)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:12Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 72)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:13Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 73)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:14Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 74)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:15Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 75)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:16Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 76)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:17Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 77)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:18Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 78)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:19Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 79)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:20Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 80)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:21Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 81)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:22Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 82)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:23Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 83)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:24Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 84)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:25Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 85)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:26Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 86)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:27Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 87)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:28Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 88)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:29Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 89)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:30Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 90)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:31Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 91)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:32Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 92)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:33Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 93)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:34Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 94)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:35Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 95)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:36Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 96)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:37Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 97)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:38Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 98)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:39Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 99)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:40Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 100)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:41Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 101)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:42Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 102)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:43Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 103)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:44Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 104)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:45Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 105)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:46Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 106)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:47Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 107)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:48Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 108)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:49Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 109)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:50Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 110)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:51Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 111)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:52Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 112)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:53Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 113)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:54Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 114)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:55Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 115)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:56Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 116)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:57Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 117)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:58Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 118)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:01:59Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 119)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:00Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 120)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:01Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 121)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:02Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 122)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:03Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 123)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:04Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 124)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:05Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 125)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:06Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 126)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:07Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 127)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:08Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 128)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:09Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 129)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:10Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 130)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:11Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 131)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:12Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 132)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:13Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 133)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:14Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 134)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:15Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 135)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:16Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 136)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:17Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 137)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:18Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 138)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:19Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 139)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:20Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 140)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:21Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 141)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:22Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 142)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:23Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 143)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:24Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 144)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:25Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 145)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:26Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 146)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:27Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 147)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:28Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 148)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:29Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 149)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:30Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 150)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:31Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 151)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:32Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 152)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:33Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 153)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:34Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 154)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:35Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 155)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:36Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 156)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:37Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 157)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:38Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 158)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:39Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 159)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:40Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 160)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:41Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 161)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:42Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 162)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:43Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 163)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:44Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 164)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:45Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 165)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:46Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 166)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:47Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 167)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:48Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 168)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:49Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 169)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:50Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 170)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:51Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 171)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:52Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 172)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:53Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 173)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:54Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 174)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:55Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 175)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:56Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 176)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:57Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 177)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:58Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 178)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:02:59Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 179)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:00Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 180)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:01Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 181)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:02Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 182)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:03Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 183)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:04Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 184)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:05Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 185)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:06Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 186)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:07Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 187)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:08Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 188)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:09Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 189)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:10Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 190)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:11Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 191)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:12Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 192)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:13Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 193)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:14Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 194)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:15Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 195)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:16Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 196)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:17Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 197)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:18Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 198)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:19Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 199)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:20Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 200)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:21Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 201)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:22Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 202)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:23Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 203)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:24Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 204)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:25Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 205)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:26Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 206)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:27Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 207)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:28Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 208)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:29Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 209)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:30Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 210)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:31Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 211)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:32Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 212)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:33Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 213)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:34Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 214)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:35Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 215)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:36Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 216)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:37Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 217)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:38Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 218)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:39Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 219)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:40Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 220)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:41Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 221)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:42Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 222)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:43Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 223)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:44Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 224)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:45Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 225)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:46Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 226)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:47Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 227)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:48Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 228)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:49Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 229)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:50Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 230)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:51Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 231)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:52Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 232)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:53Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 233)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:54Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 234)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:55Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 235)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:56Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 236)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:57Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 237)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:58Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 238)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:03:59Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 239)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:00Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 240)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:01Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 241)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:02Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 242)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:03Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 243)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:04Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 244)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:05Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 245)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:06Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 246)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:07Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 247)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:08Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 248)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:09Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 249)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:10Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 250)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:11Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 251)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:12Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 252)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:13Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 253)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:14Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 254)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:15Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 255)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:16Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 256)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:17Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 257)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:18Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 258)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:19Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 259)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:20Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 260)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:21Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 261)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:22Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 262)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:23Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 263)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:24Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 264)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:25Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 265)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:26Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 266)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:27Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 267)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:28Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 268)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:29Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 269)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:30Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 270)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:31Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 271)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:32Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 272)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:33Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 273)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:34Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 274)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:35Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 275)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:36Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 276)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:37Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 277)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:38Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 278)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:39Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 279)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:40Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 280)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:41Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 281)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:42Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 282)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:43Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 283)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:44Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 284)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:45Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 285)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:46Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 286)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:47Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 287)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:48Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 288)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:49Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 289)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:50Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 290)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:51Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 291)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:52Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 292)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:53Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 293)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:54Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 294)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:55Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 295)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:56Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 296)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:57Z",
+        "severity": "info",
+        "message": "connection refused to db-primary:5432 (attempt 297)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:58Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 298)",
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:04:59Z",
+        "severity": "error",
+        "message": "connection refused to db-primary:5432 (attempt 299)",
+        "attributes": {}
+      }
+    ],
+    "metrics": [
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:14Z",
+        "name": "cpu_usage",
+        "value": 87.3,
+        "attributes": {}
+      },
+      {
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:14Z",
+        "name": "db_pool_active",
+        "value": 100.0,
+        "attributes": {}
+      }
+    ],
+    "traces": [
+      {
+        "trace_id": "abc123",
+        "span_id": "def456",
+        "parent_span_id": null,
+        "name": "db.query",
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:14Z",
+        "duration_ms": 2914.0,
+        "status": "error",
+        "attributes": {}
+      },
+      {
+        "trace_id": "abc124",
+        "span_id": "def457",
+        "parent_span_id": "def456",
+        "name": "http.request",
+        "service": "payment-api",
+        "timestamp": "2026-08-31T03:00:13Z",
+        "duration_ms": 12.0,
+        "status": "ok",
+        "attributes": {}
+      }
+    ]
+  }
+}
