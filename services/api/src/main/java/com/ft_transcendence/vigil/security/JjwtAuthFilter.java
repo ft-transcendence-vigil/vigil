@@ -1,32 +1,35 @@
 package com.ft_transcendence.vigil.security;
-
+import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.services.UserDetailsServiceImpl;
 import com.ft_transcendence.vigil.configuration.VigilProperties;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.List;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class JjwtAuthFilter extends OncePerRequestFilter {
     private final JjwtService jjwtService;
     private final UserDetailsServiceImpl userDetailsService;
     private final VigilProperties vigilProperties;
 
-    // there is no users row behind an api key request, this stands in as the principal name
-    private static final String API_KEY_PRINCIPAL = "api-key";
-
+    // the name of the api key login
+    private static final String apiKeyUsername = "Api-Key";
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -34,6 +37,32 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
         if (header == null)
         {
+            String requestToken = request.getParameter("token");
+            if (requestToken != null)
+            {
+                if (requestToken.equals(vigilProperties.getApiKey()))
+                {
+                    UsernamePasswordAuthenticationToken authToken = UsernamePasswordAuthenticationToken.authenticated(apiKeyUsername,null, List.of(new SimpleGrantedAuthority("ROLE_admin")));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+                else {
+                    String username = null;
+                    try
+                    {
+                         username = jjwtService.getUserName(requestToken);
+                        UserPrincipal user = (UserPrincipal) userDetailsService.loadUserByUsername(username);
+                        if (jjwtService.isTokenValid(requestToken, user)) {
+                            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                            SecurityContextHolder.getContext().setAuthentication(authToken);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        log.error(e.getMessage());
+                    }
+
+                }
+            }
             filterChain.doFilter(request,response);
             return;
         }
@@ -48,7 +77,7 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
             if (validKey && SecurityContextHolder.getContext().getAuthentication() == null)
             {
                 UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(
-                        API_KEY_PRINCIPAL, null, List.of(new SimpleGrantedAuthority("ROLE_admin")));
+                        apiKeyUsername, null, List.of(new SimpleGrantedAuthority("ROLE_admin")));
                 token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(token);
             }
@@ -69,9 +98,9 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
                 if (jjwtService.isTokenValid(accessToken,userDetails))
                 {
-                     UsernamePasswordAuthenticationToken token =  UsernamePasswordAuthenticationToken.authenticated(userDetails,null,userDetails.getAuthorities());
-                     token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                     SecurityContextHolder.getContext().setAuthentication(token);
+                    UsernamePasswordAuthenticationToken token =  UsernamePasswordAuthenticationToken.authenticated(userDetails,null,userDetails.getAuthorities());
+                    token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(token);
                 }
 
             }
