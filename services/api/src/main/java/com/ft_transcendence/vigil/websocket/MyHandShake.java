@@ -1,5 +1,6 @@
 package com.ft_transcendence.vigil.websocket;
 
+import com.ft_transcendence.vigil.configuration.VigilProperties;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
@@ -21,6 +22,8 @@ import java.util.Map;
 public class MyHandShake implements HandshakeInterceptor {
     private final JjwtService jjwtService;
     private final UserRepository userRepository;
+    private final VigilProperties vigilProperties;
+    private static final String apiKeyUsername = "Api-Key";
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
@@ -30,17 +33,24 @@ public class MyHandShake implements HandshakeInterceptor {
                     .build().getQueryParams().getFirst("token");
             if (token == null)
                 return invalidToken(response);
+            if (token.equals(vigilProperties.getApiKey())) {
+                attributes.put("userId", "api-key");
+                attributes.put("userEmail", apiKeyUsername);
+                attributes.put("userRole", "admin");
+                return true;
+            }
+            String email = null;
+            User user = null;
+            UserPrincipal principal = null;
+            email = jjwtService.getUserName(token);
+            user = userRepository.findByEmail(email).orElse(null);
+                if (user == null)
+                    return invalidToken(response);
+                principal = new UserPrincipal(user);
+                if (!jjwtService.isTokenValid(token, principal))
+                    return invalidToken(response);
 
-            String email = jjwtService.getUserName(token);
-            User user = userRepository.findByEmail(email).orElse(null);
-            if (user == null)
-                return invalidToken(response);
-
-            UserPrincipal principal = new UserPrincipal(user);
-            if (!jjwtService.isTokenValid(token, principal))
-                return invalidToken(response);
-
-            attributes.put("userId", user.getId());
+            attributes.put("userId", user.getId().toString());
             attributes.put("userEmail",user.getEmail());
             attributes.put("userRole", principal.getAuthorities().stream()
                     .findFirst()
@@ -48,7 +58,7 @@ public class MyHandShake implements HandshakeInterceptor {
                     .map(s->s.substring(5))
                     .orElse(null));
             return true;
-        } catch (JwtException e) {
+        } catch (Exception e) {
             return invalidToken(response);
         }
     }

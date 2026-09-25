@@ -6,14 +6,5 @@ protocol https also a test problem
 // we need to set up later the name of the website inside the env
 
 
-
-7. WS /api/alerts/ws — the big one. TextWebSocketHandler, HandshakeInterceptor for the ?token= check, ConcurrentHashMap session registry. This is the CV talking point.
-// later fix the security context inside the handle message by adding the user to the registry and then making a different put for ws
-
-Telemetry SSE
-8. GET /api/telemetry/logs/live — learn SseEmitter here
-9. GET /api/telemetry/traces/live — same shape as logs
-10. GET /api/telemetry/metrics/live — same shape as logs
-
 last
 3. GET /api/config/keys — returns { api_key, ingestion_key }. You already have apiKey on VigilProperties; add ingestionKey the same way and it's a one-method controller. Admin-only. Nothing new to learn.
