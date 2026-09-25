@@ -32,9 +32,14 @@ public class AuthController {
 
     private final AuthService authService;
 
-    public record AuthResponse(Role role, String accessToken) {}
-    public record RefreshResponse(String accessToken) {}
-    public record SessionsResponse(List<SessionDto> sessions) {}
+    public record AuthResponse(Role role, String accessToken) {
+    }
+
+    public record RefreshResponse(String accessToken) {
+    }
+
+    public record SessionsResponse(List<SessionDto> sessions) {
+    }
 
     private static final String REFRESH_COOKIE = "refresh_token";
 
@@ -124,8 +129,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> loginController(@Valid @RequestBody LoginDto loginDto, HttpServletRequest request)
-    {
+    public ResponseEntity<AuthResponse> loginController(@Valid @RequestBody LoginDto loginDto, HttpServletRequest request) {
         AuthService.AuthResult authResult = authService.loginService(loginDto, request);
         ResponseCookie responseCookie = ResponseCookie
                 .from(REFRESH_COOKIE, authResult.rawRefreshToken())
@@ -139,4 +143,12 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(new AuthResponse(authResult.role(), authResult.accessToken()));
     }
+
+    @GetMapping("/setup")
+    public ResponseEntity<Boolean> getSetupHandler()
+    {
+            return ResponseEntity.status(HttpStatus.OK).body(authService.getSetupHandler());
+    }
+
+
 }
