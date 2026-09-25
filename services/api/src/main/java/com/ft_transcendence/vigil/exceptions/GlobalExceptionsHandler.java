@@ -87,6 +87,11 @@ public class GlobalExceptionsHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, request, ex.getMessage());
     }
 
+    @ExceptionHandler(TelemetryRepositoryException.class)
+    public ResponseEntity<ApiError> handleTelemetryQueryFailure(TelemetryRepositoryException ex, HttpServletRequest request) {
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, request, "server error");
+    }
+
     private ResponseEntity<ApiError> buildErrorResponse(HttpStatus status, HttpServletRequest request, String message) {
         Map<String, String> errors = new HashMap<>();
         errors.put("message", message);
