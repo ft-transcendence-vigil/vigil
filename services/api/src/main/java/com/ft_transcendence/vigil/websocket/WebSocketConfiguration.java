@@ -1,5 +1,6 @@
 package com.ft_transcendence.vigil.websocket;
 
+import com.ft_transcendence.vigil.configuration.VigilProperties;
 import com.ft_transcendence.vigil.websocket.AlertSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -20,13 +21,13 @@ import java.util.Map;
 public class WebSocketConfiguration implements WebSocketConfigurer {
     private final AlertSocketHandler handler;
     private final MyHandShake MyHandShake;
+    private final VigilProperties vigilProperties;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 
         registry.addHandler(handler, "/api/alerts/ws")
-                // we need to set up later the name of the website inside the env
-                .setAllowedOrigins("changethiswhenredafinishesthefrontend")
+                .setAllowedOrigins(vigilProperties.getFrontEndUrl())
                 .addInterceptors(MyHandShake);
     }
 }

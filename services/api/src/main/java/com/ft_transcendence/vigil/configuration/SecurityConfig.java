@@ -31,7 +31,8 @@ class SecurityConfig {
                                 "/api/auth/refresh",
                                 "/api/auth/logout",
                                 "/api/auth/sessions",
-                                "/api/auth/sessions/*").permitAll()
+                                "/api/auth/sessions/*",
+                                "/api/alerts/ws").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(c->c.disable())
