@@ -8,14 +8,13 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="vigil" />
+        <module name="api" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="api" target="1.5" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api" options="-parameters" />
       <module name="vigil" options="-parameters" />
     </option>
   </component>
