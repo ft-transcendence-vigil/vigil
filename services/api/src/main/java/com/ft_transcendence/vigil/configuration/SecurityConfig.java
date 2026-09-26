@@ -42,18 +42,5 @@ class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration c) throws Exception {
-        return c.getAuthenticationManager();
-    }
 
-    @Bean
-    @ConfigurationProperties(prefix = "vigil")
-    VigilProperties vigilProperties() {
-        return new VigilProperties();
-    }
 }
