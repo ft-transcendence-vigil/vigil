@@ -22,6 +22,23 @@ async function login(email: string, password: string): Promise<AuthResponse> {
   return data;
 }
 
+async function setup(email: string, password: string): Promise<AuthResponse> {
+  const res = await fetch('/api/auth/setup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const errorData: ApiError = await res.json().catch(() => null);
+    throw new Error(
+      errorData?.error.message ?? 'Unable to connect to the server.',
+    );
+  }
+  const data: AuthResponse = await res.json();
+  return data;
+}
+
 async function getCurrentUser(accessToken: string): Promise<CurrentUser> {
   const res = await fetch('/api/users/me', {
     headers: {
@@ -43,4 +60,4 @@ async function refresh(): Promise<RefreshResponse> {
   return data;
 }
 
-export { login, getCurrentUser, refresh };
+export { login, getCurrentUser, refresh, setup };

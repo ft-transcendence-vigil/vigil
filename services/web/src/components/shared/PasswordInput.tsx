@@ -1,27 +1,29 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 interface Data {
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  error: string;
+  error: string | undefined;
+  title?: string;
 }
 
-export default function PasswordInput({ onChange, error }: Data) {
+export default function PasswordInput({ onChange, error, title }: Data) {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleShowPassword = () => {
     setShowPassword((prev) => !prev);
   };
 
+  const id = useId();
   return (
     <div className="input mb-6.25">
-      <label htmlFor="password" className="text-vigil-muted block mb-2">
-        Password
+      <label htmlFor={id} className="text-vigil-muted block mb-2">
+        {title ?? 'Password'}
       </label>
       <div className="input-wrapper">
         <input
           type={showPassword ? 'text' : 'password'}
           name="password"
-          id="password"
+          id={id}
           placeholder="••••••••••"
           className={`placeholder:text-vigil-muted ${error ? 'border! border-red-400! focus:outline-0!' : ''}`}
           onChange={onChange}

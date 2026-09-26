@@ -18,7 +18,7 @@ export default function Branding({ tagline, title, caption, features }: Data) {
       <p className="tagline">{tagline}</p>
       <h1 className="title">
         {title.white}
-        <span className="text-vigil-cyan"> {title.blue}</span>
+        <span className="text-vigil-blue"> {title.blue}</span>
       </h1>
       <p className="caption">{caption}</p>
       <ul className="features">

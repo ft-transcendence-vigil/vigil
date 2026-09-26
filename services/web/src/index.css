@@ -1,13 +1,29 @@
 @import "tailwindcss";
 
-@theme {
+:root {
     --color-vigil-bg: #050910;
     --color-vigil-bg-input: #0a0f1e;
     --color-vigil-surface: #0d1320;
     --color-vigil-border: #1a2333;
     --color-vigil-border-muted: rgba(26, 35, 51, 0.6);
-    --color-vigil-cyan: #16d9f3;
+    --color-vigil-blue: #2196F3;
     --color-vigil-muted: #6b7da8;
+}
+
+/* ::selection {
+    color: #000;
+    background-color: var(--color-vigil-blue);
+} */
+
+
+@theme {
+    --color-vigil-bg: var(--color-vigil-bg);
+    --color-vigil-bg-input: var(--color-vigil-bg-input);
+    --color-vigil-surface: var(--color-vigil-surface);
+    --color-vigil-border: var(--color-vigil-border);
+    --color-vigil-border-muted: var(--color-vigil-border-muted);
+    --color-vigil-blue: var(--color-vigil-blue);
+    --color-vigil-muted: var(--color-vigil-muted);
 }
 
 @utility center-absolute {
@@ -73,7 +89,7 @@ h6 {
 
 .branding-panel .content ul.features li .dot {
     box-shadow: 0 0px 10px 3px rgba(0, 214, 143, 0.2);
-    @apply inline-block w-2 h-2 rounded bg-vigil-cyan me-0.75;
+    @apply inline-block w-2 h-2 rounded bg-vigil-blue me-0.75;
 }
 
 .branding-panel .footer-text {
@@ -88,20 +104,20 @@ h6 {
 
 .form-panel form .input input {
     width: 100%;
-    background-color: #0a0f1e;
-    border: 1px solid #1a2333;
+    background-color: var(--color-vigil-bg-input);
+    border: 1px solid var(--color-vigil-border);
     padding: 15px;
     outline: none;
 }
 
 .form-panel form .input input:focus {
-    outline: 1px solid #16d9f3;
+    outline: 1px solid var(--color-vigil-blue);
 }
 
 .form-panel form input[type='submit'] {
     width: 100%;
     padding: 15px;
-    background-color: #16d9f3;
+    background-color: var(--color-vigil-blue);
     color: #000;
     font-weight: 800;
     cursor: pointer;
