@@ -47,7 +47,7 @@ public class AuthService {
     private final SessionRepository sessionRepository;
     private final SessionMapper sessionMapper;
     // I create a session and refresh token and return the string of  refresh token
-    private String createSessionAndRefreshToken(User user, HttpServletRequest request)
+    public String createSessionAndRefreshToken(User user, HttpServletRequest request)
     {
         String raw = jjwtService.generateRefreshToken();
 
@@ -68,28 +68,7 @@ public class AuthService {
         return raw;
     }
 
-    @Transactional
-    // add the first admin and also create the api user
-    public AuthResult handleSetup(SetupDto setupDto, HttpServletRequest request)
-    {
-        if (userRepository.count() > 0)
-        {
-            throw new DuplicatedResourcesException("setup already completed");
-        }
-        User user = setupMapper.map(setupDto);
-        user.setPasswordHash(passwordEncoder.encode(setupDto.getPassword()));
-        user.setRole(Role.ADMIN);
-        User apiUser = User.builder()
-                .email("mustbe@api.email")
-                .passwordHash(passwordEncoder.encode(UUID.randomUUID().toString()))
-                .role(Role.ADMIN)
-                .build();
-        userRepository.save(user);
-        userRepository.save(apiUser);
-        String rawRefreshToken = createSessionAndRefreshToken(user, request);
-        String accessToken = jjwtService.generateToken(new UserPrincipal(user));
-        return new AuthResult(accessToken, rawRefreshToken, user.getRole());
-    }
+
 
     @Transactional
     public AuthResult loginService(LoginDto loginDto, HttpServletRequest request){
@@ -178,8 +157,5 @@ public class AuthService {
         return sessionsDtos;
     }
 
-    public boolean getSetupHandler()
-    {
-        return userRepository.countByRole(Role.ADMIN) > 0;
-    }
+
 }
