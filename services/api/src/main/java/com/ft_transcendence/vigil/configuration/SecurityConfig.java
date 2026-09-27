@@ -1,6 +1,7 @@
 package com.ft_transcendence.vigil.configuration;
 import com.ft_transcendence.vigil.ratelimiter.RateLimiter;
 import com.ft_transcendence.vigil.security.JjwtAuthFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -28,7 +29,14 @@ class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http.addFilterBefore(jjwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .addFilterBefore(rateLimiter, JjwtAuthFilter.class)
+                .anonymous(a -> a.disable())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                        })
+                )
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(
                                 "/api/auth/setup",
