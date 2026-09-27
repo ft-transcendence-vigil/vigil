@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface AlertHistoryRepository extends JpaRepository<AlertHistory, UUID> {
-    @Query("SELECT a from AlertHistory a WHERE (:before is null or  a.triggeredAt < :before) AND (:service is null or a.service = :service) AND (:after is null or a.triggeredAt > :after) Order By a.triggeredAt desc limit :count")
+    @Query("SELECT a from AlertHistory a WHERE ((cast (:before as Instant)):before is null or  a.triggeredAt < :before) AND (cast (:service as String)) (:service is null or a.service = :service) AND (cast (:after as Insant))(:after is null or a.triggeredAt > :after) Order By a.triggeredAt desc limit :count")
     List<AlertHistory> findAlertHistoriesByAggregation(@Param("after") Instant after, @Param("service") String service, @Param("count") Integer count, @Param("before") Instant before);
 
 }

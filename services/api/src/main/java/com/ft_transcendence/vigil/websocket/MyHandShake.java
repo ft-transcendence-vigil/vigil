@@ -47,7 +47,7 @@ public class MyHandShake implements HandshakeInterceptor {
                 if (!jjwtService.isTokenValid(token, principal))
                     return invalidToken(response);
 
-            attributes.put("userId", user.getId().toString());
+            attributes.put("userId", user.getId());
             attributes.put("userEmail",user.getEmail());
             attributes.put("userRole", principal.getAuthorities().stream()
                     .findFirst()

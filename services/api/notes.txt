@@ -2,9 +2,19 @@ notes :
 secure: true test porlbem
 protocol https also a test problem
 
-@ratelimnit
+// we also need to add an api key to the env
 // we need to set up later the name of the website inside the env
 
 
 last
 3. GET /api/config/keys — returns { api_key, ingestion_key }. You already have apiKey on VigilProperties; add ingestionKey the same way and it's a one-method controller. Admin-only. Nothing new to learn.
+
+
+
+//project rules
+never edit or delete the api key user
+
+
+// different than the spec
+instead of header of rate limit i send both the ratelimted and the retry in ... in a single error message
+
