@@ -1,6 +1,8 @@
 package com.ft_transcendence.vigil.configuration;
+import com.ft_transcendence.vigil.ratelimiter.RateLimiter;
 import com.ft_transcendence.vigil.security.JjwtAuthFilter;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +23,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 class SecurityConfig {
     private JjwtAuthFilter jjwtAuthFilter;
+    private RateLimiter rateLimiter;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) {
-        http.addFilterBefore(jjwtAuthFilter,UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(jjwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimiter, JjwtAuthFilter.class)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(
                                 "/api/auth/setup",
@@ -40,6 +45,13 @@ class SecurityConfig {
                 .logout(LogoutConfigurer::permitAll);
 
         return http.build();
+    }
+
+    @Bean
+    FilterRegistrationBean<RateLimiter> rateLimiterRegistration(RateLimiter rateLimiter) {
+        FilterRegistrationBean<RateLimiter> registration = new FilterRegistrationBean<>(rateLimiter);
+        registration.setEnabled(false);
+        return registration;
     }
 
 
