@@ -82,6 +82,7 @@ public class AuthService {
         User apiUser = User.builder()
                 .email("mustbe@api.email")
                 .passwordHash(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .role(Role.ADMIN)
                 .build();
         userRepository.save(user);
         userRepository.save(apiUser);
