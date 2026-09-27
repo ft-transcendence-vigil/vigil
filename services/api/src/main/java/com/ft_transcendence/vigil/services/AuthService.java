@@ -25,6 +25,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -67,6 +69,7 @@ public class AuthService {
     }
 
     @Transactional
+    // add the first admin and also create the api user
     public AuthResult handleSetup(SetupDto setupDto, HttpServletRequest request)
     {
         if (userRepository.count() > 0)
@@ -76,7 +79,12 @@ public class AuthService {
         User user = setupMapper.map(setupDto);
         user.setPasswordHash(passwordEncoder.encode(setupDto.getPassword()));
         user.setRole(Role.ADMIN);
+        User apiUser = User.builder()
+                .email("mustbe@api.email")
+                .passwordHash(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .build();
         userRepository.save(user);
+        userRepository.save(apiUser);
         String rawRefreshToken = createSessionAndRefreshToken(user, request);
         String accessToken = jjwtService.generateToken(new UserPrincipal(user));
         return new AuthResult(accessToken, rawRefreshToken, user.getRole());

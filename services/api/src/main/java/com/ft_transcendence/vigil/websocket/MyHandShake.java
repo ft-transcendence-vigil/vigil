@@ -27,8 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MyHandShake implements HandshakeInterceptor {
     private final JjwtService jjwtService;
     private final UserRepository userRepository;
-    private final VigilProperties vigilProperties;
-    private static final String apiKeyUsername = "Api-Key";
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
@@ -38,12 +36,6 @@ public class MyHandShake implements HandshakeInterceptor {
                     .build().getQueryParams().getFirst("token");
             if (token == null)
                 return invalidToken(response);
-            if (token.equals(vigilProperties.getApiKey())) {
-                attributes.put("userId", "api-key");
-                attributes.put("userEmail", apiKeyUsername);
-                attributes.put("userRole", "admin");
-                return true;
-            }
             String email = null;
             User user = null;
             UserPrincipal principal = null;
