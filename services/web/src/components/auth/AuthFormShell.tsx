@@ -28,7 +28,7 @@ export default function AuthFormShell(props: Data) {
         {props.caption}
       </p>
       {props.formError && (
-        <p className="text-sm text-red-300 border border-red-400 p-4 bg-vigil-bg-input mb-4">
+        <p className="text-sm text-red-300 border border-red-400 p-4 bg-vigil-bg-input mb-4 capitalize">
           {props.formError.message}
         </p>
       )}

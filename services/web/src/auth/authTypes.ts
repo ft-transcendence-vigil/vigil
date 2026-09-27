@@ -19,6 +19,8 @@ export interface AuthState {
   accessToken: string | null;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  apiFetch: (url: string, options: ResponseInit) => Promise<Response>;
   isAuthChecking: boolean;
 }
 
