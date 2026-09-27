@@ -11,6 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class AlertAcksId implements Serializable {
     private UUID userId;
     private UUID alertId;
