@@ -43,23 +43,6 @@ public class AuthController {
 
     private static final String REFRESH_COOKIE = "refresh_token";
 
-    @PostMapping("/setup")
-    public ResponseEntity<AuthResponse> setup(@Valid @RequestBody SetupDto setupDto,
-                                              HttpServletRequest request) {
-        AuthService.AuthResult result = authService.handleSetup(setupDto, request);
-
-        ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", result.rawRefreshToken())
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Strict")
-                .path("/api/auth")
-                .maxAge(Duration.ofDays(30))
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(new AuthResponse(result.role(), result.accessToken()));
-    }
 
     @PostMapping("/refresh")
     public ResponseEntity<RefreshResponse> refresh(
@@ -144,11 +127,6 @@ public class AuthController {
                 .body(new AuthResponse(authResult.role(), authResult.accessToken()));
     }
 
-    @GetMapping("/setup")
-    public ResponseEntity<Boolean> getSetupHandler()
-    {
-            return ResponseEntity.status(HttpStatus.OK).body(authService.getSetupHandler());
-    }
 
 
 }
