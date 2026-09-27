@@ -5,8 +5,6 @@ import type {
   RefreshResponse,
 } from './authTypes';
 
-const TEST_EMAIL = 'test@example.com';
-const TEST_PASSWORD = 'PassTest42!';
 const SETUP_ALREADY_COMPLETED = 'SETUP_ALREADY_COMPLETED';
 
 async function login(email: string, password: string): Promise<AuthResponse> {
@@ -26,10 +24,7 @@ async function login(email: string, password: string): Promise<AuthResponse> {
   return data;
 }
 
-async function setup(
-  email: string = TEST_EMAIL,
-  password: string = TEST_PASSWORD,
-): Promise<AuthResponse> {
+async function setup(email: string, password: string): Promise<AuthResponse> {
   const res = await fetch('/api/auth/setup', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -38,9 +33,21 @@ async function setup(
   });
   if (!res.ok) {
     const errorData: ApiError = await res.json().catch(() => null);
-    if (res.status === 409) throw new Error(SETUP_ALREADY_COMPLETED); // TODO: should get auth/setup (after moel fix it)
     throw new Error(
       errorData?.error.message ?? 'Unable to connect to the server.',
+    );
+  }
+  const data: AuthResponse = await res.json();
+  return data;
+}
+
+async function checkSetup(): Promise<AuthResponse> {
+  const res = await fetch('/api/auth/setup');
+  if (!res.ok) {
+    const errorData: ApiError = await res.json().catch(() => null);
+    if (res.status === 409) throw new Error(SETUP_ALREADY_COMPLETED);
+    throw new Error(
+      errorData?.error?.message ?? 'Unable to connect to the server.',
     );
   }
   const data: AuthResponse = await res.json();
@@ -83,4 +90,5 @@ export {
   refresh,
   setup,
   SETUP_ALREADY_COMPLETED,
+  checkSetup,
 };
