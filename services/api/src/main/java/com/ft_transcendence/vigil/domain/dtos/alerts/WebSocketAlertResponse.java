@@ -3,7 +3,7 @@ package com.ft_transcendence.vigil.domain.dtos.alerts;
 import com.ft_transcendence.vigil.domain.entities.Alerts.Severity;
 import com.ft_transcendence.vigil.domain.entities.Alerts.SignalType;
 import lombok.Builder;
-import lombok.Getter;;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
