@@ -100,8 +100,11 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
 
             if (validKey && SecurityContextHolder.getContext().getAuthentication() == null)
             {
-                UserPrincipal userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(apiKeyEmail);
-                if (userPrincipal == null)
+                UserPrincipal userPrincipal;
+                try {
+                    userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(apiKeyEmail);
+                }
+                catch (UsernameNotFoundException e)
                 {
                     exceptionResolver.resolveException(request, response, null,
                             new UnauthorizedException("make sure that a useradmin with email: " + apiKeyEmail + "exists"));
