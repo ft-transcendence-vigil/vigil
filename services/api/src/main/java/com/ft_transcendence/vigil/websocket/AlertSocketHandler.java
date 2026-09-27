@@ -6,6 +6,7 @@ import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.exceptions.*;
 import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 import com.ft_transcendence.vigil.services.AlertsService;
+import io.github.bucket4j.Bucket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,6 +45,12 @@ public class AlertSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
             WebSocketAckRequest request;
+            Bucket bucket = (Bucket)session.getAttributes().get("bucket");
+            if(!bucket.tryConsume(1))
+            {
+                sendError(session, "rate limited");
+                return;
+            }
             try {
                 request = mapper.readValue(message.getPayload(), WebSocketAckRequest.class);
             } catch (JacksonException e) {
