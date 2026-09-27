@@ -2,6 +2,7 @@ package com.ft_transcendence.vigil.ratelimiter;
 
 import com.ft_transcendence.vigil.exceptions.TooManyRequestsException;
 import io.github.bucket4j.Bucket;
+import io.github.bucket4j.ConsumptionProbe;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -19,8 +20,12 @@ public class RateLimiterRegistry {
     }
 
     void consum(String key) {
-        if (!buckets.get(key).tryConsume(1)) {
-            throw new TooManyRequestsException("rate limited");
+        ConsumptionProbe probe = buckets.get(key).tryConsumeAndReturnRemaining(1);
+        if (!probe.isConsumed()) {
+            long retry = Duration.ofNanos(probe.getNanosToWaitForRefill()).toSeconds();
+            throw new TooManyRequestsException(
+                    "rate limited. Try again in " + retry + " seconds."
+            );
         }
     }
 }
