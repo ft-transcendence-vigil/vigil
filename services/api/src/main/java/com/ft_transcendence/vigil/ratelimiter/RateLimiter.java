@@ -26,8 +26,17 @@ public class RateLimiter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.equals("/internal/ingest")
+                || path.startsWith("/internal/ingest/")
+                || path.equals("/internal/llm/forward")
+                || path.startsWith("/internal/llm/forward/");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String key = request.getRemoteAddr() + ":" + request.getRequestURI();
+        String key =request.getRemoteAddr();
 
         try {
             rateLimiterRegistry.addLimiter(key, 10, 60);

@@ -7,6 +7,7 @@ import com.ft_transcendence.vigil.exceptions.*;
 import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 import com.ft_transcendence.vigil.services.AlertsService;
 import io.github.bucket4j.Bucket;
+import io.github.bucket4j.ConsumptionProbe;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +20,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Duration;
 import java.util.UUID;
 
 @Component
@@ -46,9 +48,11 @@ public class AlertSocketHandler extends TextWebSocketHandler {
         try {
             WebSocketAckRequest request;
             Bucket bucket = (Bucket)session.getAttributes().get("bucket");
-            if(!bucket.tryConsume(1))
+            ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+            if(!probe.isConsumed())
             {
-                sendError(session, "rate limited");
+                long retryAfterSeconds = Duration.ofNanos(probe.getNanosToWaitForRefill()).toSeconds();
+                sendError(session, "rate limited. Try again in " + retryAfterSeconds + " seconds.");
                 return;
             }
             try {
