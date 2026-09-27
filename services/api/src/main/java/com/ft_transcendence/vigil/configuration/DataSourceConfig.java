@@ -30,12 +30,7 @@ class DataSourceConfig {
             @Value("${clickhouse.password}") String password,
             @Value("${clickhouse.driver-class-name}") String driverClassName) {
 
-        HikariDataSource dataSource =
-                (HikariDataSource) pool("vigil-clickhouse", url, username, password, driverClassName);
-
-        dataSource.setInitializationFailTimeout(-1);
-
-        return dataSource;
+        return pool("vigil-clickhouse", url, username, password, driverClassName);
     }
 
     @Bean
@@ -53,6 +48,9 @@ class DataSourceConfig {
 
         if (driverClassName != null && !driverClassName.isBlank())
             config.setDriverClassName(driverClassName);
+
+        if ("vigil-clickhouse".equals(poolName))
+            config.setInitializationFailTimeout(-1);
 
         return new HikariDataSource(config);
     }

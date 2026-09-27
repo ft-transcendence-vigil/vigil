@@ -1,7 +1,9 @@
 package com.ft_transcendence.vigil.configuration;
+import com.ft_transcendence.vigil.exceptions.UnauthorizedException;
 import com.ft_transcendence.vigil.ratelimiter.RateLimiter;
 import com.ft_transcendence.vigil.security.JjwtAuthFilter;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 @AllArgsConstructor
 @Configuration
 @EnableWebSecurity
@@ -26,12 +29,23 @@ class SecurityConfig {
     private RateLimiter rateLimiter;
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
         http.addFilterBefore(jjwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .addFilterBefore(rateLimiter, JjwtAuthFilter.class)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) ->
+                                exceptionResolver.resolveException(
+                                        request, response, null,
+                                        new UnauthorizedException("Authentication required")
+                                )
+                        )
+                )
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(
-                                "/api/auth/setup",
+                                "/api/setup",
                                 "/api/auth/login",
                                 "/api/auth/refresh",
                                 "/api/auth/logout",

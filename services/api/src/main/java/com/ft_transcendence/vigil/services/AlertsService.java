@@ -89,7 +89,7 @@ public class AlertsService {
         List<AlertRules> result = alertRuleRepository.getAlertRulesByCountAndOffset(count + 1, startAt);
         boolean hasMore = result.size() > count;
         if (hasMore)
-            result.remove(result.size() - 1);
+            result = result.subList(0,count);
         List<AlertRulesGetAndPatchResponseDto> finalResult = result.stream().map(alertRulesGetAndPatchResponseMapper::map).toList();
         return new PaginationResponse<>(finalResult, hasMore);
     }
@@ -115,7 +115,7 @@ public class AlertsService {
         }
         List<AlertHistory> alertHistories = alertHistoryRepository.findAlertHistoriesByAggregation(afterInstant, service, count + 1, beforeInstant);
         if (alertHistories.size() == count + 1) {
-            alertHistories.remove(count);
+            alertHistories = alertHistories.subList(0, count);
             hasMore = true;
         }
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -186,7 +186,7 @@ public class AlertsService {
                 .orElseThrow(() -> new ResourcesNotFoundException("No alert with id: " + id));
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userPrincipal.getUser();
-        AlertAcksId alertAcksId = new AlertAcksId(id, user.getId());
+        AlertAcksId alertAcksId = new AlertAcksId(user.getId(), id);
         AlertAcks alertAcks = alertAcksRepository.findById(alertAcksId).orElse(null);
         if (alertAcks == null) {
             alertAcks = new AlertAcks();
