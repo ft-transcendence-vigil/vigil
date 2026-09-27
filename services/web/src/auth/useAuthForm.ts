@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 const EMAIL_REGX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+const PASSWORD_REGX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
 interface UseAuthFormOptions {
   requireConfirm?: boolean;
@@ -56,6 +57,10 @@ export default function useAuthForm({
 
     if (password.length === 0) {
       setPasswordError('Password is required');
+      isValid = false;
+    } else if (!PASSWORD_REGX.test(password)) {
+      setPasswordError('8+ chars, uppercase, lowercase, number, symbol');
+      setFormError(new Error('Weak password'));
       isValid = false;
     }
 
