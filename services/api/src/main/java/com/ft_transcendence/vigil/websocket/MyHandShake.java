@@ -5,6 +5,7 @@ import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 import com.ft_transcendence.vigil.security.JjwtService;
+import io.github.bucket4j.Bucket;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -16,7 +17,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @RequiredArgsConstructor
 @Component
 public class MyHandShake implements HandshakeInterceptor {
@@ -57,6 +62,8 @@ public class MyHandShake implements HandshakeInterceptor {
                     .map(GrantedAuthority::getAuthority)
                     .map(s->s.substring(5))
                     .orElse(null));
+            Bucket bucket = Bucket.builder().addLimit(l->l.capacity(10).refillIntervally(10, Duration.ofSeconds(60))).build();
+            attributes.put("bucket",bucket);
             return true;
         } catch (Exception e) {
             return invalidToken(response);
