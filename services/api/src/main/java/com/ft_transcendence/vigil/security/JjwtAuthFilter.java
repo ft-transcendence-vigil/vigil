@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -45,7 +46,7 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
     }
 
     // the name of the api key login
-    private static final String apiKeyUsername = "Api-Key";
+    private static final String apiKeyEmail = "mustbe@api.email";
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
@@ -57,12 +58,6 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
             String requestToken = request.getParameter("token");
             if (requestToken != null)
             {
-                if (requestToken.equals(vigilProperties.getApiKey()))
-                {
-                    UsernamePasswordAuthenticationToken authToken = UsernamePasswordAuthenticationToken.authenticated(apiKeyUsername,null, List.of(new SimpleGrantedAuthority("ROLE_admin")));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-                else {
                     String username = null;
                     try
                     {
@@ -84,8 +79,6 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
                                 new UnauthorizedException("Invalid or expired access token"));
                         return;
                     }
-
-                }
             }
             filterChain.doFilter(request,response);
             return;
@@ -107,8 +100,15 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
 
             if (validKey && SecurityContextHolder.getContext().getAuthentication() == null)
             {
+                UserPrincipal userPrincipal = (UserPrincipal) userDetailsService.loadUserByUsername(apiKeyEmail);
+                if (userPrincipal == null)
+                {
+                    exceptionResolver.resolveException(request, response, null,
+                            new UnauthorizedException("make sure that a useradmin with email: " + apiKeyEmail + "exists"));
+                    return;
+                }
                 UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(
-                        apiKeyUsername, null, List.of(new SimpleGrantedAuthority("ROLE_admin")));
+                        userPrincipal, null, userPrincipal.getAuthorities());
                 token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(token);
             }
@@ -128,10 +128,10 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
             String userName = jjwtService.getUserName(accessToken);
             if (SecurityContextHolder.getContext().getAuthentication() == null)
             {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-                if (jjwtService.isTokenValid(accessToken,userDetails))
+                UserPrincipal principal =(UserPrincipal) userDetailsService.loadUserByUsername(userName);
+                if (jjwtService.isTokenValid(accessToken,principal))
                 {
-                    UsernamePasswordAuthenticationToken token =  UsernamePasswordAuthenticationToken.authenticated(userDetails,null,userDetails.getAuthorities());
+                    UsernamePasswordAuthenticationToken token =  UsernamePasswordAuthenticationToken.authenticated(principal,null,principal.getAuthorities());
                     token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(token);
                 } else {
