@@ -89,7 +89,7 @@ public class AlertsService {
         List<AlertRules> result = alertRuleRepository.getAlertRulesByCountAndOffset(count + 1, startAt);
         boolean hasMore = result.size() > count;
         if (hasMore)
-            result.remove(result.size() - 1);
+            result = result.subList(0,count);
         List<AlertRulesGetAndPatchResponseDto> finalResult = result.stream().map(alertRulesGetAndPatchResponseMapper::map).toList();
         return new PaginationResponse<>(finalResult, hasMore);
     }
