@@ -50,6 +50,9 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
+# === Local backend specification ===
+/services/api/Backend.json
+
 # === Node / Vite / React (services/web) ===
 node_modules/
 dist/
