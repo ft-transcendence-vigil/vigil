@@ -95,8 +95,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     if (!accessToken) throw new Error('No access token available');
     let newOptions: RequestInit = withAuth(options, accessToken);
     let res: Response = await safeFetch(url, newOptions);
-    if (res.status === 403) {
-      // TODO: change it to 401
+    if (res.status === 401) {
       try {
         const data = await refresh();
         setAccessToken(data.access_token);
