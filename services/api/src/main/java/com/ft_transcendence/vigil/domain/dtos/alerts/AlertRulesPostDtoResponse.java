@@ -22,5 +22,5 @@ public class AlertRulesPostDtoResponse {
     private Severity severity;
     private Boolean enabled;
     @JsonProperty("is_default")
-    private Boolean isDefault;
+    private boolean isDefault = false;
 }

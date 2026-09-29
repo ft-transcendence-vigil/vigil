@@ -61,12 +61,4 @@ class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    FilterRegistrationBean<RateLimiter> rateLimiterRegistration(RateLimiter rateLimiter) {
-        FilterRegistrationBean<RateLimiter> registration = new FilterRegistrationBean<>(rateLimiter);
-        registration.setEnabled(false);
-        return registration;
-    }
-
-
 }
