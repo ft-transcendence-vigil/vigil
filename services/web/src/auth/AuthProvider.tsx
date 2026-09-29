@@ -7,6 +7,9 @@ import {
   hasSessionCookie,
   setSessionCookie,
 } from './sessionCookie';
+import api from '../api/api';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from 'axios';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -67,46 +70,40 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const safeFetch = async (
+  const requestWithToken = <T,>(
+    token: string,
     url: string,
-    options: RequestInit,
-  ): Promise<Response> => {
-    try {
-      return await fetch(url, options);
-    } catch {
-      throw new Error('Network request failed');
-    }
-  };
-
-  const withAuth = (options: RequestInit, token: string): RequestInit => {
-    return {
+    options: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse<T>> => {
+    return api.request<T>({
       ...options,
+      url,
       headers: {
         ...options.headers,
         Authorization: `Bearer ${token}`,
       },
-    };
+    });
   };
 
-  const apiFetch = async (
+  const apiFetch = async <T = unknown,>(
     url: string,
-    options: RequestInit = {},
-  ): Promise<Response> => {
+    options: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse<T>> => {
     if (!accessToken) throw new Error('No access token available');
-    let newOptions: RequestInit = withAuth(options, accessToken);
-    let res: Response = await safeFetch(url, newOptions);
-    if (res.status === 401) {
-      try {
-        const data = await refresh();
-        setAccessToken(data.access_token);
-        newOptions = withAuth(options, data.access_token);
-      } catch {
-        clearAuthState();
-        throw new Error('Session expired');
-      }
-      res = await safeFetch(url, newOptions);
+    try {
+      return await requestWithToken<T>(accessToken, url, options);
+    } catch (error) {
+      if (!axios.isAxiosError(error) || error.response?.status !== 401)
+        throw error;
     }
-    return res;
+    try {
+      const data = await refresh();
+      setAccessToken(data.access_token);
+      return await requestWithToken<T>(data.access_token, url, options);
+    } catch (refreshError) {
+      clearAuthState();
+      throw new Error('Session expired', { cause: refreshError });
+    }
   };
 
   return (

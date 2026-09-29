@@ -1,3 +1,5 @@
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+
 export type Role = 'admin' | 'viewer';
 
 export interface AuthResponse {
@@ -20,7 +22,10 @@ export interface AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  apiFetch: (url: string, options: ResponseInit) => Promise<Response>;
+  apiFetch: <T = unknown>(
+    url: string,
+    options: AxiosRequestConfig,
+  ) => Promise<AxiosResponse<T>>;
   isAuthChecking: boolean;
 }
 

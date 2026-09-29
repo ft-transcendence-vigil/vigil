@@ -10,7 +10,7 @@ export default function DashboardPage() {
       <LogoutButton />
       <button
         onClick={() => {
-          auth?.apiFetch('/api/users/me', {});
+          auth?.apiFetch('/users/me', {});
         }}
         className="my-5 cursor-pointer uppercase py-3 px-5 text-vigil-blue border hover:opacity-70 block w-fit mx-auto"
       >
