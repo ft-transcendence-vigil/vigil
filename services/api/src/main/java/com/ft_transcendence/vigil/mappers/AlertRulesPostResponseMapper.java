@@ -9,6 +9,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface AlertRulesPostResponseMapper extends StandardMapper<AlertRules, AlertRulesPostDtoResponse>{
     @Override
-    @Mapping(target = "isDefault", source = "default")
+    @Mapping(target = "default", source = "default")
     AlertRulesPostDtoResponse map(AlertRules from);
 }

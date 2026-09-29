@@ -27,7 +27,7 @@ public class Session {
     private String ipAddress;
 
     @UpdateTimestamp
-    @Column(nullable = false,columnDefinition = "TIMESTAMPTZ default now()")
+    @Column(nullable = false,columnDefinition = "TIMESTAMP WITH TIME ZONE default now()")
     private Instant lastUsedAt;
 
     @Column(nullable = false, columnDefinition = "boolean default false")
@@ -38,7 +38,5 @@ public class Session {
     @JoinColumn(nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "session", cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE} ,orphanRemoval = true)
-    private List<RefreshToken> refreshTokens;
 
 }
