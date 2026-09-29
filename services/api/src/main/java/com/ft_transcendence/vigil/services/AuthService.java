@@ -79,18 +79,20 @@ public class AuthService {
         String accessToken = jjwtService.generateToken(new UserPrincipal(user));
         return new AuthResult(accessToken, rawRefreshToken, user.getRole());
     }
-    @Transactional
+    @Transactional(dontRollbackOn = UnauthorizedException.class)
     public boolean revokeSessionService(UUID sessionId, String rawRefreshToken){
         if (rawRefreshToken == null)
             throw new UnauthorizedException("invalid Refresh Token");
-        String hashedRefreshToken = jjwtService.hashRefreshToken(rawRefreshToken);
-        RefreshToken callerToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken).orElseThrow(() -> new UnauthorizedException("invalid Refresh Token"));
+        String refreshToken = jjwtService.hashRefreshToken(rawRefreshToken);
+        RefreshToken callerToken = refreshTokenRepository.findByTokenHash(refreshToken).orElseThrow(() -> new UnauthorizedException("invalid Refresh Token"));
+        User user = callerToken.getUser();
+        validateRefreshToken(callerToken,user);
         Session target = sessionRepository.findById(sessionId).orElseThrow(() -> new ResourcesNotFoundException("session not found"));
         if (!target.getUser().getId().equals(callerToken.getUser().getId()))
             throw new ForbiddenException("forbidden");
         target.setRevoked(true);
-        target.getRefreshTokens().forEach(rt -> rt.setRevoked(true));
-
+        List<RefreshToken> tokens =  refreshTokenRepository.findBySession(target);
+        tokens.forEach(r->r.setRevoked(true));
         return target.getId().equals(callerToken.getSession().getId());
     }
 
@@ -101,20 +103,12 @@ public class AuthService {
         if (rawRefreshToken == null)
             throw new UnauthorizedException("invalid Refresh Token");
         String hashedRefreshToken = jjwtService.hashRefreshToken(rawRefreshToken);
-        RefreshToken rawHashToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken)
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken)
                 .orElseThrow(() -> new UnauthorizedException("invalid Refresh Token"));
-        User user = rawHashToken.getUser();
-        if (rawHashToken.isSuperseded()) {
-            user.getSessions().forEach(s -> s.setRevoked(true));
-            user.getRefreshTokens().forEach(t -> t.setRevoked(true));
-            throw new UnauthorizedException("invalid Refresh Token");
-        }
-        if (rawHashToken.isRevoked() || rawHashToken.getExpiresAt().isBefore(Instant.now()))
-            throw new UnauthorizedException("invalid Refresh Token");
-        Session session = rawHashToken.getSession();
-        if (session.isRevoked())
-            throw new UnauthorizedException("invalid Refresh Token");
-        rawHashToken.setSuperseded(true);
+        User user = refreshToken.getUser();
+        Session session = refreshToken.getSession();
+        validateRefreshToken(refreshToken,user);
+        refreshToken.setSuperseded(true);
         String newRaw = jjwtService.generateRefreshToken();
         RefreshToken rotated = RefreshToken.builder()
                 .tokenHash(jjwtService.hashRefreshToken(newRaw))
@@ -128,23 +122,28 @@ public class AuthService {
         return new RefreshResult(accessToken, newRaw);
     }
 
-    @Transactional
+    @Transactional(dontRollbackOn = UnauthorizedException.class)
     public void logoutService(String rawRefreshToken){
         if (rawRefreshToken == null)
             throw new UnauthorizedException("invalid Refresh Token");
         String hashedRefreshToken = jjwtService.hashRefreshToken(rawRefreshToken);
         RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken)
                 .orElseThrow(() -> new UnauthorizedException("invalid Refresh Token"));
+        User user = refreshToken.getUser();
+        validateRefreshToken(refreshToken,user);
         refreshToken.getSession().setRevoked(true);
-        refreshToken.setRevoked(true);
+        List<RefreshToken> tokens =  refreshTokenRepository.findBySession(refreshToken.getSession());
+        tokens.forEach(r->r.setRevoked(true));
     }
-    @Transactional
+    @Transactional(dontRollbackOn = UnauthorizedException.class)
     public List<SessionDto> sessionsService(String rawRefreshToken){
         if (rawRefreshToken == null)
             throw new UnauthorizedException("invalid Refresh Token");
         String hashedRefreshToken = jjwtService.hashRefreshToken(rawRefreshToken);
         RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(hashedRefreshToken).orElseThrow(()->new UnauthorizedException("Invalid Refresh Token"));
         User user = refreshToken.getUser();
+        validateRefreshToken(refreshToken,user);
+
         UUID currentSessionId = refreshToken.getSession().getId();
         List<Session> sessions = sessionRepository.findByUserAndRevokedFalse(user);
         List<SessionDto> sessionsDtos = sessions.stream()
@@ -155,6 +154,26 @@ public class AuthService {
                 })
                 .toList();
         return sessionsDtos;
+    }
+
+    private void validateRefreshToken(RefreshToken refreshToken,User user) {
+        if (refreshToken.isSuperseded()) {
+            List<Session> sessions = sessionRepository.findByUser(user);
+            sessions.forEach(s ->
+                    {
+                        s.setRevoked(true);
+                        List<RefreshToken> tokens = refreshTokenRepository.findBySession(s);
+                        tokens.forEach(r->r.setRevoked(true));
+                    }
+            );
+
+            throw new UnauthorizedException("invalid Refresh Token");
+        }
+        if (refreshToken.isRevoked() || (refreshToken.getExpiresAt() != null && refreshToken.getExpiresAt().isBefore(Instant.now())))
+            throw new UnauthorizedException("invalid Refresh Token");
+        Session session = refreshToken.getSession();
+        if (session.isRevoked())
+            throw new UnauthorizedException("invalid Refresh Token");
     }
 
 
