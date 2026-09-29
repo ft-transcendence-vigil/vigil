@@ -1,86 +1,131 @@
-import type {
-  ApiError,
-  AuthResponse,
-  CurrentUser,
-  RefreshResponse,
-} from './authTypes';
+import axios from 'axios';
+import api from '../api/api';
+import type { AuthResponse, CurrentUser, RefreshResponse } from './authTypes';
 
 const SETUP_ALREADY_COMPLETED = 'SETUP_ALREADY_COMPLETED';
 
 async function login(email: string, password: string): Promise<AuthResponse> {
-  const res = await fetch('/api/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ email, password }),
-  });
-  if (!res.ok) {
-    const errorData: ApiError = await res.json().catch(() => null);
-    throw new Error(
-      errorData?.error.message ?? 'Unable to connect to the server.',
-    );
+  try {
+    const res = await api.post<AuthResponse>('/auth/login', {
+      email,
+      password,
+    });
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      switch (error.response?.status) {
+        case 400:
+          throw new Error('Please check your input.', { cause: error });
+        case 401:
+          throw new Error('Invalid email or password.', { cause: error });
+        case 429:
+          throw new Error('Too many login attempts. Please try again later.', {
+            cause: error,
+          });
+        case 500:
+          throw new Error('Server error. Please try again later.', {
+            cause: error,
+          });
+      }
+      if (!error.response) {
+        throw new Error('Unable to connect to the server.', { cause: error });
+      }
+    }
+    throw new Error('Unable to log in.', { cause: error });
   }
-  const data: AuthResponse = await res.json();
-  return data;
 }
 
 async function setup(email: string, password: string): Promise<AuthResponse> {
-  const res = await fetch('/api/auth/setup', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ email, password }),
-  });
-  if (!res.ok) {
-    const errorData: ApiError = await res.json().catch(() => null);
-    throw new Error(
-      errorData?.error.message ?? 'Unable to connect to the server.',
-    );
+  try {
+    const res = await api.post<AuthResponse>('/auth/setup', {
+      email,
+      password,
+    });
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      switch (error.response?.status) {
+        case 400:
+          throw new Error('Please check your input.', { cause: error });
+        case 409:
+          throw new Error(SETUP_ALREADY_COMPLETED, { cause: error });
+        case 429:
+          throw new Error('Too many login attempts. Please try again later.', {
+            cause: error,
+          });
+        case 500:
+          throw new Error('Server error. Please try again later.', {
+            cause: error,
+          });
+      }
+      if (!error.response) {
+        throw new Error('Unable to connect to the server.', { cause: error });
+      }
+    }
+    throw new Error('Unable to complete setup.', { cause: error });
   }
-  const data: AuthResponse = await res.json();
-  return data;
 }
 
 async function checkSetup(): Promise<AuthResponse> {
-  const res = await fetch('/api/auth/setup');
-  if (!res.ok) {
-    const errorData: ApiError = await res.json().catch(() => null);
-    if (res.status === 409) throw new Error(SETUP_ALREADY_COMPLETED);
-    throw new Error(
-      errorData?.error?.message ?? 'Unable to connect to the server.',
-    );
+  try {
+    const res = await api.get<AuthResponse>('/auth/setup');
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 409) {
+        throw new Error(SETUP_ALREADY_COMPLETED, { cause: error });
+      }
+      if (!error.response) {
+        throw new Error('Unable to connect to the server.', { cause: error });
+      }
+    }
+    throw new Error('Unable to setup status.', { cause: error });
   }
-  const data: AuthResponse = await res.json();
-  return data;
 }
 
 async function logout(): Promise<void> {
-  const res = await fetch('/api/auth/logout', {
-    method: 'POST',
-    credentials: 'include',
-  });
-  if (!res.ok) throw new Error(`Failed to logout: ${res.status}`);
+  try {
+    await api.post('/auth/logout');
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (!error.response) {
+        throw new Error('Unable to connect to the server.', { cause: error });
+      }
+    }
+    throw new Error('Unable to logout.', { cause: error });
+  }
 }
 
 async function getCurrentUser(accessToken: string): Promise<CurrentUser> {
-  const res = await fetch('/api/users/me', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  if (!res.ok) throw new Error(`Failed to get current user: ${res.status}`);
-  const user: CurrentUser = await res.json();
-  return user;
+  try {
+    const res = await api.get<CurrentUser>('/users/me', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (!error.response) {
+        throw new Error('Unable to connect to the server.', { cause: error });
+      }
+    }
+    throw new Error('Unable to get current user.', { cause: error });
+  }
 }
 
 async function refresh(): Promise<RefreshResponse> {
-  const res = await fetch('/api/auth/refresh', {
-    method: 'POST',
-    credentials: 'include',
-  });
-  if (!res.ok) throw new Error(`Failed to refresh access token: ${res.status}`);
-  const data: RefreshResponse = await res.json();
-  return data;
+  try {
+    const res = await api.post<RefreshResponse>('/auth/refresh');
+    return res.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (!error.response) {
+        throw new Error('Unable to connect to the server.', { cause: error });
+      }
+    }
+    throw new Error('Unable to refresh session.', { cause: error });
+  }
 }
 
 export {
