@@ -31,7 +31,7 @@ public class AlertsController {
 
     @GetMapping("/rules")
     @PreAuthorize("hasAnyRole('admin', 'viewer')")
-    public ResponseEntity<PaginationResponse<AlertRulesGetAndPatchResponseDto>> alertRulesgetController(@RequestParam(defaultValue = "20") Integer count, @RequestParam(required = false) Integer offset)
+    public ResponseEntity<PaginationResponse<AlertRulesGetAndPatchResponseDto>> alertRulesgetController(@RequestParam(defaultValue = "20") @Min(1) @Max(100) Integer count, @RequestParam(required = false) @Min(0) Integer offset)
     {
         PaginationResponse<AlertRulesGetAndPatchResponseDto> response = alertsService.getAlertRulesService(count,offset);
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -46,7 +46,7 @@ public class AlertsController {
 
     @PatchMapping("/rules/{id}")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<AlertRulesGetAndPatchResponseDto> alertRulesPatchController(@PathVariable UUID id, @RequestBody AlertRulesPatchRequestDto dto) {
+    public ResponseEntity<AlertRulesGetAndPatchResponseDto> alertRulesPatchController(@PathVariable UUID id, @Valid @RequestBody AlertRulesPatchRequestDto dto) {
         AlertRulesGetAndPatchResponseDto response = alertsService.alertRulesPatchService(id, dto);
         return ResponseEntity.ok(response);
     }
@@ -58,7 +58,7 @@ public class AlertsController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/ack/{id}")
     @PreAuthorize("hasAnyRole('admin', 'viewer')")
     public ResponseEntity<AlertAcksPutDtoResponse> alertAcksPutController(@PathVariable UUID id, @Valid @RequestBody AlertAcksPutRequestDto dto) {
         AlertAcksPutDtoResponse response = alertsService.alertAcksPutService(id, dto.getStatus());

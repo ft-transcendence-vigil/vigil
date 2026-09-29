@@ -17,4 +17,5 @@ never edit or delete the api key user
 
 // different than the spec
 instead of header of rate limit i send both the ratelimted and the retry in ... in a single error message
+nade alerts ack put into api/alert/ack/{id}
 

@@ -2,6 +2,7 @@ package com.ft_transcendence.vigil.configuration;
 import com.ft_transcendence.vigil.exceptions.UnauthorizedException;
 import com.ft_transcendence.vigil.ratelimiter.RateLimiter;
 import com.ft_transcendence.vigil.security.JjwtAuthFilter;
+import jakarta.servlet.DispatcherType;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -44,6 +45,7 @@ class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests((requests) -> requests
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(
                                 "/api/setup",
                                 "/api/auth/login",
@@ -60,13 +62,5 @@ class SecurityConfig {
 
         return http.build();
     }
-
-    @Bean
-    FilterRegistrationBean<RateLimiter> rateLimiterRegistration(RateLimiter rateLimiter) {
-        FilterRegistrationBean<RateLimiter> registration = new FilterRegistrationBean<>(rateLimiter);
-        registration.setEnabled(false);
-        return registration;
-    }
-
 
 }

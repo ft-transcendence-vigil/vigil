@@ -10,4 +10,6 @@ import java.util.UUID;
 @Component
 public interface SessionRepository extends JpaRepository<Session, UUID> {
     List<Session> findByUserAndRevokedFalse(User user);
+    List<Session> findByUser(User user);
+
 }
