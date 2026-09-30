@@ -1,6 +1,6 @@
 import './App.css';
 import './index.css';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/Login/LoginPage';
 import SetupPage from './pages/Setup/SetupPage';
 import ProtectedRoute from './auth/ProtectedRoute';
@@ -19,6 +19,7 @@ function App() {
           </Route>
         </Route>
         <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<Navigate to="/overview" replace />} />
           <Route path="/overview" element={<OverviewPage />} />
         </Route>
       </Routes>
