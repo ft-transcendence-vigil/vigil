@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Role } from './authTypes';
 import { AuthContext } from './authContext';
-import { getCurrentUser, login, logout, refresh, setup } from './authApi';
+import {
+  getCurrentUser,
+  login,
+  logout,
+  refresh,
+  setupInitialAdmin,
+} from './authApi';
 import {
   clearSessionCookie,
   hasSessionCookie,
@@ -56,7 +62,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const signUp = async (email: string, password: string): Promise<void> => {
-    const data = await setup(email, password);
+    const data = await setupInitialAdmin(email, password);
     setRole(data.role);
     setAccessToken(data.access_token);
     setSessionCookie();

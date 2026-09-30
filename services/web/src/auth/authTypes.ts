@@ -38,3 +38,7 @@ export interface CurrentUser {
   email: string;
   role: Role;
 }
+
+export interface SetupStatusResponse {
+  setup_required: boolean;
+}

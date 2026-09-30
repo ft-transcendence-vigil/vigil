@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { checkSetup, SETUP_ALREADY_COMPLETED } from './authApi';
+import { checkSetup } from './authApi';
 import { useEffect, useRef, useState } from 'react';
 
 export default function SetupGuard() {
@@ -13,10 +13,8 @@ export default function SetupGuard() {
     hasStartedSetupCheck.current = true;
     async function checkSetupStatus() {
       try {
-        await checkSetup();
-      } catch (error) {
-        if (error instanceof Error && error.message === SETUP_ALREADY_COMPLETED)
-          setIsSetupComplete(true);
+        const data = await checkSetup();
+        setIsSetupComplete(!data.setup_required);
       } finally {
         setIsChecking(false);
       }
