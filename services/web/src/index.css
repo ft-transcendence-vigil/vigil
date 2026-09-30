@@ -7,7 +7,9 @@
     --color-vigil-border: #1a2333;
     --color-vigil-border-muted: rgba(26, 35, 51, 0.6);
     --color-vigil-blue: #2196F3;
+    --color-vigil-blue-100: #2195f309;
     --color-vigil-muted: #6b7da8;
+    --color-vigil-muted-extra: #6b7da892;
 }
 
 /* ::selection {
@@ -23,7 +25,10 @@
     --color-vigil-border: var(--color-vigil-border);
     --color-vigil-border-muted: var(--color-vigil-border-muted);
     --color-vigil-blue: var(--color-vigil-blue);
+    --color-vigil-blue-100: var(--color-vigil-blue-100);
     --color-vigil-muted: var(--color-vigil-muted);
+    --color-vigil-muted-extra: var(--color-vigil-muted-extra);
+
 }
 
 @utility center-absolute {
