@@ -1,8 +1,11 @@
 import axios from 'axios';
 import api from '../api/api';
-import type { AuthResponse, CurrentUser, RefreshResponse } from './authTypes';
-
-const SETUP_ALREADY_COMPLETED = 'SETUP_ALREADY_COMPLETED';
+import type {
+  AuthResponse,
+  CurrentUser,
+  RefreshResponse,
+  SetupStatusResponse,
+} from './authTypes';
 
 async function login(email: string, password: string): Promise<AuthResponse> {
   try {
@@ -35,9 +38,9 @@ async function login(email: string, password: string): Promise<AuthResponse> {
   }
 }
 
-async function setup(email: string, password: string): Promise<AuthResponse> {
+async function setupInitialAdmin(email: string, password: string): Promise<AuthResponse> {
   try {
-    const res = await api.post<AuthResponse>('/auth/setup', {
+    const res = await api.post<AuthResponse>('/setup', {
       email,
       password,
     });
@@ -48,7 +51,9 @@ async function setup(email: string, password: string): Promise<AuthResponse> {
         case 400:
           throw new Error('Please check your input.', { cause: error });
         case 409:
-          throw new Error(SETUP_ALREADY_COMPLETED, { cause: error });
+          throw new Error('Setup has already been completed.', {
+            cause: error,
+          });
         case 429:
           throw new Error('Too many login attempts. Please try again later.', {
             cause: error,
@@ -66,20 +71,27 @@ async function setup(email: string, password: string): Promise<AuthResponse> {
   }
 }
 
-async function checkSetup(): Promise<AuthResponse> {
+async function checkSetup(): Promise<SetupStatusResponse> {
   try {
-    const res = await api.get<AuthResponse>('/auth/setup');
+    const res = await api.get<SetupStatusResponse>('/setup');
     return res.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      if (error.response?.status === 409) {
-        throw new Error(SETUP_ALREADY_COMPLETED, { cause: error });
+      switch (error.response?.status) {
+        case 429:
+          throw new Error('Too many login attempts. Please try again later.', {
+            cause: error,
+          });
+        case 500:
+          throw new Error('Server error. Please try again later.', {
+            cause: error,
+          });
       }
       if (!error.response) {
         throw new Error('Unable to connect to the server.', { cause: error });
       }
     }
-    throw new Error('Unable to setup status.', { cause: error });
+    throw new Error('Unable to complete setup.', { cause: error });
   }
 }
 
@@ -128,12 +140,4 @@ async function refresh(): Promise<RefreshResponse> {
   }
 }
 
-export {
-  login,
-  logout,
-  getCurrentUser,
-  refresh,
-  setup,
-  SETUP_ALREADY_COMPLETED,
-  checkSetup,
-};
+export { login, logout, getCurrentUser, refresh, setupInitialAdmin, checkSetup };
