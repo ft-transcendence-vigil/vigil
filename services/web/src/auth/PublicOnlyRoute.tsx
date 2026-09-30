@@ -7,6 +7,6 @@ export default function PublicOnlyRoute() {
 
   if (!auth) throw new Error('AuthContext must be used inside AuthProvider');
   if (auth.isAuthChecking) return null;
-  if (auth.accessToken) return <Navigate to="/dashboard" replace />;
+  if (auth.accessToken) return <Navigate to="/overview" replace />;
   return <Outlet />;
 }

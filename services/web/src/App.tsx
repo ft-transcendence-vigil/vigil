@@ -1,10 +1,10 @@
-import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import './index.css';
+import { Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/Login/LoginPage';
 import SetupPage from './pages/Setup/SetupPage';
 import ProtectedRoute from './auth/ProtectedRoute';
-import OverviewPage from './pages/DashboardPage';
+import OverviewPage from './pages/Overview/OverviewPage';
 import PublicOnlyRoute from './auth/PublicOnlyRoute';
 import AuthEntryGuard from './auth/AuthEntryGuard';
 
@@ -19,7 +19,7 @@ function App() {
           </Route>
         </Route>
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<OverviewPage />} />
+          <Route path="/overview" element={<OverviewPage />} />
         </Route>
       </Routes>
     </>
