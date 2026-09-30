@@ -5,10 +5,12 @@ const PASSWORD_REGX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
 interface UseAuthFormOptions {
   requireConfirm?: boolean;
+  validatePasswordStrength?: boolean;
 }
 
 export default function useAuthForm({
   requireConfirm = false,
+  validatePasswordStrength = false,
 }: UseAuthFormOptions = {}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,7 +60,7 @@ export default function useAuthForm({
     if (password.length === 0) {
       setPasswordError('Password is required');
       isValid = false;
-    } else if (!PASSWORD_REGX.test(password)) {
+    } else if (validatePasswordStrength && !PASSWORD_REGX.test(password)) {
       setPasswordError('8+ chars, uppercase, lowercase, number, symbol');
       setFormError(new Error('Weak password'));
       isValid = false;

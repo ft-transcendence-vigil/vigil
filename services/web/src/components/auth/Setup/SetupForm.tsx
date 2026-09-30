@@ -19,7 +19,7 @@ export default function LoginForm() {
     handleConfirmPasswordChange,
     runSubmit,
     isSubmitting,
-  } = useAuhForm({ requireConfirm: true });
+  } = useAuhForm({ requireConfirm: true, validatePasswordStrength: true });
 
   if (!auth) throw new Error('AuthContext must be used inside AuthProvider');
 

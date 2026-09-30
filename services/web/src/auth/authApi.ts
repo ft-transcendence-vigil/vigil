@@ -1,11 +1,6 @@
 import axios from 'axios';
 import api from '../api/api';
-import type {
-  AuthResponse,
-  CurrentUser,
-  RefreshResponse,
-  SetupStatusResponse,
-} from './authTypes';
+import type { AuthResponse, CurrentUser, RefreshResponse } from './authTypes';
 
 async function login(email: string, password: string): Promise<AuthResponse> {
   try {
@@ -38,7 +33,10 @@ async function login(email: string, password: string): Promise<AuthResponse> {
   }
 }
 
-async function setupInitialAdmin(email: string, password: string): Promise<AuthResponse> {
+async function setupInitialAdmin(
+  email: string,
+  password: string,
+): Promise<AuthResponse> {
   try {
     const res = await api.post<AuthResponse>('/setup', {
       email,
@@ -71,9 +69,9 @@ async function setupInitialAdmin(email: string, password: string): Promise<AuthR
   }
 }
 
-async function checkSetup(): Promise<SetupStatusResponse> {
+async function checkSetup(): Promise<boolean> {
   try {
-    const res = await api.get<SetupStatusResponse>('/setup');
+    const res = await api.get<boolean>('/setup');
     return res.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -140,4 +138,11 @@ async function refresh(): Promise<RefreshResponse> {
   }
 }
 
-export { login, logout, getCurrentUser, refresh, setupInitialAdmin, checkSetup };
+export {
+  login,
+  logout,
+  getCurrentUser,
+  refresh,
+  setupInitialAdmin,
+  checkSetup,
+};
