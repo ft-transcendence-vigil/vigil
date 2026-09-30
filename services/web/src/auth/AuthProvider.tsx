@@ -16,6 +16,7 @@ import {
 import api from '../api/api';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -28,6 +29,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     hasSessionCookie(),
   );
   const hasStartedAuthCheck = useRef(false);
+  const navigate = useNavigate();
 
   const clearAuthState = (): void => {
     setAccessToken(null);
@@ -72,6 +74,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     try {
       await logout();
     } finally {
+      navigate('/auth/login', { replace: true });
       clearAuthState();
     }
   };
