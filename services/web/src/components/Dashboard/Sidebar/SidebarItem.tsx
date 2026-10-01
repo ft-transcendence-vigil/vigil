@@ -28,7 +28,7 @@ export default function SidebarItem({ title, path }: Data) {
         <span
           className={`
           tracking-wide inline-block capitalize py-2 ms-7
-          transition-colors duration-400
+          transition-colors duration-400 text-[14px] md:text-[16px]
           ${
             isActive
               ? 'text-vigil-blue'
@@ -37,6 +37,11 @@ export default function SidebarItem({ title, path }: Data) {
         `}
         >
           {title}
+          {title === 'alerts' && (
+            <span className="absolute top-1/2 -translate-y-1/2 p-0.5 flex justify-center items-center right-5 w-4.5 h-4.5 md:w-5 md:h-5 text-[11px] md:text-[12px] text-[#ff4757] bg-[rgba(255,71,87,.12)] border border-[rgba(255,71,86,0.34)]">
+              5
+            </span>
+          )}
         </span>
       )}
     </NavLink>
