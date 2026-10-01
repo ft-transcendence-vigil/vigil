@@ -19,9 +19,10 @@ public class AlertHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
+    @Version
+    private Long version;
     @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private User user;
     @ManyToOne()
     @OnDelete(action = OnDeleteAction.SET_NULL)
