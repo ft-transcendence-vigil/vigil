@@ -3,7 +3,7 @@ import SidebarSection from './SidebarSection';
 
 export default function Sidebar() {
   return (
-    <div className="sidebar bg-vigil-surface h-screen w-65 py-4 border-r flex flex-col">
+    <div className="sidebar h-screen bg-vigil-surface w-65 py-4 border-r border-r-vigil-border flex flex-col">
       <Logo className="text-2xl px-5 mx-auto!" />
       <div className="sidebar-items border-y border-y-vigil-border py-4 my-4 flex-1">
         <SidebarSection
@@ -35,10 +35,10 @@ export default function Sidebar() {
           ]}
         />
       </div>
-      <div className="footer px-7 text-[11px]">
+      <div className="footer px-7 text-[12px]">
         <div className="client-info flex justify-between items-center">
           <h6 className="client-mail text-[#ffffffd0]">alex.dev@vigil.io</h6>
-          <h6 className="client-role bg-[#2195f310] uppercase px-1 py-0.5 text-vigil-blue border">
+          <h6 className="flex justify-center items-center font-bold client-role text-[9px] bg-[#2195f310] uppercase px-1 py-0.5 text-vigil-blue border">
             admin
           </h6>
         </div>
