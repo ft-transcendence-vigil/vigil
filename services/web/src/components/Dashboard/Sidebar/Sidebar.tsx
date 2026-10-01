@@ -8,14 +8,32 @@ export default function Sidebar() {
       <div className="sidebar-items border-y border-y-vigil-border py-4 my-4 flex-1">
         <SidebarSection
           title="monitor"
-          links={['overview', 'alerts', 'status']}
+          links={[
+            { label: 'overview', path: '/overview' },
+            { label: 'alerts', path: '/alerts' },
+            { label: 'status', path: '/status' },
+          ]}
         />
         <SidebarSection
           title="telemetry"
-          links={['logs', 'metrics', 'traces']}
+          links={[
+            { label: 'logs', path: '/logs' },
+            { label: 'metrics', path: '/metrics' },
+            { label: 'traces', path: '/traces' },
+          ]}
         />
-        <SidebarSection title="intelligence" links={['AI insights']} />
-        <SidebarSection title="configure" links={['alert rules', 'settings']} />
+        <SidebarSection
+          title="intelligence"
+          links={[{ label: 'AI insights', path: '/ai-insights' }]}
+        />
+        <SidebarSection
+          title="configure"
+          links={[
+            { label: 'services', path: '/services' },
+            { label: 'alert rules', path: '/alert-rules' },
+            { label: 'settings', path: '/settings' },
+          ]}
+        />
       </div>
       <div className="footer px-7 text-[11px]">
         <div className="client-info flex justify-between items-center">

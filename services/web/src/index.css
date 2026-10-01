@@ -1,5 +1,45 @@
 @import "tailwindcss";
 
+@font-face {
+    font-family: "Inter";
+    src: url("/fonts/Inter-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    src: url("./src/assets/fonts/JetBrainsMono-Variable.ttf") format("truetype");
+    font-weight: 100 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Poppins";
+    src: url("./src/assets/fonts/Poppins-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Poppins";
+    src: url("./src/assets/fonts/Poppins-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Poppins";
+    src: url("./src/assets/fonts/Poppins-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --color-vigil-bg: #050910;
     --color-vigil-bg-input: #0a0f1e;
@@ -53,6 +93,12 @@ h6 {
     font-family: "Poppins", sans-serif;
 }
 
+code,
+pre,
+.mono {
+    font-family: "JetBrains Mono", monospace;
+}
+
 .login,
 .setup {
     position: relative;
@@ -64,7 +110,7 @@ h6 {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url(./assets/login-setup-bg.jpg);
+    background-image: url(./assets/images/login-setup-bg.jpg);
     background-position: center;
     background-size: cover;
     opacity: 0.03;
