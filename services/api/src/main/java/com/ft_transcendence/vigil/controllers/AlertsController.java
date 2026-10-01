@@ -58,10 +58,10 @@ public class AlertsController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/ack/{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('admin', 'viewer')")
-    public ResponseEntity<AlertAcksPutDtoResponse> alertAcksPutController(@PathVariable UUID id, @Valid @RequestBody AlertAcksPutRequestDto dto) {
-        AlertAcksPutDtoResponse response = alertsService.alertAcksPutService(id, dto.getStatus());
+    public ResponseEntity<AlertAcksPutDtoResponse> notificationPutController(@PathVariable UUID id, @Valid @RequestBody AlertNotoficationRequestPutDto dto) {
+        AlertAcksPutDtoResponse response = alertsService.alertNotificationPutService(id, dto.getStatus());
         return ResponseEntity.ok(response);
     }
 }

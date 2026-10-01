@@ -1,5 +1,7 @@
 package com.ft_transcendence.vigil.domain.entities.Alerts;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +20,9 @@ public class AlertHistory {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private User user;
     @ManyToOne()
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private AlertRules rule;
@@ -45,6 +50,22 @@ public class AlertHistory {
     @Enumerated(EnumType.STRING)
     private Severity severity;
 
+    @Column(nullable = true)
     private String llmAnalysis;
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
+
+    @Column(nullable = true)
+    private Instant ackedAt;
+
+    @Column(nullable = true)
+    private Instant resolvedAt;
+    @Column(nullable = true)
+    private String ackedBy;
+    @Column(nullable = true)
+    private String resolvedBy;
 }

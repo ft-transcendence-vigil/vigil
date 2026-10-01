@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AlertAcksPutRequestDto {
+public class AlertNotoficationRequestPutDto {
     @NotNull
-    private Status status;
+    boolean status;
 }

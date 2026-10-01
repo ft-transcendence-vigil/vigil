@@ -8,11 +8,11 @@ import java.util.UUID;
 
 @EqualsAndHashCode
 @Embeddable
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlertAcksId implements Serializable {
+@Getter
+@Setter
+public class AlertNotificationId implements Serializable {
     private UUID userId;
-    private UUID alertId;
+    private UUID alertHistoryId;
 }

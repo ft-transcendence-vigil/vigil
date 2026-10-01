@@ -16,6 +16,6 @@ never edit or delete the api key user
 
 
 // different than the spec
-instead of header of rate limit i send both the ratelimted and the retry in ... in a single error message
-nade alerts ack put into api/alert/ack/{id}
+adding notification table -> notification entity dtos service cointroller and websocket
+fixing old alertshistory logic making the status inside the entity itself, adding a patch to patch the status
 
