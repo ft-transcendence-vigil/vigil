@@ -191,3 +191,53 @@ pre,
 .form-panel form .input-wrapper .show-btn {
     @apply uppercase absolute right-5 top-1/2 -translate-y-1/2 text-vigil-muted text-[12px] cursor-pointer transition-colors duration-300 hover:text-white
 }
+
+/* .dashboard-bg {
+    background:
+        repeating-linear-gradient(115deg,
+            transparent 0,
+            transparent 160px,
+            rgba(255, 255, 255, 0.018) 160px,
+            rgba(255, 255, 255, 0.018) 161px,
+            transparent 161px,
+            transparent 310px),
+        #050910;
+} */
+
+/* .dashboard-bg {
+  position: relative;
+  overflow: hidden;
+
+  background:
+    repeating-linear-gradient(
+      115deg,
+      transparent 0,
+      transparent 160px,
+      rgba(255, 255, 255, 0.018) 160px,
+      rgba(255, 255, 255, 0.018) 161px,
+      transparent 161px,
+      transparent 310px
+    ),
+    #050910;
+} */
+
+.dashboard-bg::before {
+    content: "VIGIL";
+    position: fixed;
+    right: -3%;
+    bottom: -8%;
+    font-family: "Poppins", sans-serif;
+    font-size: clamp(12rem, 24vw, 30rem);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.025);
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* .dashboard-bg>* {
+    position: relative;
+    z-index: 1;
+} */
