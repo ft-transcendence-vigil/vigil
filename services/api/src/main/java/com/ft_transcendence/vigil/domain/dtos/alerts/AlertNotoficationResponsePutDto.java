@@ -1,6 +1,4 @@
 package com.ft_transcendence.vigil.domain.dtos.alerts;
-
-import com.ft_transcendence.vigil.domain.entities.Alerts.Status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,9 +9,9 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
-public class AlertAcksPutDtoResponse {
+public class AlertNotoficationResponsePutDto {
     private UUID alertId;
     private String userEmail;
-    private Status status;
+    private boolean status;
     private Instant ackedAt;
 }
