@@ -1,10 +1,6 @@
 package com.ft_transcendence.vigil.services;
-
 import com.ft_transcendence.vigil.domain.dtos.alerts.*;
-
 import java.time.DateTimeException;
-import java.time.temporal.ChronoUnit;
-
 import com.ft_transcendence.vigil.domain.entities.Alerts.*;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
@@ -22,13 +18,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -188,19 +182,19 @@ public class AlertsService {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userPrincipal.getUser();
         AlertHistory alertHistory = alertHistoryRepository.findById(id).orElseThrow(() -> new ResourcesNotFoundException("no alert history with id : " + id));
-        AlertNotification alertNotification = alertNotificationRepository.findByUser_Id_IdAndAlertHistory(user.getId(), id);
+        AlertNotification alertNotification = alertNotificationRepository.findByUser_IdAndAlertHistory_Id(user.getId(), id);
         if (alertNotification == null) {
             alertNotification = new AlertNotification();
             AlertNotificationId notifId = new AlertNotificationId(user.getId(), id);
             alertNotification.setAlertNotificationId(notifId);
+            alertNotification.setUser(user);
             alertNotification.setAlertHistory(alertHistory);
-            alertNotification.setSeen(seen);
         }
         alertNotification.setSeen(seen);
         alertNotificationRepository.save(alertNotification);
 
         AlertNotoficationResponsePutDto response = new AlertNotoficationResponsePutDto(
-                id, user.getEmail(), alertNotification.isSeen(), alertNotification.getSeenAt());
+                id , alertNotification.isSeen(), alertNotification.getSeenAt());
 
         //redo the ws part later
 //        registry.podcastStatus(
@@ -214,6 +208,43 @@ public class AlertsService {
 //                        .build());
 
         return response;
+    }
+
+    public AlertNotificationGetResponseDto alertNotificationGetService(Instant before, int count)
+    {
+        UserPrincipal userPrincipal =(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        boolean hasMore = false;
+        List<AlertNotification> notifications = alertNotificationRepository.findNotificationByTimeAndCount(before,count + 1,userPrincipal.getUser().getId());
+        if (notifications.size() == count +1)
+        {
+            hasMore = true;
+            notifications = notifications.subList(0,count);
+        }
+        AlertNotificationGetResponseDto returnedNotifications = new AlertNotificationGetResponseDto();
+        List<AlertNotificationGetResponseDto.Notification> notificationsRecord = new ArrayList<>();
+        notifications.forEach(
+                (n) ->
+                {
+                    AlertHistory alertHistory = n.getAlertHistory();
+
+                    AlertNotificationGetResponseDto.Notification singleReturnedNotif =
+                            new AlertNotificationGetResponseDto.Notification(
+                                    alertHistory.getId(),
+                                    alertHistory.getService(),
+                                    alertHistory.getTriggeredAt(),
+                                    alertHistory.getMetricName(),
+                                    alertHistory.getSignalType(),
+                                    alertHistory.getSeverity(),
+                                    n.isSeen(),
+                                    n.getSeenAt()
+                            );
+
+                    notificationsRecord.add(singleReturnedNotif);
+                }
+        );
+        returnedNotifications.setNotifications(notificationsRecord);
+        returnedNotifications.setHasMore(hasMore);
+        return returnedNotifications;
     }
 
     @Transactional
