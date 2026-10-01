@@ -1,10 +1,14 @@
 package com.ft_transcendence.vigil.controllers;
 
 import com.ft_transcendence.vigil.domain.dtos.alerts.*;
+import com.ft_transcendence.vigil.domain.entities.Alerts.Status;
 import com.ft_transcendence.vigil.services.AlertsService;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,8 +64,15 @@ public class AlertsController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('admin', 'viewer')")
-    public ResponseEntity<AlertAcksPutDtoResponse> notificationPutController(@PathVariable UUID id, @Valid @RequestBody AlertNotoficationRequestPutDto dto) {
-        AlertAcksPutDtoResponse response = alertsService.alertNotificationPutService(id, dto.getStatus());
+    public ResponseEntity<AlertNotoficationResponsePutDto> notificationPutController(@PathVariable UUID id, @Valid @RequestBody AlertNotoficationRequestPutDto dto) {
+        AlertNotoficationResponsePutDto response = alertsService.alertNotificationPutService(id, dto.isStatus());
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('admin', 'viewer')")
+    public ResponseEntity<AlertHistoryPatchResponseDto> alertHistoryPatchController(@PathVariable UUID id, @RequestParam(required = true) Status status) {
+        AlertHistoryPatchResponseDto response = alertsService.alertHistoryPatchService(id, status);
         return ResponseEntity.ok(response);
     }
 }

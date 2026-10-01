@@ -225,7 +225,7 @@ public class AlertsService {
         if (status == Status.sent) {
             if (alertHistory.getStatus() == Status.resolved || alertHistory.getStatus() == Status.acknowledged)
             {
-                if (alertHistory.getUser() == null || !user.getId().equals(alertHistory.getUser().getId()))
+                if (alertHistory.getUser() != null && !user.getId().equals(alertHistory.getUser().getId()))
                     throw new ForbiddenException("forbidden");
             }
             alertHistory.setUser(null);
@@ -238,7 +238,7 @@ public class AlertsService {
         if (status == Status.acknowledged) {
             if (alertHistory.getStatus() == Status.resolved || alertHistory.getStatus() == Status.acknowledged)
             {
-                if (alertHistory.getUser() == null || !user.getId().equals(alertHistory.getUser().getId()))
+                if (alertHistory.getUser() != null && !user.getId().equals(alertHistory.getUser().getId()))
                     throw new ForbiddenException("forbidden");
             }
             alertHistory.setStatus(status);
@@ -249,7 +249,7 @@ public class AlertsService {
             alertHistory.setAckedBy(user.getEmail());
         }
         if (status == Status.resolved) {
-            if (alertHistory.getUser() == null || !user.getId().equals(alertHistory.getUser().getId()))
+            if (alertHistory.getUser() != null && !user.getId().equals(alertHistory.getUser().getId()))
                 throw new ForbiddenException("not the acknowledging user");
             alertHistory.setResolvedAt(Instant.now());
             alertHistory.setResolvedBy(user.getEmail());
