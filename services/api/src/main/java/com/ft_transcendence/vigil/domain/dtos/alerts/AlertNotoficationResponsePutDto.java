@@ -11,7 +11,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class AlertNotoficationResponsePutDto {
     private UUID alertId;
-    private String userEmail;
-    private boolean status;
-    private Instant ackedAt;
+    private boolean seen;
+    private Instant seenAt;
 }
