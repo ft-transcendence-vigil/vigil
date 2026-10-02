@@ -7,7 +7,7 @@ export default function SetupPage() {
     <div className="setup bg-vigil-bg min-h-screen lg:h-screen">
       <div className="mx-auto grid grid-cols-12 h-full">
         <div className="branding-panel">
-          <Logo className="mb-10" />
+          <Logo className="mb-10 text-4xl px-5" />
           <Branding
             tagline="system initialization"
             title={{

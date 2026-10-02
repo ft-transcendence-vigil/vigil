@@ -20,7 +20,7 @@ interface Data {
 
 export default function AuthFormShell(props: Data) {
   return (
-    <div className="setup-form w-full px-20 sm:px-40 lg:px-0 lg:w-3/5">
+    <div className="setup-form w-full px-20 sm:px-40 lg:px-0 lg:w-3/5 xl:w-3/6">
       <h1 className="title text-[33px] text-center lg:text-start">
         {props.title}
       </h1>
