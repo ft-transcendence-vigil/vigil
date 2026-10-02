@@ -34,12 +34,7 @@ public class AlertNotification {
 
     @Column(columnDefinition = "boolean default false")
     private boolean seen;
-    @Column(columnDefinition = "TIMESTAMPZ DEFAULT NOW()")
+    @Column(columnDefinition = "TIMESTAMPTZ")
     private Instant seenAt;
-    @PreUpdate()
-    private void updateSeenAt()
-    {
-        seenAt = Instant.now();
-    }
 
 }
