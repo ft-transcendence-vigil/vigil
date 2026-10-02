@@ -15,7 +15,7 @@ import ServicesPage from './pages/Services/ServicesPage';
 import AlertsRulesPage from './pages/AlertRules/AlertsRulesPage';
 import SettingsPage from './pages/Settings/SettingsPage';
 import StatusPage from './pages/Status/StatusPage';
-import AiInsightsPage from './pages/AiInsights/AiInsightsPage';
+import AiInsightsPage from './pages/AIInsights/AIInsightsPage';
 
 function App() {
   return (

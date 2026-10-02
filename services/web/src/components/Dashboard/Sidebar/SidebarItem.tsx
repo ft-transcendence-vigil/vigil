@@ -29,11 +29,7 @@ export default function SidebarItem({ title, path }: Data) {
           className={`
           tracking-wide inline-block capitalize py-2 ms-7
           transition-colors duration-400 text-[14px] md:text-[16px]
-          ${
-            isActive
-              ? 'text-vigil-blue'
-              : 'text-vigil-muted group-hover:text-white'
-          }
+          ${isActive ? 'text-vigil-blue' : 'text-vigil-muted hover:text-white'}
         `}
         >
           {title}
