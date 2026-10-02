@@ -1,11 +1,12 @@
 package com.ft_transcendence.vigil.websocket;
 
-import com.ft_transcendence.vigil.domain.dtos.alerts.WebSocketAlertResponse;
-import com.ft_transcendence.vigil.domain.dtos.alerts.WebSocketErrorResponse;
-import com.ft_transcendence.vigil.domain.dtos.alerts.WebSocketLlmResponse;
-import com.ft_transcendence.vigil.domain.dtos.alerts.WebSocketStatusResponse;
+import com.ft_transcendence.vigil.domain.dtos.alerts.*;
+import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
+import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -14,8 +15,10 @@ import org.springframework.web.socket.handler.SessionLimitExceededException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.net.ContentHandler;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -23,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class AlertSessionRegistry {
     private final ObjectMapper mapper;
+    private final UserRepository userRepository;
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     public void add(WebSocketSession session) {
         WebSocketSession safeSession =
@@ -40,20 +44,54 @@ public class AlertSessionRegistry {
         sessions.remove(session.getId());
     }
 
-    public void podcastAlert(WebSocketAlertResponse webSocketAlertResponse)
+    public void podcastAlert(WebSocketAlertHistoryResponse webSocketAlertHistoryResponse)
     {
 
-        podcastTo(webSocketAlertResponse);
+        podcastTo(webSocketAlertHistoryResponse);
     }
+
+
     public void podcastLlmAnalyze(WebSocketLlmResponse llmMessage)
     {
 
         podcastTo(llmMessage);
     }
-    public void podcastStatus(WebSocketStatusResponse socketStatusResponse)
+    public void podcastNoticiation(WebSocketNotificationResponse socketNotificationResponse,UUID userId)
     {
 
-        podcastTo(socketStatusResponse);
+        String message;
+        try
+        {
+            message = mapper.writeValueAsString(socketNotificationResponse);
+        }
+        catch (JacksonException e)
+        {
+            log.error("failed to map the web socket message response", e);
+            return;
+        }
+        sessions.values().forEach(
+                (s)->
+                {
+                    if (!s.isOpen()) {
+                        remove(s);
+                        return;
+                    }
+                    try
+                    {
+                        if (userId.equals((UUID) s.getAttributes().get("userId")))
+                            s.sendMessage(new TextMessage(message));
+                    }
+                    catch (SessionLimitExceededException | IOException e) {
+                        log.error(
+                                "failed to send the message to the user_id : {}",
+                                s.getAttributes().get("userId"),
+                                e
+                        );
+
+                        remove(s);
+                    }
+                }
+        );
     }
 
     public void podcastError(WebSocketErrorResponse webSocketErrorResponse, WebSocketSession session)

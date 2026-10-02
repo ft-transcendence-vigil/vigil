@@ -46,7 +46,7 @@ public class AlertSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
-            WebSocketAckRequest request;
+            WebSocketRequest request;
             Bucket bucket = (Bucket)session.getAttributes().get("bucket");
             ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
             if(!probe.isConsumed())
@@ -56,39 +56,40 @@ public class AlertSocketHandler extends TextWebSocketHandler {
                 return;
             }
             try {
-                request = mapper.readValue(message.getPayload(), WebSocketAckRequest.class);
+                request = mapper.readValue(message.getPayload(), WebSocketRequest.class);
             } catch (JacksonException e) {
-                sendError(session, "invalid ack");
+                sendError(session, "invalid ack or notification");
                 return;
             }
-            if (!"ack".equals(request.type())) {
+            if ("ack".equals(request.getType()) || "notif".equals(request.getType())) {
+                try{
+                    UUID userId = (UUID) session.getAttributes().get("userId");
+                    User user = userRepository.findById(userId).orElseThrow();
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(new UserPrincipal(user), null, new UserPrincipal(user).getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    if ("ack".equals(request.getType()))
+                        alertsService.alertHistoryPatchService(request.getAlert_id(),request.getStatus());
+                    if ("notif".equals(request.getType())
+                        alertsService.alertNotificationPutService(request.getAlert_id(), request.isSeen());
+                }
+                catch (ResourcesNotFoundException | InvalidRequestException e) {
+                    sendError(session, "invalid ack");
+                }
+                finally {
+                    SecurityContextHolder.clearContext();
+                }
+            }
+            else
+            {
                 sendError(session, "type must be ack");
                 return;
             }
-            try{
-
-
-            UUID userId = (UUID) session.getAttributes().get("userId");
-            User user = userRepository.findById(userId).orElseThrow();
-
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    new UserPrincipal(user), null, new UserPrincipal(user).getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(auth);
-
-            alertsService.alertAcksPutService(request.alert_id(), request.status());
-            }
-            finally {
-                SecurityContextHolder.clearContext();
-            }
-        }
-        catch (ResourcesNotFoundException | InvalidRequestException e) {
-            sendError(session, "invalid ack");
         }
         catch (Exception e) {
-            log.error("unexpected websocket ack error", e);
-            sendError(session, "server error");
+            sendError(session, "socket error");
         }
     }
+
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status)
