@@ -1,2 +1,1 @@
-has_session and session_hint in the backend, should switch
 refresh token when its expired inspect
