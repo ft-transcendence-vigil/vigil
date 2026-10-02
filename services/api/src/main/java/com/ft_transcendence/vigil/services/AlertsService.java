@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -189,6 +190,12 @@ public class AlertsService {
             alertNotification.setAlertNotificationId(notifId);
             alertNotification.setUser(user);
             alertNotification.setAlertHistory(alertHistory);
+        }
+        if (seen) {
+            if (!alertNotification.isSeen() || alertNotification.getSeenAt() == null)
+                alertNotification.setSeenAt(Instant.now());
+        } else {
+            alertNotification.setSeenAt(null);
         }
         alertNotification.setSeen(seen);
         alertNotificationRepository.save(alertNotification);
