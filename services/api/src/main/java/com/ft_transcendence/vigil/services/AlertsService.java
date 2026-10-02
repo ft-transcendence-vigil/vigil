@@ -198,22 +198,27 @@ public class AlertsService {
             alertNotification.setSeenAt(null);
         }
         alertNotification.setSeen(seen);
-        alertNotificationRepository.save(alertNotification);
+        alertNotificationRepository.saveAndFlush(alertNotification);
 
         AlertNotoficationResponsePutDto response = new AlertNotoficationResponsePutDto(
                 id , alertNotification.isSeen(), alertNotification.getSeenAt());
 
-        //redo the ws part later
-//        registry.podcastStatus(
-//                WebSocketStatusResponse.builder()
-//                        .type(Type.status)
-//                        .data(new WebSocketStatusResponse.Data(
-//                                response.getAlertId(),
-//                                response.getUserEmail(),
-//                                response.getStatus(),
-//                                response.getAckedAt()))
-//                        .build());
-
+        registry.podcastNoticiation(
+                WebSocketNotificationResponse.builder()
+                        .type(Type.Notification)
+                        .data(new WebSocketNotificationResponse.Data(
+                                alertHistory.getId(),
+                                alertHistory.getService(),
+                                alertHistory.getTriggeredAt(),
+                                alertHistory.getMetricName(),
+                                alertHistory.getSignalType(),
+                                alertHistory.getSeverity(),
+                                response.isSeen(),
+                                response.getSeenAt()
+                        ))
+                        .build(),
+                user.getId()
+        );
         return response;
     }
 
@@ -294,7 +299,7 @@ public class AlertsService {
             alertHistory.setStatus(status);
         }
         alertHistoryRepository.save(alertHistory);
-        return AlertHistoryPatchResponseDto.builder().
+        AlertHistoryPatchResponseDto responseDto = AlertHistoryPatchResponseDto.builder().
                 id(alertHistoryId).
                 rule(alertHistory.getRule()).
                 service(alertHistory.getService()).
@@ -312,6 +317,8 @@ public class AlertsService {
                 ackedBy(alertHistory.getAckedBy()).
                 resolvedBy(alertHistory.getResolvedBy()).
                 build();
-        //broadcast this with websocket later
+        registry.podcastAlert(WebSocketAlertHistoryResponse.builder().type(Type.alert).data(new WebSocketAlertHistoryResponse.Data(responseDto.getId(),responseDto.getStatus(),responseDto.getAckedAt())).build());
+        return responseDto;
+
     }
 }

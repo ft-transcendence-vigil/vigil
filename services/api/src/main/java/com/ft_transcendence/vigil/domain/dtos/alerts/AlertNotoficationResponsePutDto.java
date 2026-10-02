@@ -13,4 +13,5 @@ public class AlertNotoficationResponsePutDto {
     private UUID alertId;
     private boolean seen;
     private Instant seenAt;
+
 }
