@@ -3,7 +3,7 @@ import SidebarSection from './SidebarSection';
 
 export default function Sidebar() {
   return (
-    <div className="sidebar h-screen bg-vigil-surface w-50 md:w-65 py-4 border-r border-r-vigil-border flex flex-col">
+    <div className="sidebar h-screen bg-vigil-surface w-50 md:w-65 py-3 md:py-4 border-r border-r-vigil-border flex flex-col">
       <Logo className="md:text-2xl px-4 md:px-5 mx-auto!" />
       <div className="sidebar-items border-y border-y-vigil-border py-4 my-4 flex-1">
         <SidebarSection
