@@ -17,6 +17,9 @@ public class WebSocketAlertHistoryResponse {
     public record Data(
             UUID alertHistoryId,
             Status status,
-            Instant AckedAt)
+            Instant ackedAt,
+            String ackedBy,
+            Instant resolvedAt,
+            String resolvedBy)
     {}
 }

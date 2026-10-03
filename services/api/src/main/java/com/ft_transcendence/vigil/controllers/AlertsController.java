@@ -67,7 +67,7 @@ public class AlertsController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/history/{id}")
     @PreAuthorize("hasAnyRole('admin', 'viewer')")
     public ResponseEntity<AlertHistoryPatchResponseDto> alertHistoryPatchController(@PathVariable UUID id, @RequestParam Status status) {
         AlertHistoryPatchResponseDto response = alertsService.alertHistoryPatchService(id, status);

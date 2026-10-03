@@ -61,7 +61,23 @@ public class AlertSocketHandler extends TextWebSocketHandler {
                 sendError(session, "invalid ack or notification");
                 return;
             }
+            if (request == null) {
+                sendError(session, "invalid ack or notification");
+                return;
+            }
             if ("ack".equals(request.getType()) || "notif".equals(request.getType())) {
+                if (request.getAlert_id() == null) {
+                    sendError(session, "alert_id is required");
+                    return;
+                }
+                if ("ack".equals(request.getType()) && request.getStatus() == null) {
+                    sendError(session, "status is required");
+                    return;
+                }
+                if ("notif".equals(request.getType()) && request.getSeen() == null) {
+                    sendError(session, "seen is required");
+                    return;
+                }
                 try{
                     UUID userId = (UUID) session.getAttributes().get("userId");
                     User user = userRepository.findById(userId).orElseThrow();
@@ -69,8 +85,8 @@ public class AlertSocketHandler extends TextWebSocketHandler {
                     SecurityContextHolder.getContext().setAuthentication(auth);
                     if ("ack".equals(request.getType()))
                         alertsService.alertHistoryPatchService(request.getAlert_id(),request.getStatus());
-                    if ("notif".equals(request.getType())
-                        alertsService.alertNotificationPutService(request.getAlert_id(), request.isSeen());
+                    if ("notif".equals(request.getType()))
+                        alertsService.alertNotificationPutService(request.getAlert_id(), request.getSeen());
                 }
                 catch (ResourcesNotFoundException | InvalidRequestException e) {
                     sendError(session, "invalid ack");

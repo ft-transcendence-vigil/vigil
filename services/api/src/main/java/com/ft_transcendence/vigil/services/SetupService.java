@@ -28,7 +28,7 @@ public class SetupService {
 
     public boolean getSetupHandler()
     {
-        return userRepository.countByRole(Role.ADMIN) > 0;
+        return userRepository.countByRole(Role.ADMIN) == 0;
     }
     @Transactional
     // add the first admin and also create the api user
