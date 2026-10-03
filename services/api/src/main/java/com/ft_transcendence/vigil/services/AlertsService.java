@@ -1,10 +1,6 @@
 package com.ft_transcendence.vigil.services;
-
 import com.ft_transcendence.vigil.domain.dtos.alerts.*;
-
 import java.time.DateTimeException;
-import java.time.temporal.ChronoUnit;
-
 import com.ft_transcendence.vigil.domain.entities.Alerts.*;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
@@ -14,35 +10,34 @@ import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
 import com.ft_transcendence.vigil.mappers.AlertRulesGetAndPatchResponseMapper;
 import com.ft_transcendence.vigil.mappers.AlertRulesPostRequestMapper;
 import com.ft_transcendence.vigil.mappers.AlertRulesPostResponseMapper;
-import com.ft_transcendence.vigil.repositories.alertsrepository.AlertAcksRepository;
 import com.ft_transcendence.vigil.repositories.alertsrepository.AlertHistoryRepository;
+import com.ft_transcendence.vigil.repositories.alertsrepository.AlertNotificationRepository;
 import com.ft_transcendence.vigil.repositories.alertsrepository.AlertRuleRepository;
 import com.ft_transcendence.vigil.websocket.AlertSessionRegistry;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AlertsService {
-    final private AlertAcksRepository alertAcksRepository;
     private final AlertSessionRegistry registry;
+    private final AlertNotificationRepository alertNotificationRepository;
     final private AlertRuleRepository alertRuleRepository;
     final private AlertHistoryRepository alertHistoryRepository;
     final private AlertRulesPostResponseMapper alertRulesPostResponseMapper;
     final private AlertRulesPostRequestMapper alertRulesPostRequestMapper;
     final private AlertRulesGetAndPatchResponseMapper alertRulesGetAndPatchResponseMapper;
 
-    private class CheckAlertParsingRules{
+    private class CheckAlertParsingRules {
         public static final Set<String> allowedLogsForMetric = Set.of("error_count", "warning_count", "critical_count", "total_count");
         public static final Set<String> allowedTracesForMetric = Set.of("error_rate", "span_count", "avg_duration_ms", "p50_duration_ms", "p95_duration_ms", "p99_duration_ms", "max_duration_ms");
         public static final Set<String> isValidAggregation = Set.of("latest", "avg", "sum", "min", "max", "count", "p50", "p95", "p99");
@@ -77,19 +72,19 @@ public class AlertsService {
     }
 
     public AlertRulesPostDtoResponse rulesPostService(AlertRulesPostRequestDto alertRulesPostRequestDto) {
-        CheckAlertParsingRules.validateTheMetrics(alertRulesPostRequestDto.getSignalType(),alertRulesPostRequestDto.getMetricName(),alertRulesPostRequestDto.getAggregation());
+        CheckAlertParsingRules.validateTheMetrics(alertRulesPostRequestDto.getSignalType(), alertRulesPostRequestDto.getMetricName(), alertRulesPostRequestDto.getAggregation());
         AlertRules alertRules = alertRulesPostRequestMapper.map(alertRulesPostRequestDto);
         alertRules.setDefault(false);
         alertRuleRepository.save(alertRules);
         return alertRulesPostResponseMapper.map(alertRules);
     }
 
-    public PaginationResponse<AlertRulesGetAndPatchResponseDto>getAlertRulesService(int count, Integer offset) {
+    public PaginationResponse<AlertRulesGetAndPatchResponseDto> getAlertRulesService(int count, Integer offset) {
         int startAt = offset == null ? 0 : offset;
         List<AlertRules> result = alertRuleRepository.getAlertRulesByCountAndOffset(count + 1, startAt);
         boolean hasMore = result.size() > count;
         if (hasMore)
-            result = result.subList(0,count);
+            result = result.subList(0, count);
         List<AlertRulesGetAndPatchResponseDto> finalResult = result.stream().map(alertRulesGetAndPatchResponseMapper::map).toList();
         return new PaginationResponse<>(finalResult, hasMore);
     }
@@ -115,12 +110,11 @@ public class AlertsService {
         }
         List<AlertHistory> alertHistories = alertHistoryRepository.findAlertHistoriesByAggregation(afterInstant, service, count + 1, beforeInstant);
         if (alertHistories.size() == count + 1) {
-            alertHistories = alertHistories.subList(0, count);
+            alertHistories.remove(count);
             hasMore = true;
         }
-        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<AlertAcks> alertAcks = alertAcksRepository.findByIdUserIdAndIdAlertIdIn(userPrincipal.getUser().getId(), alertHistories.stream().map(AlertHistory::getId).toList());
-        Map<UUID, AlertAcks> alertAcksMap = alertAcks.stream().collect(Collectors.toMap(a -> a.getId().getAlertId(), a -> a));
+
+
         List<AlertsGetResponseDto> alertsGetResponseDtos = alertHistories.stream().map(
                 a -> {
                     return AlertsGetResponseDto.builder()
@@ -128,7 +122,6 @@ public class AlertsService {
                             .service(a.getService())
                             .aggregation(a.getAggregation())
                             .metricName(a.getMetricName())
-                            .myAck(alertAcksMap.get(a.getId()) != null ? new AlertsGetResponseDto.MyAck(alertAcksMap.get(a.getId()).getStatus(), alertAcksMap.get(a.getId()).getAckedAt()) : null)
                             .ruleId(a.getRule() != null ? a.getRule().getId() : null)
                             .llmAnalysis(a.getLlmAnalysis())
                             .signalType(a.getSignalType())
@@ -136,15 +129,26 @@ public class AlertsService {
                             .threshold(a.getThreshold())
                             .windowSeconds(a.getWindowSeconds())
                             .triggeredAt(a.getTriggeredAt())
+                            .status(a.getStatus())
+                            .ackedAt(a.getAckedAt())
+                            .resolvedAt(a.getResolvedAt())
+                            .ackedBy(a.getAckedBy())
+                            .resolvedBy(a.getResolvedBy())
                             .build();
-
                 }
         ).toList();
         return new PaginationResponse<>(alertsGetResponseDtos, hasMore);
     }
+
     public AlertRulesGetAndPatchResponseDto alertRulesPatchService(UUID id, AlertRulesPatchRequestDto dto) {
         AlertRules alertRules = alertRuleRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException("No alert rule with id: " + id));
+
+        if (alertRules.isDefault() && (dto.getService() != null || dto.getMetricName() != null
+                || dto.getAggregation() != null || dto.getWindowSeconds() != null
+                || dto.getThreshold() != null || dto.getSeverity() != null)) {
+            throw new ForbiddenException("only enabled can be changed on a default rule");
+        }
 
         if (dto.getMetricName() != null || dto.getAggregation() != null) {
             String finalMetricName = alertRules.getMetricName();
@@ -173,44 +177,163 @@ public class AlertsService {
         alertRuleRepository.save(alertRules);
         return alertRulesGetAndPatchResponseMapper.map(alertRules);
     }
-    public void alertRulesDeleteService(UUID id)
-    {
+
+    public void alertRulesDeleteService(UUID id) {
         AlertRules alertRules = alertRuleRepository.findById(id).orElseThrow(() -> new ResourcesNotFoundException("Invalid alert rule with id: " + id));
         if (alertRules.isDefault())
             throw new ForbiddenException("cannot delete a default rule");
         alertRuleRepository.deleteById(id);
     }
 
-    public AlertAcksPutDtoResponse alertAcksPutService(UUID id, Status status) {
-        AlertHistory alertHistory = alertHistoryRepository.findById(id)
-                .orElseThrow(() -> new ResourcesNotFoundException("No alert with id: " + id));
+    public AlertNotoficationResponsePutDto alertNotificationPutService(UUID id, boolean seen) {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userPrincipal.getUser();
-        AlertAcksId alertAcksId = new AlertAcksId(user.getId(), id);
-        AlertAcks alertAcks = alertAcksRepository.findById(alertAcksId).orElse(null);
-        if (alertAcks == null) {
-            alertAcks = new AlertAcks();
-            alertAcks.setId(alertAcksId);
-            alertAcks.setUser(user);
-            alertAcks.setAlert(alertHistory);
-            alertAcks.setAckedAt(Instant.now());
+        AlertHistory alertHistory = alertHistoryRepository.findById(id).orElseThrow(() -> new ResourcesNotFoundException("no alert history with id : " + id));
+        AlertNotification alertNotification = alertNotificationRepository.findByUser_IdAndAlertHistory_Id(user.getId(), id);
+        if (alertNotification == null) {
+            alertNotification = new AlertNotification();
+            AlertNotificationId notifId = new AlertNotificationId(user.getId(), id);
+            alertNotification.setAlertNotificationId(notifId);
+            alertNotification.setUser(user);
+            alertNotification.setAlertHistory(alertHistory);
         }
-        alertAcks.setStatus(status);
-        alertAcksRepository.save(alertAcks);
+        if (seen) {
+            if (!alertNotification.isSeen() || alertNotification.getSeenAt() == null)
+                alertNotification.setSeenAt(Instant.now());
+        } else {
+            alertNotification.setSeenAt(null);
+        }
+        alertNotification.setSeen(seen);
+        alertNotificationRepository.saveAndFlush(alertNotification);
 
-        AlertAcksPutDtoResponse response = new AlertAcksPutDtoResponse(
-                alertHistory.getId(), user.getEmail(), alertAcks.getStatus(), alertAcks.getAckedAt());
+        AlertNotoficationResponsePutDto response = new AlertNotoficationResponsePutDto(
+                id , alertNotification.isSeen(), alertNotification.getSeenAt());
 
-        registry.podcastStatus(
-                WebSocketStatusResponse.builder()
-                        .type(Type.status)
-                        .data(new WebSocketStatusResponse.Data(
-                                response.getAlertId(),
-                                response.getUserEmail(),
-                                response.getStatus(),
-                                response.getAckedAt()))
-                        .build());
-
+        registry.podcastNoticiation(
+                WebSocketNotificationResponse.builder()
+                        .type(Type.Notification)
+                        .data(new WebSocketNotificationResponse.Data(
+                                alertHistory.getId(),
+                                alertHistory.getService(),
+                                alertHistory.getTriggeredAt(),
+                                alertHistory.getMetricName(),
+                                alertHistory.getSignalType(),
+                                alertHistory.getSeverity(),
+                                response.isSeen(),
+                                response.getSeenAt()
+                        ))
+                        .build(),
+                user.getId()
+        );
         return response;
+    }
+
+    public AlertNotificationGetResponseDto alertNotificationGetService(Instant before, int count)
+    {
+        UserPrincipal userPrincipal =(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        boolean hasMore = false;
+        List<AlertNotification> notifications = alertNotificationRepository.findNotificationByTimeAndCount(before,count + 1,userPrincipal.getUser().getId());
+        if (notifications.size() == count +1)
+        {
+            hasMore = true;
+            notifications = notifications.subList(0,count);
+        }
+        AlertNotificationGetResponseDto returnedNotifications = new AlertNotificationGetResponseDto();
+        List<AlertNotificationGetResponseDto.Notification> notificationsRecord = new ArrayList<>();
+        notifications.forEach(
+                (n) ->
+                {
+                    AlertHistory alertHistory = n.getAlertHistory();
+
+                    AlertNotificationGetResponseDto.Notification singleReturnedNotif =
+                            new AlertNotificationGetResponseDto.Notification(
+                                    alertHistory.getId(),
+                                    alertHistory.getService(),
+                                    alertHistory.getTriggeredAt(),
+                                    alertHistory.getMetricName(),
+                                    alertHistory.getSignalType(),
+                                    alertHistory.getSeverity(),
+                                    n.isSeen(),
+                                    n.getSeenAt()
+                            );
+
+                    notificationsRecord.add(singleReturnedNotif);
+                }
+        );
+        returnedNotifications.setNotifications(notificationsRecord);
+        returnedNotifications.setHasMore(hasMore);
+        return returnedNotifications;
+    }
+
+    @Transactional
+    public AlertHistoryPatchResponseDto alertHistoryPatchService(UUID alertHistoryId, Status status) {
+        AlertHistory alertHistory = alertHistoryRepository.findById(alertHistoryId).orElseThrow(() -> new ResourcesNotFoundException("No alert history with id: " + alertHistoryId));
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userPrincipal.getUser();
+
+        if (status == Status.sent) {
+            if (alertHistory.getStatus() == Status.resolved || alertHistory.getStatus() == Status.acknowledged)
+            {
+                if (alertHistory.getUser() != null && !user.getId().equals(alertHistory.getUser().getId()))
+                    throw new ForbiddenException("forbidden");
+            }
+            alertHistory.setUser(null);
+            alertHistory.setStatus(status);
+            alertHistory.setAckedAt(null);
+            alertHistory.setAckedBy(null);
+            alertHistory.setResolvedAt(null);
+            alertHistory.setResolvedBy(null);
+        }
+        if (status == Status.acknowledged) {
+            if (alertHistory.getStatus() == Status.resolved || alertHistory.getStatus() == Status.acknowledged)
+            {
+                if (alertHistory.getUser() != null && !user.getId().equals(alertHistory.getUser().getId()))
+                    throw new ForbiddenException("forbidden");
+            }
+            alertHistory.setStatus(status);
+            alertHistory.setUser(user);
+            alertHistory.setResolvedAt(null);
+            alertHistory.setResolvedBy(null);
+            alertHistory.setAckedAt(Instant.now());
+            alertHistory.setAckedBy(user.getEmail());
+        }
+        if (status == Status.resolved) {
+            if (alertHistory.getUser() != null && !user.getId().equals(alertHistory.getUser().getId()))
+                throw new ForbiddenException("not the acknowledging user");
+            alertHistory.setResolvedAt(Instant.now());
+            alertHistory.setResolvedBy(user.getEmail());
+            alertHistory.setStatus(status);
+        }
+        alertHistoryRepository.save(alertHistory);
+        AlertHistoryPatchResponseDto responseDto = AlertHistoryPatchResponseDto.builder().
+                id(alertHistoryId).
+                rule(alertHistory.getRule()).
+                service(alertHistory.getService()).
+                triggeredAt(alertHistory.getTriggeredAt()).
+                metricName(alertHistory.getMetricName()).
+                signalType(alertHistory.getSignalType()).
+                windowSeconds(alertHistory.getWindowSeconds()).
+                aggregation(alertHistory.getAggregation()).
+                threshold(alertHistory.getThreshold()).
+                severity(alertHistory.getSeverity()).
+                llmAnalysis(alertHistory.getLlmAnalysis()).
+                status(alertHistory.getStatus()).
+                ackedAt(alertHistory.getAckedAt()).
+                resolvedAt(alertHistory.getResolvedAt()).
+                ackedBy(alertHistory.getAckedBy()).
+                resolvedBy(alertHistory.getResolvedBy()).
+                build();
+        registry.podcastAlert(WebSocketAlertHistoryResponse.builder()
+                .type(Type.alert)
+                .data(new WebSocketAlertHistoryResponse.Data(
+                        responseDto.getId(),
+                        responseDto.getStatus(),
+                        responseDto.getAckedAt(),
+                        responseDto.getAckedBy(),
+                        responseDto.getResolvedAt(),
+                        responseDto.getResolvedBy()))
+                .build());
+        return responseDto;
+
     }
 }
