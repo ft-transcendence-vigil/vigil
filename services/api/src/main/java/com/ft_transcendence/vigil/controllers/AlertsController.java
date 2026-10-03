@@ -1,6 +1,7 @@
 package com.ft_transcendence.vigil.controllers;
 
 import com.ft_transcendence.vigil.domain.dtos.alerts.*;
+import com.ft_transcendence.vigil.domain.entities.Alerts.Status;
 import com.ft_transcendence.vigil.services.AlertsService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import java.time.Instant;
 import java.util.UUID;
 
 @RestController
@@ -58,10 +60,23 @@ public class AlertsController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/ack/{id}")
+    @PutMapping("/notifications/{id}")
     @PreAuthorize("hasAnyRole('admin', 'viewer')")
-    public ResponseEntity<AlertAcksPutDtoResponse> alertAcksPutController(@PathVariable UUID id, @Valid @RequestBody AlertAcksPutRequestDto dto) {
-        AlertAcksPutDtoResponse response = alertsService.alertAcksPutService(id, dto.getStatus());
+    public ResponseEntity<AlertNotoficationResponsePutDto> notificationPutController(@PathVariable UUID id,   @RequestParam(required = true) boolean seen) {
+        AlertNotoficationResponsePutDto response = alertsService.alertNotificationPutService(id, seen);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/history/{id}")
+    @PreAuthorize("hasAnyRole('admin', 'viewer')")
+    public ResponseEntity<AlertHistoryPatchResponseDto> alertHistoryPatchController(@PathVariable UUID id, @RequestParam Status status) {
+        AlertHistoryPatchResponseDto response = alertsService.alertHistoryPatchService(id, status);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/notifications")
+    @PreAuthorize("hasAnyRole('admin', 'viewer')")
+    public ResponseEntity<AlertNotificationGetResponseDto> notificationGetController(@RequestParam(value = "before",required = false) Instant before, @Min(1) @Max( 100) @RequestParam(value = "count",required = false, defaultValue = "20") Integer count) {
+        AlertNotificationGetResponseDto response = alertsService.alertNotificationGetService(before, count);
         return ResponseEntity.ok(response);
     }
 }

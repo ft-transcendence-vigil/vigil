@@ -11,13 +11,15 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class WebSocketStatusResponse {
-    private Type type;
+public class WebSocketAlertHistoryResponse {
+    Type type;
     private Data data;
     public record Data(
-            UUID alertId,
-            String userEmail,
+            UUID alertHistoryId,
             Status status,
-            Instant ackedAt
-    ) {}
+            Instant ackedAt,
+            String ackedBy,
+            Instant resolvedAt,
+            String resolvedBy)
+    {}
 }

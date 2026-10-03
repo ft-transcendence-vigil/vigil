@@ -42,16 +42,25 @@ public class AuthController {
     public record SessionsResponse(List<SessionDto> sessions) {
     }
 
-    private ResponseCookie getRefreshHint(String value)
+    private ResponseCookie getSessionHint(String value)
     {
-        ResponseCookie refreshHint = ResponseCookie.from("refresh_hint",value)
+        ResponseCookie sessionHint = ResponseCookie.from("session_hint",value)
                 .httpOnly(false)
                 .secure(true)
                 .sameSite("Strict")
                 .maxAge(Duration.ofDays(30))
                 .path("/")
                 .build();
-        return  refreshHint;
+        return  sessionHint;
+    }
+
+    private void clearAuthCookies(HttpServletResponse response) {
+        response.addHeader(HttpHeaders.SET_COOKIE, ResponseCookie.from("refresh_token", "")
+                .httpOnly(true).secure(true).sameSite("Strict").path("/api/auth").maxAge(0)
+                .build().toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, ResponseCookie.from("session_hint", "")
+                .httpOnly(false).secure(true).sameSite("Strict").path("/").maxAge(0)
+                .build().toString());
     }
 
     @PostMapping("/refresh")
@@ -63,14 +72,7 @@ public class AuthController {
         try {
             result = authService.refreshService(rawRefreshToken);
         } catch (UnauthorizedException e) {
-            ResponseCookie clearedHint = ResponseCookie.from("refresh_hint", "")
-                    .httpOnly(false)
-                    .secure(true)
-                    .sameSite("Strict")
-                    .path("/")
-                    .maxAge(0)
-                    .build();
-            response.addHeader(HttpHeaders.SET_COOKIE, clearedHint.toString());
+            clearAuthCookies(response);
             throw e;
         }
 
@@ -81,17 +83,23 @@ public class AuthController {
                 .path("/api/auth")
                 .maxAge(Duration.ofDays(30))
                 .build();
-        ResponseCookie refreshHint = getRefreshHint("true");
+        ResponseCookie sessionHint = getSessionHint("1");
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString(), refreshHint.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString(), sessionHint.toString())
                 .body(new RefreshResponse(result.accessToken()));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
-            @CookieValue(name = "refresh_token", required = false) String rawRefreshToken) {
+            @CookieValue(name = "refresh_token", required = false) String rawRefreshToken,
+            HttpServletResponse response) {
 
-        authService.logoutService(rawRefreshToken);
+        try {
+            authService.logoutService(rawRefreshToken);
+        } catch (UnauthorizedException e) {
+            clearAuthCookies(response);
+            throw e;
+        }
 
         ResponseCookie cleared = ResponseCookie.from("refresh_token", "")
                 .httpOnly(true)
@@ -100,7 +108,7 @@ public class AuthController {
                 .path("/api/auth")
                 .maxAge(0)
                 .build();
-        ResponseCookie clearedHint = ResponseCookie.from("refresh_hint","")
+        ResponseCookie clearedHint = ResponseCookie.from("session_hint","")
                 .httpOnly(false)
                 .secure(true)
                 .sameSite("Strict")
@@ -128,7 +136,7 @@ public class AuthController {
                     .path("/api/auth")
                     .maxAge(0)
                     .build();
-            ResponseCookie clearnedHint = ResponseCookie.from("refresh_hint","").
+            ResponseCookie clearnedHint = ResponseCookie.from("session_hint","").
                     httpOnly(false)
                     .maxAge(0)
                     .path("/")
@@ -160,9 +168,9 @@ public class AuthController {
                 .sameSite("Strict")
                 .path("/api/auth")
                 .build();
-        ResponseCookie refreshHint = getRefreshHint("true");
+        ResponseCookie sessionHint = getSessionHint("1");
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, responseCookie.toString(),refreshHint.toString())
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString(),sessionHint.toString())
                 .body(new AuthResponse(authResult.role(), authResult.accessToken()));
     }
 }
