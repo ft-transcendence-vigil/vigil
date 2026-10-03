@@ -18,7 +18,7 @@ public interface AlertNotificationRepository extends JpaRepository<AlertNotifica
                 inner join alert_history as ah on ah.id = an.alert_history_id 
                 where an.user_id = :userId 
                 And 
-                (:before is null or ah.triggered_at < :before)  Order by ah.triggered_at Desc limit :count;"""
+                (cast(:before as timestamptz) is null or ah.triggered_at < cast(:before as timestamptz))  Order by ah.triggered_at Desc limit :count;"""
                 , nativeQuery = true)
 
     public List<AlertNotification> findNotificationByTimeAndCount(@Param("before") Instant before, @Param("count") int count,@Param("userId") UUID userId);
