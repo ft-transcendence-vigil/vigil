@@ -16,26 +16,18 @@
     font-display: swap;
 }
 
-@font-face {
-    font-family: "Poppins";
-    src: url("./assets/fonts/Poppins-Medium.ttf") format("truetype");
-    font-weight: 500;
+/* @font-face {
+    font-family: "Geist";
+    src: url("./assets/fonts/Geist-Variable.ttf") format("truetype");
+    font-weight: 100 900;
     font-style: normal;
     font-display: swap;
-}
+} */
 
 @font-face {
-    font-family: "Poppins";
-    src: url("./assets/fonts/Poppins-SemiBold.ttf") format("truetype");
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Poppins";
-    src: url("./assets/fonts/Poppins-Bold.ttf") format("truetype");
-    font-weight: 700;
+    font-family: "IBM Plex Sans";
+    src: url("./assets/fonts/IBMPlexSans-Variable.ttf") format("truetype");
+    font-weight: 100 900;
     font-style: normal;
     font-display: swap;
 }
@@ -45,6 +37,7 @@
     --color-vigil-bg-input: #0a0f1e;
     /* --color-vigil-surface: #0d1320; */
     --color-vigil-surface: #080d1a;
+    --color-vigil-card: #0a0f1e;
     --color-vigil-border: #1a2333;
     --color-vigil-border-muted: rgba(26, 35, 51, 0.6);
     --color-vigil-blue: #2196F3;
@@ -63,6 +56,7 @@
     --color-vigil-bg: var(--color-vigil-bg);
     --color-vigil-bg-input: var(--color-vigil-bg-input);
     --color-vigil-surface: var(--color-vigil-surface);
+    --color-vigil-card: var(--color-vigil-card);
     --color-vigil-border: var(--color-vigil-border);
     --color-vigil-border-muted: var(--color-vigil-border-muted);
     --color-vigil-blue: var(--color-vigil-blue);
@@ -91,7 +85,7 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: "Poppins", sans-serif;
+    font-family: "IBM Plex Sans", sans-serif;
 }
 
 code,
@@ -244,3 +238,29 @@ pre,
     position: relative;
     z-index: 1;
 } */
+
+/* Overview */
+
+.space {
+    font: 700 120px/1 "Space Grotesk", sans-serif;
+    letter-spacing: -.04em;
+}
+
+.kpi-card {
+    background: radial-gradient(70% 120% at 100% 100%, color-mix(in srgb, var(--color-vigil-blue) 12%, transparent), transparent 70%),
+        var(--color-vigil-card);
+}
+
+.num {
+    letter-spacing: -.04em;
+    background: linear-gradient(180deg, var(--color-vigil-blue) 5%, transparent 95%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    opacity: 0.8;
+    user-select: none;
+}
+
+button:hover .num {
+    color: var(--color-vigil-blue);
+}

@@ -31,8 +31,8 @@ export const navigation = [
 
 export const getPageTitle = (pathname: string) => {
   for (const section of navigation) {
-    const link = section.links.find((link) => link.label === pathname);
+    const link = section.links.find((link) => link.path === pathname);
     if (link) return link.label;
-    return 'Vigil';
   }
+  return 'Vigil';
 };
