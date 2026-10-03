@@ -31,7 +31,7 @@ public class SetupController {
                 .path("/api/auth")
                 .maxAge(Duration.ofDays(30))
                 .build();
-        ResponseCookie refreshHint = ResponseCookie.from("refresh_hint", "true")
+        ResponseCookie sessionHint = ResponseCookie.from("session_hint", "1")
                 .httpOnly(false)
                 .secure(true)
                 .sameSite("Strict")
@@ -40,7 +40,7 @@ public class SetupController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString(), refreshHint.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString(), sessionHint.toString())
                 .body(new AuthController.AuthResponse(result.role(), result.accessToken()));
     }
     @GetMapping("/setup")

@@ -144,6 +144,12 @@ public class AlertsService {
         AlertRules alertRules = alertRuleRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException("No alert rule with id: " + id));
 
+        if (alertRules.isDefault() && (dto.getService() != null || dto.getMetricName() != null
+                || dto.getAggregation() != null || dto.getWindowSeconds() != null
+                || dto.getThreshold() != null || dto.getSeverity() != null)) {
+            throw new ForbiddenException("only enabled can be changed on a default rule");
+        }
+
         if (dto.getMetricName() != null || dto.getAggregation() != null) {
             String finalMetricName = alertRules.getMetricName();
             if (dto.getMetricName() != null)
@@ -317,7 +323,16 @@ public class AlertsService {
                 ackedBy(alertHistory.getAckedBy()).
                 resolvedBy(alertHistory.getResolvedBy()).
                 build();
-        registry.podcastAlert(WebSocketAlertHistoryResponse.builder().type(Type.alert).data(new WebSocketAlertHistoryResponse.Data(responseDto.getId(),responseDto.getStatus(),responseDto.getAckedAt())).build());
+        registry.podcastAlert(WebSocketAlertHistoryResponse.builder()
+                .type(Type.alert)
+                .data(new WebSocketAlertHistoryResponse.Data(
+                        responseDto.getId(),
+                        responseDto.getStatus(),
+                        responseDto.getAckedAt(),
+                        responseDto.getAckedBy(),
+                        responseDto.getResolvedAt(),
+                        responseDto.getResolvedBy()))
+                .build());
         return responseDto;
 
     }
