@@ -19,7 +19,7 @@ export default function Header({ title, onMenuClick, onAskAiClick }: Data) {
         >
           <FontAwesomeIcon icon={faBars} />
         </button>
-        <h1 className="me-5 text-[18px] md:text-2xl lg:text-3xl tracking-wide">
+        <h1 className="me-5 uppercase text-[18px] md:text-2xl lg:text-3xl tracking-wider font-bold">
           {title}
         </h1>
         <div className="flex rounded-full justify-center items-center uppercase text-[7px] md:text-[8px] lg:text-[10px] font-bold tracking-wider px-2 h-5 border border-[#00d68f75] text-[#00d68f] bg-[#00d68f2b]">

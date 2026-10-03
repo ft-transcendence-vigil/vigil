@@ -25,7 +25,7 @@ export default function DashboardLayout() {
           onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
           onAskAiClick={() => setIsAiOpen(true)}
         />
-        <div className="py-6 px-8">
+        <div className="py-7 px-8">
           <Outlet />
         </div>
       </main>
