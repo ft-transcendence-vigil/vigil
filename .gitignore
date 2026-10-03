@@ -52,6 +52,7 @@ Thumbs.db
 
 # === Local backend specification ===
 /services/api/Backend.json
+/services/api/SPEC_WORKING_NOTES.md
 
 # === Node / Vite / React (services/web) ===
 node_modules/
