@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { checkSetup } from './authApi';
 import { useEffect, useRef, useState } from 'react';
-import SetupCheckError from '../pages/SetupCheckError';
+import SetupCheckError from '../pages/errors/SetupCheckError';
 
 export default function SetupGuard() {
   const [isChecking, setIsChecking] = useState(true);

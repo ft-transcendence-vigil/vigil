@@ -8,12 +8,7 @@ export interface AuthResponse {
 }
 
 export interface ApiError {
-  status: number;
-  path: string;
-  error: {
-    message: string;
-  };
-  timestamp: string;
+  message: string;
 }
 
 export interface AuthState {

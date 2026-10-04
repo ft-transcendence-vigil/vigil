@@ -1,13 +1,85 @@
 @import "tailwindcss";
 
+@font-face {
+    font-family: "Inter";
+    src: url("/src/assets/fonts/Inter-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    src: url("/src/assets/fonts/JetBrainsMono-Variable.ttf") format("truetype");
+    font-weight: 100 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* @font-face {
+    font-family: "Geist";
+    src: url("./assets/fonts/Geist-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+} */
+
+@font-face {
+    font-family: "IBM Plex Sans";
+    src: url("/src/assets/fonts/IBMPlexSans-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Space Grotesk";
+    src: url("/src/assets/fonts/SpaceGrotesk-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --color-vigil-bg: #050910;
     --color-vigil-bg-input: #0a0f1e;
-    --color-vigil-surface: #0d1320;
+    /* --color-vigil-surface: #0d1320; */
+    --color-vigil-surface: #080d1a;
+    --color-vigil-card: #0a0f1e;
     --color-vigil-border: #1a2333;
     --color-vigil-border-muted: rgba(26, 35, 51, 0.6);
     --color-vigil-blue: #2196F3;
+    --color-vigil-blue-100: #2195f309;
     --color-vigil-muted: #6b7da8;
+    --color-vigil-muted-extra: #6b7da892;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-vigil-border, rgba(99, 179, 237, 0.25));
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 179, 237, 0.276)
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    :root {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(99, 179, 237, 0.25) transparent;
+    }
 }
 
 /* ::selection {
@@ -20,10 +92,14 @@
     --color-vigil-bg: var(--color-vigil-bg);
     --color-vigil-bg-input: var(--color-vigil-bg-input);
     --color-vigil-surface: var(--color-vigil-surface);
+    --color-vigil-card: var(--color-vigil-card);
     --color-vigil-border: var(--color-vigil-border);
     --color-vigil-border-muted: var(--color-vigil-border-muted);
     --color-vigil-blue: var(--color-vigil-blue);
+    --color-vigil-blue-100: var(--color-vigil-blue-100);
     --color-vigil-muted: var(--color-vigil-muted);
+    --color-vigil-muted-extra: var(--color-vigil-muted-extra);
+
 }
 
 @utility center-absolute {
@@ -31,6 +107,11 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+
+html {
+    scroll-behavior: smooth;
 }
 
 
@@ -45,7 +126,20 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: "Poppins", sans-serif;
+    font-family: "IBM Plex Sans", sans-serif;
+}
+
+code,
+pre,
+.mono {
+    font-family: "JetBrains Mono", monospace;
+}
+
+.space {
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.04em;
 }
 
 .login,
@@ -59,7 +153,7 @@ h6 {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url(./assets/login-setup-bg.jpg);
+    background-image: url(./assets/images/login-setup-bg.jpg);
     background-position: center;
     background-size: cover;
     opacity: 0.03;
@@ -139,4 +233,81 @@ h6 {
 
 .form-panel form .input-wrapper .show-btn {
     @apply uppercase absolute right-5 top-1/2 -translate-y-1/2 text-vigil-muted text-[12px] cursor-pointer transition-colors duration-300 hover:text-white
+}
+
+/* dashboard */
+
+/* .dashboard-bg {
+    background:
+        repeating-linear-gradient(115deg,
+            transparent 0,
+            transparent 160px,
+            rgba(255, 255, 255, 0.018) 160px,
+            rgba(255, 255, 255, 0.018) 161px,
+            transparent 161px,
+            transparent 310px),
+        #050910;
+} */
+
+/* .dashboard-bg {
+  position: relative;
+  overflow: hidden;
+
+  background:
+    repeating-linear-gradient(
+      115deg,
+      transparent 0,
+      transparent 160px,
+      rgba(255, 255, 255, 0.018) 160px,
+      rgba(255, 255, 255, 0.018) 161px,
+      transparent 161px,
+      transparent 310px
+    ),
+    #050910;
+} */
+
+.dashboard-bg::before {
+    content: "VIGIL";
+    position: fixed;
+    right: -3%;
+    bottom: -8%;
+    font-family: "Poppins", sans-serif;
+    font-size: clamp(12rem, 24vw, 30rem);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.025);
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* .dashboard-bg>* {
+    position: relative;
+    z-index: 1;
+} */
+
+/* Overview */
+
+.kpi-card {
+    background: radial-gradient(70% 120% at 100% 100%, color-mix(in srgb, var(--color-vigil-blue) 12%, transparent), transparent 70%),
+        var(--color-vigil-card);
+}
+
+.num {
+    letter-spacing: -.04em;
+    background: linear-gradient(180deg, var(--color-vigil-blue) 5%, transparent 95%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    opacity: 0.8;
+    user-select: none;
+}
+
+button:hover .num {
+    color: var(--color-vigil-blue);
+}
+
+.recharts-wrapper :focus {
+    outline: none;
 }
