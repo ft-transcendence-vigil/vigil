@@ -1,10 +1,10 @@
 import AlertsPreview from '../../components/Overview/AlertsPreview/AlertsPreview';
 import KpiSection from '../../components/Overview/KpiCard/KpiSection';
-import LogsPreview from '../../components/Overview/LogsPreview';
+import LogsPreview from '../../components/Overview/LogsPreview/LogsPreview';
 import RequestPerformance, {
   type Point,
 } from '../../components/Overview/RequestPerformance/RequestPerformance';
-import ServicesOverview from '../../components/Overview/ServicesOverview';
+import ServicesPreview from '../../components/Overview/ServicesPreview/ServicesPreview';
 
 const N = 12;
 const STEP = 5 * 60 * 1000;
@@ -25,23 +25,23 @@ const mockData: Point[] = Array.from({ length: N }, (_, i) => ({
 
 export default function OverviewPage() {
   return (
-    <div className="grid h-full min-h-160 grid-cols-12 grid-rows-[auto_13fr_7fr] gap-5">
+    <div className="grid grid-cols-1 gap-5 xl:h-full xl:min-h-0 xl:grid-cols-12 xl:grid-rows-[auto_minmax(0,13fr)_minmax(0,7fr)]">
       <div className="col-span-12">
         <KpiSection />
       </div>
-      <div className="col-span-8 min-h-0">
+      <div className="h-90 col-span-12 xl:col-span-7 xl:h-auto xl:min-h-0">
         <RequestPerformance data={mockData} />
       </div>
-      <div className="col-span-4 row-span-2 flex min-h-0 flex-col gap-5">
-        <div className="flex min-h-0 max-h-[60%] shrink-0 flex-col">
+      <div className="flex flex-col gap-5 col-span-12 xl:col-span-5 xl:row-span-2 xl:min-h-0">
+        <div className="flex h-80 flex-col xl:h-auto xl:min-h-0 xl:flex-1 xl:basis-0">
           <AlertsPreview />
         </div>
-        <div className="min-h-0 flex-1">
+        <div className="flex h-80 flex-col col-span-12 xl:h-auto xl:min-h-0 xl:flex-1 xl:basis-0">
           <LogsPreview />
         </div>
       </div>
-      <div className="col-span-8 min-h-0">
-        <ServicesOverview />
+      <div className="min-h-64 col-span-12 xl:col-span-7 xl:h-auto xl:min-h-0">
+        <ServicesPreview />
       </div>
     </div>
   );

@@ -46,6 +46,34 @@
     --color-vigil-muted-extra: #6b7da892;
 }
 
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-vigil-border, rgba(99, 179, 237, 0.25));
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 179, 237, 0.276)
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    :root {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(99, 179, 237, 0.25) transparent;
+    }
+}
+
 /* ::selection {
     color: #000;
     background-color: var(--color-vigil-blue);
@@ -71,6 +99,11 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+
+html {
+    scroll-behavior: smooth;
 }
 
 
@@ -242,7 +275,9 @@ pre,
 /* Overview */
 
 .space {
-    font: 700 120px/1 "Space Grotesk", sans-serif;
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    line-height: 1;
     letter-spacing: -.04em;
 }
 
@@ -267,28 +302,4 @@ button:hover .num {
 
 .recharts-wrapper :focus {
     outline: none;
-}
-
-.scrollbar-vigil::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-.scrollbar-vigil::-webkit-scrollbar-button {
-    display: none;
-}
-
-.scrollbar-vigil::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.scrollbar-vigil::-webkit-scrollbar-thumb {
-    background: var(--color-vigil-border);
-}
-
-@supports not selector(::-webkit-scrollbar) {
-    .scrollbar-vigil {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(99, 179, 237, 0.25) transparent;
-    }
 }
