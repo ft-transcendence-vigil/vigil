@@ -11,11 +11,11 @@ interface Data {
 
 export default function Header({ title, onMenuClick, onAskAiClick }: Data) {
   return (
-    <div className="header sticky top-0 bg-inherit text-center border-b border-b-vigil-border flex justify-between items-center py-4 md:py-5 lg:py-4.5 px-4 md:px-8">
+    <div className="header shrink-0 z-40 sticky top-0 bg-inherit text-center border-b border-b-vigil-border flex justify-between items-center py-4 md:py-5 lg:py-4.5 px-4 md:px-8">
       <div className="right-section flex items-center">
         <button
           onClick={onMenuClick}
-          className="block md:hidden me-5 cursor-pointer"
+          className="block lg:hidden me-5 cursor-pointer"
         >
           <FontAwesomeIcon icon={faBars} />
         </button>

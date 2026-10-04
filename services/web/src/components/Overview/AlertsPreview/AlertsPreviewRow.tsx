@@ -25,29 +25,35 @@ export default function AlertsPreviewRow({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div>
+    <div className="alert-preview-row">
       <div
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex justify-between items-center border-b border-b-vigil-border px-5 py-3 mono hover:bg-[rgba(99,179,237,.03)] transition-[background-color] duration-300 cursor-pointer"
+        className="flex justify-between items-center border-b border-b-vigil-border px-3 sm:px-5 py-3 mono hover:bg-[rgba(99,179,237,.03)] transition-[background-color] duration-300 cursor-pointer"
       >
         <div className="flex items-center">
           <div
-            className={`text-[10px] tracking-widest uppercase py-0.5 w-17 text-center me-3 ${className}`}
+            className={`text-[8px] sm:text-[10px] tracking-widest uppercase py-0.5 w-15 sm:w-16.5 text-center me-3 ${className}`}
           >
             {severity}
           </div>
           <div>
             <div className="text-[12px] mb-0.5">{title}</div>
-            <div className="text-[11px] text-vigil-muted-extra">
+            <div className="xs:text-[9px] text-[11px] text-vigil-muted-extra">
               {threshold}
             </div>
           </div>
         </div>
-        <div>
-          <span className="text-[11px] me-3 text-vigil-muted-extra">
+        <div className="flex items-center justify-end">
+          <span className="text-[8.5px] sm:text-[10px] me-2 sm:me-3 text-vigil-muted-extra">
             {date}
           </span>
-          <button className="border border-vigil-border uppercase text-[11px] tracking-wider py-1.5 w-19 cursor-pointer text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80] transition-[color, border-color] duration-300">
+          <button
+            onClick={(e: React.MouseEvent<HTMLElement>) => {
+              const target = e.target as HTMLElement;
+              target.parentElement?.parentElement?.parentElement?.remove();
+            }}
+            className="border border-vigil-border uppercase text-[9px] sm:text-[10px] tracking-wider h-7 sm:h-8 w-14 sm:w-16 cursor-pointer text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80] transition-[color, border-color] duration-300"
+          >
             {action}
           </button>
         </div>

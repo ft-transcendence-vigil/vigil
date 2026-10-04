@@ -34,9 +34,9 @@ const SERIES: Series<Point>[] = [
 
 export default function RequestPerformance({ data }: { data: Point[] }) {
   return (
-    <div className="flex h-130 flex-col border border-vigil-border bg-vigil-card">
-      <div className="mb-4 flex justify-between border-b border-vigil-border px-5 py-3">
-        <h2 className="text-[17px] font-medium tracking-wide">
+    <div className="flex flex-col h-full min-h-0 border border-vigil-border bg-vigil-card">
+      <div className="mb-4 flex justify-between border-b border-vigil-border px-3 sm:px-5 py-3">
+        <h2 className="text-[15px] sm:text-[17px] font-medium tracking-wide">
           Request performance
         </h2>
         <div className="flex gap-4 text-[11px] text-vigil-muted items-center">
@@ -51,7 +51,7 @@ export default function RequestPerformance({ data }: { data: Point[] }) {
           ))}
         </div>
       </div>
-      <div className="min-h-0 flex-1 px-5 py-3">
+      <div className="min-h-0 flex-1 px-1 sm:px-3 py-3">
         <MetricsChart
           data={data}
           xKey="ts"
