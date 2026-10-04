@@ -11,7 +11,7 @@ interface Data {
 }
 export default function SidebarSection({ title, links }: Data) {
   return (
-    <div className="sidebar-section flex flex-col my-2">
+    <div className="sidebar-section flex flex-col mt-1 mb-3">
       <p className="sidebar-section-title text-[10px] md:text-[12px] uppercase text-vigil-muted-extra ms-5 mb-1 tracking-wider">
         {title}
       </p>

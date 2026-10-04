@@ -11,7 +11,7 @@ export default function KpiCard({ state, value }: Data) {
   return (
     <button
       type="button"
-      className="kpi-card cursor-pointer group focus:border-[#2195f38c] focus:border-t-2 focus:border-t-vigil-blue flex justify-between p-5 bg-vigil-card col-span-3 border border-vigil-border h-45 overflow-hidden hover:border-t-2 hover:border-t-vigil-blue transition-[border-top-width, border-top-color] duration-300"
+      className="kpi-card cursor-pointer group focus:border-[#2195f38c] focus:border-t-2 focus:border-t-vigil-blue flex justify-between p-5 bg-vigil-card col-span-6 xl:col-span-3 border border-vigil-border h-45 overflow-hidden hover:border-t-2 hover:border-t-vigil-blue transition-[border-top-width, border-top-color] duration-300"
     >
       <div className="right-section flex flex-col items-start justify-between">
         <h6 className="title uppercase flex items-center text-vigil-muted text-[15px] tracking-wider">
