@@ -1,2 +1,1 @@
-* if no first admin and client try to access /auth/login redirect him to /auth/setup
-* backend guarantees expired-token failures are 403 Forbidden (401 Unauthorized)
+enable to connect -> logout

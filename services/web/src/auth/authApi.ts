@@ -11,19 +11,8 @@ async function login(email: string, password: string): Promise<AuthResponse> {
     return res.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      switch (error.response?.status) {
-        case 400:
-          throw new Error('Please check your input.', { cause: error });
-        case 401:
-          throw new Error('Invalid email or password.', { cause: error });
-        case 429:
-          throw new Error('Too many login attempts. Please try again later.', {
-            cause: error,
-          });
-        case 500:
-          throw new Error('Server error. Please try again later.', {
-            cause: error,
-          });
+      if (error.response?.data.message) {
+        throw new Error(error.response.data.message, { cause: error });
       }
       if (!error.response) {
         throw new Error('Unable to connect to the server.', { cause: error });
@@ -45,21 +34,8 @@ async function setupInitialAdmin(
     return res.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      switch (error.response?.status) {
-        case 400:
-          throw new Error('Please check your input.', { cause: error });
-        case 409:
-          throw new Error('Setup has already been completed.', {
-            cause: error,
-          });
-        case 429:
-          throw new Error('Too many login attempts. Please try again later.', {
-            cause: error,
-          });
-        case 500:
-          throw new Error('Server error. Please try again later.', {
-            cause: error,
-          });
+      if (error.response?.data.message) {
+        throw new Error(error.response.data.message, { cause: error });
       }
       if (!error.response) {
         throw new Error('Unable to connect to the server.', { cause: error });
@@ -75,15 +51,8 @@ async function checkSetup(): Promise<boolean> {
     return res.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      switch (error.response?.status) {
-        case 429:
-          throw new Error('Too many login attempts. Please try again later.', {
-            cause: error,
-          });
-        case 500:
-          throw new Error('Server error. Please try again later.', {
-            cause: error,
-          });
+      if (error.response?.data.message) {
+        throw new Error(error.response.data.message, { cause: error });
       }
       if (!error.response) {
         throw new Error('Unable to connect to the server.', { cause: error });

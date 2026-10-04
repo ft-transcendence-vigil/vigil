@@ -8,15 +8,11 @@ import {
   refresh,
   setupInitialAdmin,
 } from './authApi';
-import {
-  clearSessionCookie,
-  hasSessionCookie,
-  setSessionCookie,
-} from './sessionCookie';
 import api from '../api/api';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { hasRefreshHint } from './refreshHint';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -25,22 +21,19 @@ interface AuthProviderProps {
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [role, setRole] = useState<Role | null>(null);
-  const [isAuthChecking, setIsAuthChecking] = useState(() =>
-    hasSessionCookie(),
-  );
+  const [isAuthChecking, setIsAuthChecking] = useState(() => hasRefreshHint());
   const hasStartedAuthCheck = useRef(false);
   const navigate = useNavigate();
 
   const clearAuthState = (): void => {
     setAccessToken(null);
     setRole(null);
-    clearSessionCookie();
   };
 
   useEffect(() => {
     if (hasStartedAuthCheck.current) return;
     hasStartedAuthCheck.current = true;
-    if (!hasSessionCookie()) return;
+    if (!hasRefreshHint()) return;
     async function checkAuth() {
       try {
         const data = await refresh();
@@ -60,14 +53,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     const data = await login(email, password);
     setRole(data.role);
     setAccessToken(data.access_token);
-    setSessionCookie();
   };
 
   const signUp = async (email: string, password: string): Promise<void> => {
     const data = await setupInitialAdmin(email, password);
     setRole(data.role);
     setAccessToken(data.access_token);
-    setSessionCookie();
   };
 
   const signOut = async (): Promise<void> => {

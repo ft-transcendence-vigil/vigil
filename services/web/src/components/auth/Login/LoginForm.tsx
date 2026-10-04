@@ -25,7 +25,7 @@ export default function LoginForm() {
     e.preventDefault();
     runSubmit(async () => {
       await auth.signIn(email, password);
-      navigate('/dashboard');
+      navigate('/overview');
     });
   };
 
