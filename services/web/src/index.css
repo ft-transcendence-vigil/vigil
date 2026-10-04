@@ -32,6 +32,14 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "Space Grotesk";
+    src: url("/src/assets/fonts/SpaceGrotesk-Variable.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --color-vigil-bg: #050910;
     --color-vigil-bg-input: #0a0f1e;
@@ -125,6 +133,13 @@ code,
 pre,
 .mono {
     font-family: "JetBrains Mono", monospace;
+}
+
+.space {
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.04em;
 }
 
 .login,
@@ -273,13 +288,6 @@ pre,
 } */
 
 /* Overview */
-
-.space {
-    font-family: "Space Grotesk", sans-serif;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -.04em;
-}
 
 .kpi-card {
     background: radial-gradient(70% 120% at 100% 100%, color-mix(in srgb, var(--color-vigil-blue) 12%, transparent), transparent 70%),
