@@ -1,5 +1,6 @@
 package com.ft_transcendence.vigil.domain.entities;
 
+import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
