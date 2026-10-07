@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     )
     #the values are only incase and env var is empty our BaseSettings class we inheret from fills these variables already from the env
     ollama_host: str = "http://localhost:11434"
-    ollama_model: str = "qwen2.5:3b"
+    ollama_model: str = "qwen2.5:0.5b"
     ollama_num_ctx: int = 4096
     ollama_num_predict: int = 200
     ollama_temperature: float = 0.3
