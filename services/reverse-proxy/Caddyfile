@@ -1,0 +1,23 @@
+{
+	admin 0.0.0.0:2019
+}
+
+{$VIGIL_DOMAIN} {
+	handle /internal/* {
+		respond 404
+	}
+
+	handle /api/* {
+		reverse_proxy api:8080
+	}
+
+	handle_path /otlp/* {
+		reverse_proxy telemetry-collector:4318
+	}
+
+	handle {
+		root * /usr/share/caddy
+		try_files {path} /index.html
+		file_server
+	}
+}
