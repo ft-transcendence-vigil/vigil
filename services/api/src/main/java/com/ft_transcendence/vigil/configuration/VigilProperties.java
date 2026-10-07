@@ -16,8 +16,10 @@ public class VigilProperties {
 
     private String jwtSecret;
     private String apiKey;
+    private String ingestionKey;
     private long accessTokenExpiration;
     private long refreshTokenExpiration;
+    private String frontEndUrl;
 
     @PostConstruct
     void init() {
@@ -29,5 +31,10 @@ public class VigilProperties {
         if (apiKey == null || apiKey.isBlank()) {
             apiKey = UUID.randomUUID().toString();
         }
+        if (ingestionKey == null || ingestionKey.isBlank()) {
+            ingestionKey = UUID.randomUUID().toString();
+        }
+        if (frontEndUrl == null || frontEndUrl.isBlank())
+            frontEndUrl = "http://localhost:3000";
     }
 }

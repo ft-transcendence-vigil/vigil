@@ -1,6 +1,6 @@
 package com.ft_transcendence.vigil.controllers;
 
-import com.ft_transcendence.vigil.Services.UsersService;
+import com.ft_transcendence.vigil.services.UsersService;
 import com.ft_transcendence.vigil.domain.dtos.users.UsersGetAndPostResponseDto;
 import com.ft_transcendence.vigil.domain.dtos.users.UsersPatchIdDto;
 import com.ft_transcendence.vigil.domain.dtos.users.UsersPatchMeDto;
