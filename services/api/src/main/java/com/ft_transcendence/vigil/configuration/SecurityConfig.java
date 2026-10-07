@@ -22,13 +22,15 @@ class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http, JjwtAuthFilter jjwtAuthFilter) {
         http.addFilterBefore(jjwtAuthFilter,UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(
-                                "/api/auth/setup",
+                                "/api/setup",
                                 "/api/auth/login",
                                 "/api/auth/refresh",
                                 "/api/auth/logout",
                                 "/api/auth/sessions",
-                                "/api/auth/sessions/*").permitAll()
+                                "/api/auth/sessions/*",
+                                "/api/alerts/ws").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(c->c.disable())
