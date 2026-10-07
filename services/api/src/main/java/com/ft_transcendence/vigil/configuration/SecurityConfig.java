@@ -1,5 +1,11 @@
 package com.ft_transcendence.vigil.configuration;
-import com.ft_transcendence.vigil.Security.JjwtAuthFilter;
+import com.ft_transcendence.vigil.exceptions.UnauthorizedException;
+import com.ft_transcendence.vigil.ratelimiter.RateLimiter;
+import com.ft_transcendence.vigil.security.JjwtAuthFilter;
+import jakarta.servlet.DispatcherType;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,21 +20,40 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+@AllArgsConstructor
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 class SecurityConfig {
+    private JjwtAuthFilter jjwtAuthFilter;
+    private RateLimiter rateLimiter;
+
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, JjwtAuthFilter jjwtAuthFilter) {
-        http.addFilterBefore(jjwtAuthFilter,UsernamePasswordAuthenticationFilter.class)
+    SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+        http.addFilterBefore(jjwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
+                .addFilterBefore(rateLimiter, JjwtAuthFilter.class)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) ->
+                                exceptionResolver.resolveException(
+                                        request, response, null,
+                                        new UnauthorizedException("Authentication required")
+                                )
+                        )
+                )
                 .authorizeHttpRequests((requests) -> requests
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(
-                                "/api/auth/setup",
+                                "/api/setup",
                                 "/api/auth/login",
                                 "/api/auth/refresh",
                                 "/api/auth/logout",
                                 "/api/auth/sessions",
-                                "/api/auth/sessions/*").permitAll()
+                                "/api/auth/sessions/*",
+                                "/api/alerts/ws").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(c->c.disable())
@@ -38,18 +63,4 @@ class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration c) throws Exception {
-        return c.getAuthenticationManager();
-    }
-
-    @Bean
-    @ConfigurationProperties(prefix = "vigil")
-    VigilProperties vigilProperties() {
-        return new VigilProperties();
-    }
 }
