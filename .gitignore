@@ -43,11 +43,26 @@ __pycache__/
 *.iws
 *.iml
 *.ipr
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 
 # === OS noise ===
 .DS_Store
 Thumbs.db
 
+# === Local backend specification ===
+/services/api/Backend.json
+/services/api/SPEC_WORKING_NOTES.md
+
+# === Node / Vite / React (services/web) ===
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+.vscode/
+.zed/
+
 # === Markdown ===
 *.md
+!**/README.md
