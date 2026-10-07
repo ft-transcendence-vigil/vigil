@@ -1,0 +1,106 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:26.8.6.5-distroless
+    environment:
+      CLICKHOUSE_USER: integration_admin
+      CLICKHOUSE_PASSWORD: integration-admin-password
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+    tmpfs:
+      - /var/lib/clickhouse:uid=101,gid=101,mode=0755
+      - /var/log/clickhouse-server:uid=101,gid=101,mode=0755
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "clickhouse-client",
+          "--host",
+          "localhost",
+          "--user",
+          "integration_admin",
+          "--password",
+          "integration-admin-password",
+          "--query",
+          "SELECT 1",
+        ]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  clickhouse-init:
+    image: clickhouse/clickhouse-server:26.8.6.5
+    environment:
+      CLICKHOUSE_ADMIN_USER: integration_admin
+      CLICKHOUSE_ADMIN_PASSWORD: integration-admin-password
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_WRITER_PASSWORD: integration-writer-password
+    volumes:
+      - ../../telemetry-db/clickhouse-init.sh:/clickhouse-init.sh:ro
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "/clickhouse-init.sh"]
+
+  backend:
+    image: python:3.13-alpine
+    volumes:
+      - ./mock_backend.py:/mock_backend.py:ro
+    command: ["python", "/mock_backend.py"]
+
+  collector:
+    build:
+      context: ..
+      dockerfile: buildtime/Dockerfile
+    environment:
+      CLICKHOUSE_ENDPOINT: http://clickhouse:8123
+      CLICKHOUSE_DATABASE: default
+      CLICKHOUSE_USERNAME: vigil_writer
+      CLICKHOUSE_PASSWORD: integration-writer-password
+      BACKEND_CALLBACK_URL: http://backend:8081/internal/alerts/trigger-evaluation
+      MAX_SERIALIZED_BATCH_BYTES: "1048576"
+      COLLECTOR_MEMORY_LIMIT_MIB: "256"
+      COLLECTOR_MEMORY_SPIKE_LIMIT_MIB: "64"
+      VIGIL_INGESTION_KEY: integration-ingestion-key
+    depends_on:
+      clickhouse-init:
+        condition: service_completed_successfully
+      backend:
+        condition: service_started
+
+  readiness:
+    image: python:3.13-alpine
+    depends_on:
+      backend:
+        condition: service_started
+      collector:
+        condition: service_started
+    command:
+      - python
+      - -c
+      - |
+        import time
+        import urllib.error
+        import urllib.request
+
+        for url in ("http://backend:8081/count", "http://collector:4318/v1/logs"):
+            for _ in range(60):
+                try:
+                    urllib.request.urlopen(url, timeout=5).close()
+                    break
+                except urllib.error.HTTPError:
+                    break
+                except OSError:
+                    time.sleep(1)
+            else:
+                raise RuntimeError(f"timed out waiting for {url}")
+
+  otlp-test:
+    image: python:3.13-alpine
+    volumes:
+      - ./collector_integration.py:/collector_integration.py:ro
+    depends_on:
+      readiness:
+        condition: service_completed_successfully
+    command: ["python", "/collector_integration.py"]
+
