@@ -173,6 +173,21 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  mock-telemetry-sender:
+    container_name: vigil-mock-telemetry-sender
+    profiles: ["mock-telemetry-sender"]
+    build:
+      context: ./services/mock-telemetry-sender
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://telemetry-collector:4318
+      OTEL_SERVICE_NAME: "${MOCK_TELEMETRY_SERVICE_NAME:-vigil-mock-service}"
+      SEND_INTERVAL_SECONDS: "${MOCK_TELEMETRY_INTERVAL_SECONDS:-5}"
+      VIGIL_INGESTION_KEY: "${VIGIL_INGESTION_KEY:?Set VIGIL_INGESTION_KEY in .env}"
+    depends_on:
+      telemetry-collector:
+        condition: service_started
+    restart: unless-stopped
+
 volumes:
 
   postgres_data:
