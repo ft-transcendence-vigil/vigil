@@ -18,6 +18,11 @@ services:
         condition: service_started
       telemetry-collector:
         condition: service_started
+    networks:
+      default:
+      mock-telemetry-ingress:
+        aliases:
+          - "${VIGIL_DOMAIN:-localhost}"
     restart: unless-stopped
 
   ollama:
@@ -179,14 +184,30 @@ services:
     build:
       context: ./services/mock-telemetry-sender
     environment:
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://telemetry-collector:4318
       OTEL_SERVICE_NAME: "${MOCK_TELEMETRY_SERVICE_NAME:-vigil-mock-service}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "https://${VIGIL_DOMAIN:-localhost}/otlp"
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer%20${VIGIL_INGESTION_KEY:?Set VIGIL_INGESTION_KEY in .env}"
+      OTEL_EXPORTER_OTLP_CERTIFICATE: /caddy-data/caddy/pki/authorities/local/root.crt
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
+      OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: "true"
       SEND_INTERVAL_SECONDS: "${MOCK_TELEMETRY_INTERVAL_SECONDS:-5}"
-      VIGIL_INGESTION_KEY: "${VIGIL_INGESTION_KEY:?Set VIGIL_INGESTION_KEY in .env}"
+    volumes:
+      - caddy_data:/caddy-data:ro
     depends_on:
-      telemetry-collector:
+      reverse-proxy:
         condition: service_started
+    networks:
+      - mock-telemetry-ingress
     restart: unless-stopped
+
+networks:
+
+  mock-telemetry-ingress:
+    name: vigil_mock_telemetry_ingress
+    internal: true
 
 volumes:
 
