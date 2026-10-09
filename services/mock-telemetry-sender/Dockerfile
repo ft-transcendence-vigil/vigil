@@ -23,4 +23,6 @@ COPY sender.py ./sender.py
 
 USER telemetry
 
-CMD ["python", "sender.py"]
+EXPOSE 8000
+
+CMD ["opentelemetry-instrument", "python", "sender.py"]
