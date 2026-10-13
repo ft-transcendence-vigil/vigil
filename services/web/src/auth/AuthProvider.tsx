@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import type { Role } from './authTypes';
+import type { CurrentUser } from './authTypes';
 import { AuthContext } from './authContext';
 import {
   getCurrentUser,
@@ -7,7 +7,7 @@ import {
   logout,
   refresh,
   setupInitialAdmin,
-} from './authApi';
+} from '../api/authApi';
 import api from '../api/api';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import axios from 'axios';
@@ -20,14 +20,14 @@ interface AuthProviderProps {
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [role, setRole] = useState<Role | null>(null);
+  const [user, setUser] = useState<CurrentUser | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(() => hasRefreshHint());
   const hasStartedAuthCheck = useRef(false);
   const navigate = useNavigate();
 
   const clearAuthState = (): void => {
     setAccessToken(null);
-    setRole(null);
+    setUser(null);
   };
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         const data = await refresh();
         const user = await getCurrentUser(data.access_token);
         setAccessToken(data.access_token);
-        setRole(user.role);
+        setUser(user);
       } catch {
         clearAuthState();
       } finally {
@@ -51,14 +51,16 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   const signIn = async (email: string, password: string): Promise<void> => {
     const data = await login(email, password);
-    setRole(data.role);
+    const currentUser = await getCurrentUser(data.access_token);
     setAccessToken(data.access_token);
+    setUser(currentUser);
   };
 
   const signUp = async (email: string, password: string): Promise<void> => {
     const data = await setupInitialAdmin(email, password);
-    setRole(data.role);
+    const currentUser = await getCurrentUser(data.access_token);
     setAccessToken(data.access_token);
+    setUser(currentUser);
   };
 
   const signOut = async (): Promise<void> => {
@@ -110,12 +112,13 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     <AuthContext.Provider
       value={{
         accessToken,
-        role,
+        user,
         signIn,
         signUp,
         signOut,
         isAuthChecking,
         apiFetch,
+        setUser,
       }}
     >
       {children}

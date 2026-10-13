@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { checkSetup } from './authApi';
+import { checkSetup } from '../api/authApi';
 import { useEffect, useRef, useState } from 'react';
 import SetupCheckError from '../pages/errors/SetupCheckError';
 
@@ -27,9 +27,9 @@ export default function SetupGuard() {
   }, []);
   if (isChecking) return null;
   if (hasError) return <SetupCheckError />;
-  if (isSetupComplete && location.pathname === '/auth/setup')
+  if (!isSetupComplete && location.pathname === '/auth/setup')
     return <Navigate to="/auth/login" replace />;
-  if (!isSetupComplete && location.pathname === '/auth/login')
+  if (isSetupComplete && location.pathname === '/auth/login')
     return <Navigate to="/auth/setup" replace />;
   return <Outlet />;
 }

@@ -12,7 +12,7 @@ export interface ApiError {
 }
 
 export interface AuthState {
-  role: Role | null;
+  user: CurrentUser | null;
   accessToken: string | null;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
@@ -22,6 +22,7 @@ export interface AuthState {
     options: AxiosRequestConfig,
   ) => Promise<AxiosResponse<T>>;
   isAuthChecking: boolean;
+  setUser: React.Dispatch<React.SetStateAction<CurrentUser | null>>;
 }
 
 export interface RefreshResponse {

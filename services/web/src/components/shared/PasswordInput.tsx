@@ -2,7 +2,7 @@ import { useId, useState } from 'react';
 
 interface Data {
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  error: string | undefined;
+  error: string | undefined | boolean;
   title?: string;
 }
 

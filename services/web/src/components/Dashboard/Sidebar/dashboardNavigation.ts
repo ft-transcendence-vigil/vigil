@@ -1,4 +1,4 @@
-export const navigation = [
+export const dashboardNavigation = [
   {
     title: 'monitor',
     links: [
@@ -30,9 +30,9 @@ export const navigation = [
 ];
 
 export const getPageTitle = (pathname: string) => {
-  for (const section of navigation) {
+  for (const section of dashboardNavigation) {
     const link = section.links.find((link) => link.path === pathname);
     if (link) return link.label;
   }
-  return 'Vigil';
+  return 'settings';
 };

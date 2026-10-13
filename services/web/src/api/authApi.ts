@@ -1,6 +1,10 @@
 import axios from 'axios';
-import api from '../api/api';
-import type { AuthResponse, CurrentUser, RefreshResponse } from './authTypes';
+import api from './api';
+import type {
+  AuthResponse,
+  CurrentUser,
+  RefreshResponse,
+} from '../auth/authTypes';
 
 async function login(email: string, password: string): Promise<AuthResponse> {
   try {

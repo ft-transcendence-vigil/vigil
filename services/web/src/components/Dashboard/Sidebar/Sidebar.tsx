@@ -1,6 +1,6 @@
 import Logo from '../../shared/Logo';
 import SidebarSection from './SidebarSection';
-import { navigation as sidebarSections } from './navigation';
+import { dashboardNavigation as sidebarSections } from './dashboardNavigation';
 
 export default function Sidebar() {
   return (

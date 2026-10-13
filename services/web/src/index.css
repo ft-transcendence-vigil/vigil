@@ -9,33 +9,57 @@
 }
 
 @font-face {
-    font-family: "JetBrains Mono";
-    src: url("/src/assets/fonts/JetBrainsMono-Variable.ttf") format("truetype");
-    font-weight: 100 800;
-    font-style: normal;
-    font-display: swap;
-}
-
-/* @font-face {
-    font-family: "Geist";
-    src: url("./assets/fonts/Geist-Variable.ttf") format("truetype");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-} */
-
-@font-face {
-    font-family: "IBM Plex Sans";
-    src: url("/src/assets/fonts/IBMPlexSans-Variable.ttf") format("truetype");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
     font-family: "Space Grotesk";
     src: url("/src/assets/fonts/SpaceGrotesk-Variable.ttf") format("truetype");
     font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('/src/assets/fonts/Poppins-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('/src/assets/fonts/Poppins-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('/src/assets/fonts/Poppins-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/src/assets/fonts/Ubuntu-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/src/assets/fonts/Ubuntu-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/src/assets/fonts/Ubuntu-Bold.ttf') format('truetype');
+    font-weight: 700;
     font-style: normal;
     font-display: swap;
 }
@@ -116,7 +140,8 @@ html {
 
 
 body {
-    font-family: "Inter", sans-serif;
+    /* font-family: "Inter", sans-serif; */
+    font-family: "Ubuntu", sans-serif;
     color: white;
 }
 
@@ -126,7 +151,8 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: "IBM Plex Sans", sans-serif;
+    font-family: "Poppins", sans-serif;
+    letter-spacing: 0.025em;
 }
 
 code,
@@ -199,7 +225,7 @@ pre,
 .form-panel form .input input {
     width: 100%;
     background-color: var(--color-vigil-bg-input);
-    border: 1px solid var(--color-vigil-border);
+    border: 1px solid var(--color-vigil-border-muted);
     padding: 15px;
     outline: none;
 }
@@ -223,15 +249,15 @@ pre,
     opacity: 0.7;
 }
 
-.form-panel form .input-wrapper {
+.input-wrapper {
     position: relative;
 }
 
-.form-panel form .input-wrapper:hover::after {
+.input-wrapper:hover::after {
     color: #fff;
 }
 
-.form-panel form .input-wrapper .show-btn {
+.input-wrapper .show-btn {
     @apply uppercase absolute right-5 top-1/2 -translate-y-1/2 text-vigil-muted text-[12px] cursor-pointer transition-colors duration-300 hover:text-white
 }
 
@@ -310,4 +336,88 @@ button:hover .num {
 
 .recharts-wrapper :focus {
     outline: none;
+}
+
+/* Toaster */
+
+/* toast.css (import it once in main.tsx) */
+.vigil-toast {
+    --accent: #2196f3;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 16px;
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-left: 3px solid var(--accent);
+    border-radius: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    color: #e5e7eb;
+    font-family: inherit;
+}
+
+.vigil-toast-success {
+    --accent: #10b981;
+}
+
+.vigil-toast-error {
+    --accent: #ef4444;
+}
+
+.vigil-toast-warning {
+    --accent: #f59e0b;
+}
+
+.vigil-toast-info {
+    --accent: #2196f3;
+}
+
+.vigil-toast-icon {
+    color: var(--accent);
+}
+
+.vigil-toast-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.vigil-toast-desc {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.vigil-toast-action {
+    margin-left: auto;
+    padding: 6px 12px;
+    background: #2196f3;
+    color: #0a0e17;
+    border: 0;
+    border-radius: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.vigil-toast-cancel {
+    padding: 6px 12px;
+    background: transparent;
+    color: #9ca3af;
+    border: 1px solid #1f2937;
+    border-radius: 0;
+    font-size: 11px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.vigil-toast-close {
+    background: #111827;
+    color: #9ca3af;
+    border: 1px solid #1f2937;
+    border-radius: 0;
 }
