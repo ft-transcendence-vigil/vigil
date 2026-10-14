@@ -1,10 +1,6 @@
-import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import axios from 'axios';
 import type { CurrentUser } from '../auth/authTypes';
-
-type ApiFetch = <T = unknown>(
-  url: string,
-  options: AxiosRequestConfig,
-) => Promise<AxiosResponse<T>>;
+import type { ApiFetch } from './api';
 
 async function updateEmail(
   apiFetch: ApiFetch,

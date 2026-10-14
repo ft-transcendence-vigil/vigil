@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import type { CurrentUser } from './authTypes';
 import { AuthContext } from './authContext';
 import {
@@ -22,17 +22,14 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(() => hasRefreshHint());
-  const hasStartedAuthCheck = useRef(false);
   const navigate = useNavigate();
 
-  const clearAuthState = (): void => {
+  const clearAuthState = useCallback((): void => {
     setAccessToken(null);
     setUser(null);
-  };
+  }, [])
 
   useEffect(() => {
-    if (hasStartedAuthCheck.current) return;
-    hasStartedAuthCheck.current = true;
     if (!hasRefreshHint()) return;
     async function checkAuth() {
       try {
@@ -47,7 +44,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       }
     }
     checkAuth();
-  }, []);
+  }, [clearAuthState]);
 
   const signIn = async (email: string, password: string): Promise<void> => {
     const data = await login(email, password);
@@ -87,7 +84,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     });
   };
 
-  const apiFetch = async <T = unknown,>(
+  const apiFetch = useCallback(async <T = unknown,>(
     url: string,
     options: AxiosRequestConfig = {},
   ): Promise<AxiosResponse<T>> => {
@@ -106,7 +103,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       clearAuthState();
       throw new Error('Session expired', { cause: refreshError });
     }
-  };
+  }, [accessToken, clearAuthState]);
 
   return (
     <AuthContext.Provider
