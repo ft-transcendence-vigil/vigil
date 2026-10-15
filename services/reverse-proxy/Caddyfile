@@ -1,8 +1,9 @@
 {
 	admin 0.0.0.0:2019
+	default_sni localhost
 }
 
-{$VIGIL_DOMAIN} {
+(vigil-routes) {
 	handle /internal/* {
 		respond 404
 	}
@@ -20,4 +21,9 @@
 		try_files {path} /index.html
 		file_server
 	}
+}
+
+localhost {
+	tls internal
+	import vigil-routes
 }

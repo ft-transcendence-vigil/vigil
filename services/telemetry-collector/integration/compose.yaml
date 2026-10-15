@@ -33,6 +33,7 @@ services:
     environment:
       CLICKHOUSE_ADMIN_USER: integration_admin
       CLICKHOUSE_ADMIN_PASSWORD: integration-admin-password
+      CLICKHOUSE_API_PASSWORD: integration-api-password
       CLICKHOUSE_DB: default
       CLICKHOUSE_WRITER_PASSWORD: integration-writer-password
     volumes:

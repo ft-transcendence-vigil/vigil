@@ -2,6 +2,7 @@
 set -eu
 
 test -n "${CLICKHOUSE_WRITER_PASSWORD}"
+test -n "${CLICKHOUSE_API_PASSWORD:?Set CLICKHOUSE_API_PASSWORD}"
 
 case "${CLICKHOUSE_DB}" in
   *[!A-Za-z0-9_]*) echo "CLICKHOUSE_DB contains unsupported characters" >&2; exit 1 ;;
@@ -13,6 +14,7 @@ clickhouse-client \
   --password "${CLICKHOUSE_ADMIN_PASSWORD}" \
   --database "${CLICKHOUSE_DB}" \
   --param_writer_password "${CLICKHOUSE_WRITER_PASSWORD}" \
+  --param_api_password "${CLICKHOUSE_API_PASSWORD}" \
   --multiquery \
   --query "
 CREATE TABLE IF NOT EXISTS logs (
@@ -59,6 +61,13 @@ CREATE TABLE IF NOT EXISTS traces (
 PARTITION BY toYYYYMM(timestamp)
 ORDER BY (service, timestamp, trace_id, span_id)
 TTL timestamp + INTERVAL 30 DAY DELETE;
+
+CREATE USER IF NOT EXISTS vigil_api IDENTIFIED WITH sha256_password BY {api_password:String};
+ALTER USER vigil_api IDENTIFIED WITH sha256_password BY {api_password:String};
+REVOKE ALL ON *.* FROM vigil_api;
+GRANT SELECT ON ${CLICKHOUSE_DB}.logs TO vigil_api;
+GRANT SELECT ON ${CLICKHOUSE_DB}.metrics TO vigil_api;
+GRANT SELECT ON ${CLICKHOUSE_DB}.traces TO vigil_api;
 
 CREATE USER IF NOT EXISTS vigil_writer IDENTIFIED WITH plaintext_password BY {writer_password:String};
 ALTER USER vigil_writer IDENTIFIED WITH plaintext_password BY {writer_password:String};

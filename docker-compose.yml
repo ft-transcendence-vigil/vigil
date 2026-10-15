@@ -5,24 +5,19 @@ services:
     build:
       context: .
       dockerfile: services/reverse-proxy/Dockerfile
-    environment:
-      VIGIL_DOMAIN: "${VIGIL_DOMAIN:-localhost}"
     ports:
-      - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
     volumes:
       - caddy_data:/data
       - caddy_config:/config
+      - caddy_public_ca:/public-ca
     depends_on:
       api:
         condition: service_started
       telemetry-collector:
         condition: service_started
     networks:
-      default:
-      mock-telemetry-ingress:
-        aliases:
-          - "${VIGIL_DOMAIN:-localhost}"
+      - default
     restart: unless-stopped
 
   ollama:
@@ -77,22 +72,27 @@ services:
     container_name: vigil-api
     build:
       context: ./services/api
-    ports:
-      - "${API_PORT:-8080}:8080"
     environment:
       POSTGRES_USER: "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
-      CLICKHOUSE_USER: "${CLICKHOUSE_USER:?Set CLICKHOUSE_USER in .env}"
-      CLICKHOUSE_PASSWORD: "${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD in .env}"
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-lopo}"
+      CLICKHOUSE_URL: "jdbc:clickhouse://clickhouse:8123/${CLICKHOUSE_DB:-default}"
+      CLICKHOUSE_USERNAME: vigil_api
+      CLICKHOUSE_USER: vigil_api
+      CLICKHOUSE_PASSWORD: "${CLICKHOUSE_API_PASSWORD:?Set CLICKHOUSE_API_PASSWORD in .env}"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://${POSTGRES_HOST:-postgres}:5432/${POSTGRES_DB:-lopo}"
       SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
       SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}"
       JWT_SECRET: "${JWT_SECRET:?Set JWT_SECRET in .env}"
+      VIGIL_TLS_CA_PATH: /etc/vigil/ca/root.crt
+    volumes:
+      - caddy_public_ca:/etc/vigil/ca:ro
     depends_on:
       postgres:
         condition: service_healthy
       clickhouse:
         condition: service_healthy
+      clickhouse-init:
+        condition: service_completed_successfully
 
   postgres:
     container_name: vigil-postgres
@@ -149,6 +149,7 @@ services:
     environment:
       CLICKHOUSE_ADMIN_USER: "${CLICKHOUSE_USER:?Set CLICKHOUSE_USER in .env}"
       CLICKHOUSE_ADMIN_PASSWORD: "${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD in .env}"
+      CLICKHOUSE_API_PASSWORD: "${CLICKHOUSE_API_PASSWORD:?Set CLICKHOUSE_API_PASSWORD in .env}"
       CLICKHOUSE_DB: "${CLICKHOUSE_DB:-default}"
       CLICKHOUSE_WRITER_PASSWORD: "${CLICKHOUSE_WRITER_PASSWORD}"
     volumes:
@@ -183,31 +184,19 @@ services:
     profiles: ["mock-telemetry-sender"]
     build:
       context: ./services/mock-telemetry-sender
+    network_mode: host
     environment:
-      OTEL_SERVICE_NAME: "${MOCK_TELEMETRY_SERVICE_NAME:-vigil-mock-service}"
-      OTEL_EXPORTER_OTLP_ENDPOINT: "https://${VIGIL_DOMAIN:-localhost}/otlp"
-      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
-      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer%20${VIGIL_INGESTION_KEY:?Set VIGIL_INGESTION_KEY in .env}"
-      OTEL_EXPORTER_OTLP_CERTIFICATE: /caddy-data/caddy/pki/authorities/local/root.crt
-      OTEL_TRACES_EXPORTER: otlp
-      OTEL_METRICS_EXPORTER: otlp
-      OTEL_LOGS_EXPORTER: otlp
+      OTEL_SERVICE_NAME: "checkout-api"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "https://localhost/otlp"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer%20PassWord42!-replace-with-a-long-random-ingestion-key"
+      OTEL_EXPORTER_OTLP_CERTIFICATE: "/etc/vigil/ca/root.crt"
       OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: "true"
       SEND_INTERVAL_SECONDS: "${MOCK_TELEMETRY_INTERVAL_SECONDS:-5}"
     volumes:
-      - caddy_data:/caddy-data:ro
-    depends_on:
-      reverse-proxy:
-        condition: service_started
-    networks:
-      - mock-telemetry-ingress
+      # Development convenience only: real producers obtain the public CA separately.
+      - caddy_public_ca:/etc/vigil/ca:ro
     restart: unless-stopped
-
-networks:
-
-  mock-telemetry-ingress:
-    name: vigil_mock_telemetry_ingress
-    internal: true
 
 volumes:
 
@@ -219,6 +208,8 @@ volumes:
 
   caddy_data:
     name: vigil_caddy_data
+
+  caddy_public_ca:
 
   caddy_config:
     name: vigil_caddy_config
