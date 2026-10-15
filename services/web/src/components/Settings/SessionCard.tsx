@@ -24,28 +24,28 @@ export default function SessionCard({
 
   return (
     <div
-      className={`flex justify-between items-center border p-5 ${current ? 'border-blue-500/40' : 'border-vigil-border'}`}
+      className={`flex justify-between items-center border p-4 md:p-5 ${current ? 'border-blue-500/40' : 'border-vigil-border'}`}
       id={id}
     >
       <div className="left-section flex items-center">
         <SessionIcon device={userAgent.device} current={current} />
         <div>
-          <div className="flex items-center mb-1 text-[18px]">
+          <div className="flex items-center mb-1 text-[14px] md:text-[18px]">
             {userAgent.browser} {userAgent.os}
             {current && (
-              <span className="uppercase text-[11px] tracking-wider px-3 py-1.5 ms-5 text-vigil-blue bg-vigil-blue-100 border border-blue-400/20">
+              <span className="uppercase text-[9px] md:text-[11px] tracking-wider px-2 md:px-3 py-1 md:py-1.5 ms-5 text-vigil-blue bg-vigil-blue-100 border border-blue-400/20">
                 this device
               </span>
             )}
           </div>
-          <span className="text-vigil-muted text-[15px]">
+          <span className="text-vigil-muted text-[13px] md:text-[15px]">
             {ip_address} · Last active {lastActive}
           </span>
         </div>
       </div>
       {!current && (
         <button
-          className="outline-none text-[12px] tracking-widest uppercase p-3 border border-red-500/30  text-red-500/80 cursor-pointer hover:border-red-500/60 hover:text-red-500 transition-[border, text] duration-300"
+          className="outline-none text-[10px] md:text-[12px] tracking-widest uppercase p-2 md:p-3 border border-red-500/30  text-red-500/80 cursor-pointer hover:border-red-500/60 hover:text-red-500 transition-[border, text] duration-300"
           type="button"
           onClick={() => onRevoke(id)}
         >

@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { useAuth } from '../auth/authContext';
+import { changePassword, updateEmail } from '../api/accountApi';
+import { toast } from 'sonner';
 
 const EMAIL_REGX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 const PASSWORD_REGX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
 export default function useAccountSettings() {
-  const { user } = useAuth();
+  const { user, setUser, apiFetch } = useAuth();
   const [email, setEmail] = useState('');
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [currentPasswordError, setCurrentPasswordError] = useState('');
   const [newPasswordError, setNewPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [passwordFieldError, setPasswordFieldError] = useState('');
@@ -19,10 +19,8 @@ export default function useAccountSettings() {
   const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
 
   const resetPasswordFields = () => {
-    setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
-    setCurrentPasswordError('');
     setNewPasswordError('');
     setConfirmPasswordError('');
     setPasswordFieldError('');
@@ -31,14 +29,6 @@ export default function useAccountSettings() {
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
     setEmailError('');
-  };
-
-  const handleCurrentPasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setCurrentPassword(e.target.value);
-    setCurrentPasswordError('');
-    setPasswordFieldError('');
   };
 
   const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,22 +69,12 @@ export default function useAccountSettings() {
   const validatePassword = (): boolean => {
     let isValid = true;
 
-    setCurrentPasswordError('');
     setNewPasswordError('');
     setConfirmPasswordError('');
     setPasswordFieldError('');
-    if (!currentPassword) {
-      setCurrentPasswordError('Current password is required');
-      isValid = false;
-    }
 
     if (!newPassword) {
       setNewPasswordError('New password is required');
-      isValid = false;
-    } else if (currentPassword === newPassword) {
-      setNewPasswordError(
-        'New password must be different from the current password',
-      );
       isValid = false;
     } else if (!PASSWORD_REGX.test(newPassword)) {
       setNewPasswordError('8+ chars, uppercase, lowercase, number, symbol');
@@ -139,24 +119,37 @@ export default function useAccountSettings() {
     }
   };
 
+  const handleEmailSubmit = () => {
+    runSubmitEmailChange(async () => {
+      const updatedUser = await updateEmail(apiFetch, email);
+      setUser(updatedUser);
+      toast.success('Email updated successfully');
+    });
+  };
+
+  const handlePasswordSubmit = () => {
+    runSubmitPasswordChange(async () => {
+      await changePassword(apiFetch, newPassword);
+      resetPasswordFields();
+      toast.success('Password updated successfully');
+    });
+  };
+
   return {
     email,
-    currentPassword,
     newPassword,
     confirmPassword,
     emailError,
-    currentPasswordError,
     newPasswordError,
     confirmPasswordError,
     passwordFieldError,
     isEmailSubmitting,
     isPasswordSubmitting,
     handleEmailChange,
-    handleCurrentPasswordChange,
     handleNewPasswordChange,
     handleConfirmPasswordChange,
-    runSubmitEmailChange,
-    runSubmitPasswordChange,
+    handleEmailSubmit,
+    handlePasswordSubmit,
     resetPasswordFields,
   };
 }

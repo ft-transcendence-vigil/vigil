@@ -37,7 +37,7 @@ export default function ChangePassword({
             value={value}
             placeholder="••••••••••"
             onChange={onChange}
-            className={`outline-none px-4 py-3 w-100 focus:border-vigil-blue border border-vigil-border placeholder:text-vigil-muted ${
+            className={`outline-none px-4 py-3 w-full focus:border-vigil-blue border border-vigil-border placeholder:text-vigil-muted ${
               error ? 'border! border-red-400! focus:outline-0!' : ''
             }`}
           />

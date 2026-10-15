@@ -3,28 +3,10 @@ import ChangePassword from '../../components/Settings/ChangePassword';
 import Button from '../../components/shared/Button';
 import { useAuth } from '../../auth/authContext';
 import useAccountSettings from '../../hooks/useAccountSettings';
-import { changePassword, updateEmail } from '../../api/accountApi';
-import { toast } from 'sonner';
 
 export default function AccountSettings() {
-  const { user, setUser, apiFetch } = useAuth();
+  const { user } = useAuth();
   const form = useAccountSettings();
-
-  const handleEmailSubmit = () => {
-    form.runSubmitEmailChange(async () => {
-      const updatedUser = await updateEmail(apiFetch, form.email);
-      setUser(updatedUser);
-      toast.success('Email updated successfully');
-    });
-  };
-
-  const handlePasswordSubmit = () => {
-    form.runSubmitPasswordChange(async () => {
-      await changePassword(apiFetch, form.newPassword);
-      form.resetPasswordFields();
-      toast.success('Password updated successfully');
-    });
-  };
 
   return (
     <div className="account-settings flex flex-col space-y-5">
@@ -56,7 +38,7 @@ export default function AccountSettings() {
           />
           <Button
             value="save"
-            onClick={handleEmailSubmit}
+            onClick={form.handleEmailSubmit}
             disabled={form.isEmailSubmitting}
           />
         </div>
@@ -66,12 +48,6 @@ export default function AccountSettings() {
       </CardLayout>
       <CardLayout title="Change Password">
         <div className="password-fields flex flex-col space-y-8">
-          <ChangePassword
-            title="current password"
-            value={form.currentPassword}
-            onChange={form.handleCurrentPasswordChange}
-            error={form.currentPasswordError}
-          />
           <ChangePassword
             title="new password"
             value={form.newPassword}
@@ -84,7 +60,7 @@ export default function AccountSettings() {
             onChange={form.handleConfirmPasswordChange}
             error={form.confirmPasswordError}
             showValidationBtn
-            onClick={handlePasswordSubmit}
+            onClick={form.handlePasswordSubmit}
             disabled={form.isEmailSubmitting}
           />
           {form.passwordFieldError && (
