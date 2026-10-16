@@ -32,7 +32,7 @@ export default function FormInput({
         value={value}
         placeholder={placeholder}
         onChange={onChange}
-        className={`placeholder:text-vigil-muted ${error ? 'border! border-red-400! focus:outline-0!' : ''} ${className}`}
+        className={`placeholder:text-vigil-muted-extra ${error ? 'border! border-red-400! focus:outline-0!' : ''} ${className}`}
       />
       {error && <div className="text-xs text-red-400 mt-2">{error}</div>}
     </div>

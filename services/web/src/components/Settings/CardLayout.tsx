@@ -19,7 +19,14 @@ export default function CardLayout({
   return (
     <div className="bg-vigil-card border border-vigil-border p-6 pb-7 w-full xl:w-2/3">
       <div className="flex items-center justify-between mb-5">
-        <h1 className="text-[18px]">{title}</h1>
+        <div>
+          <h1 className="text-[18px]">{title}</h1>
+          {description && (
+            <div className="text-[15px] text-vigil-muted-extra">
+              {description}
+            </div>
+          )}
+        </div>
         {btnValue && (
           <Button
             value={btnValue}
@@ -28,11 +35,6 @@ export default function CardLayout({
           />
         )}
       </div>
-      {description && (
-        <div className="text-[15px] text-vigil-muted-extra -mt-3.5 mb-5">
-          {description}
-        </div>
-      )}
       {children}
     </div>
   );

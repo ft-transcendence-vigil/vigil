@@ -37,7 +37,7 @@ export default function UserModal(props: Data) {
           <h1 className="text-[18px]">{isEdit ? 'Edit User' : 'Add User'}</h1>
           <button
             onClick={onClose}
-            className="text-[11px] p-2.5 border border-vigil-border cursor-pointer text-vigil-muted hover:border-white/20 hover:text-white/70 transition[border-color, color] duration-200"
+            className="text-[11px] p-2.5 border border-vigil-border outline-none cursor-pointer text-vigil-muted hover:border-white/20 hover:text-white/70 transition[border-color, color] duration-200"
           >
             <FontAwesomeIcon icon={faXmark} />
           </button>

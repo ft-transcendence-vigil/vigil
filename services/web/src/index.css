@@ -340,7 +340,6 @@ button:hover .num {
 
 /* Toaster */
 
-/* toast.css (import it once in main.tsx) */
 .vigil-toast {
     --accent: #2196f3;
     display: flex;

@@ -1,0 +1,77 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { addWebhook } from '../api/webhooksApi';
+import { toast } from 'sonner';
+import { useAuth } from '../auth/authContext';
+
+interface Webhook {
+  id: string;
+  url: string;
+}
+
+type Data = {
+  onClose?: () => void;
+};
+
+export default function useWebhooksSettings({ onClose }: Data) {
+  const { apiFetch } = useAuth();
+  const queryClient = useQueryClient();
+  const [url, setUrl] = useState('');
+  const [urlError, setUrlError] = useState('');
+  const [formError, setFormError] = useState('');
+
+  const addMutation = useMutation({
+    mutationFn: () => addWebhook(apiFetch, url.trim()),
+
+    onSuccess: (newWebhook) => {
+      queryClient.setQueryData<Webhook[]>(['webhooks'], (webhooks = []) => [
+        ...webhooks,
+        newWebhook,
+      ]);
+      toast.success('Webhook added successfully');
+      onClose?.();
+    },
+
+    onError: (error) => {
+      setFormError(
+        error instanceof Error ? error.message : 'Something went wrong',
+      );
+    },
+  });
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUrl(e.target.value);
+    setUrlError('');
+    setFormError('');
+  };
+
+  const validateUrl = (): boolean => {
+    const normalizedUrl = url.trim();
+    if (!normalizedUrl) {
+      setUrlError('Url is required');
+      return false;
+    }
+    const validUrl = new URL(normalizedUrl);
+
+    if (validUrl.protocol !== 'https:') {
+      setUrlError('Url is not https:');
+      return false;
+    }
+    return true;
+  };
+
+  const handleAddWebhookSubmit = () => {
+    if (!validateUrl()) return;
+    setFormError('');
+    addMutation.mutate();
+  };
+
+  return {
+    url,
+    urlError,
+    formError,
+    isFormSubmitting: addMutation.isPending,
+    handleUrlChange,
+    handleAddWebhookSubmit,
+  };
+}
