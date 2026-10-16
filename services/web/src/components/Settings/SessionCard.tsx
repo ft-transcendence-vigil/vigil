@@ -5,7 +5,7 @@ import formatLastActive from '../shared/utils/date';
 
 interface Data extends Session {
   now: number;
-  onRevoke: (id: string) => Promise<void>;
+  onRevoke: (id: string) => void;
 }
 
 export default function SessionCard({

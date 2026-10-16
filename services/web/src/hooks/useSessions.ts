@@ -1,52 +1,37 @@
-import { useEffect, useState } from 'react';
-import {
-  getAllSessions,
-  revokeSession,
-  type Session,
-} from '../api/sessionsApi';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../auth/authContext';
+import { getAllSessions, revokeSession } from '../api/sessionsApi';
 import { toast } from 'sonner';
 
 export default function useSessions() {
   const { apiFetch } = useAuth();
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    let cancelled = false;
+  const sessionsQuery = useQuery({
+    queryKey: ['sessions'],
+    queryFn: () => getAllSessions(apiFetch),
+    staleTime: 60_000,
+  });
 
-    const fetchSessions = async () => {
-      try {
-        const data = await getAllSessions(apiFetch);
-        if (!cancelled) setSessions(data);
-      } catch (error) {
-        if (cancelled) return;
-        if (error instanceof Error) {
-          toast.error(error.message);
-        } else {
-          toast.error('Unable to fetch sessions.');
-        }
-      }
-    };
-    void fetchSessions();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [apiFetch]);
-
-  const handleRevokeSession = async (id: string) => {
-    try {
-      await revokeSession(apiFetch, id);
-      setSessions((prev) => prev.filter((session) => session.id !== id));
+  const revokeMutation = useMutation({
+    mutationFn: (id: string) => revokeSession(apiFetch, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['sessions'],
+      });
       toast.success('Session revoked');
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error('Unable to revoke sessions.');
-      }
-    }
-  };
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : 'Unable to revoke sessions',
+      );
+    },
+  });
 
-  return { sessions, handleRevokeSession };
+  return {
+    sessions: sessionsQuery.data ?? [],
+    error: sessionsQuery.error,
+    revokeSession: revokeMutation.mutate,
+    isRevoking: revokeMutation.isPending,
+  };
 }

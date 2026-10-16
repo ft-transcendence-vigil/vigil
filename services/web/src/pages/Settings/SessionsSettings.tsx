@@ -5,7 +5,7 @@ import useSessions from '../../hooks/useSessions';
 
 export default function SessionsSettings() {
   const [now, setNow] = useState(() => Date.now());
-  const { sessions, handleRevokeSession } = useSessions();
+  const { sessions, revokeSession } = useSessions();
   const sortedSessions = [...sessions].sort(
     (a, b) => Number(b.current) - Number(a.current),
   );
@@ -33,7 +33,7 @@ export default function SessionsSettings() {
               last_used_at={session.last_used_at}
               current={session.current}
               now={now}
-              onRevoke={handleRevokeSession}
+              onRevoke={revokeSession}
             />
           ))}
         </div>
