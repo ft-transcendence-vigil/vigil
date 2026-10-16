@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addUser, updateUser } from '../api/usersApi';
 import type { User, UpdateUser } from '../api/usersApi';
 import { useAuth } from '../auth/authContext';
@@ -9,12 +10,19 @@ const EMAIL_REGX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
 const PASSWORD_REGX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
-interface UseUsersSettingsOptions {
-  mode: 'create' | 'edit';
-  user?: User;
-  onCreated?: (user: User) => void;
-  onUpdated?: (user: User) => void;
-}
+type UseUsersSettingsOptions =
+  | {
+      mode: 'create';
+      user?: never;
+      onCreated?: () => void;
+      onUpdated?: () => void;
+    }
+  | {
+      mode: 'edit';
+      user: User;
+      onCreated?: () => void;
+      onUpdated?: () => void;
+    };
 
 export default function useUsersSettings({
   mode,
@@ -23,6 +31,7 @@ export default function useUsersSettings({
   onUpdated,
 }: UseUsersSettingsOptions) {
   const { apiFetch } = useAuth();
+  const queryClient = useQueryClient();
   const [email, setEmail] = useState(
     mode === 'edit' ? (user?.email ?? '') : '',
   );
@@ -35,7 +44,53 @@ export default function useUsersSettings({
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [formError, setFormError] = useState('');
-  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
+
+  const addMutation = useMutation({
+    mutationFn: () =>
+      addUser(apiFetch, {
+        email: email.trim(),
+        role,
+        password,
+      }),
+
+    onSuccess: (newUser) => {
+      queryClient.setQueryData<User[]>(['users'], (users = []) => [
+        ...users,
+        newUser,
+      ]);
+      toast.success('User added successfully');
+      onCreated?.();
+    },
+
+    onError: (error) => {
+      setFormError(
+        error instanceof Error ? error.message : 'Something went wrong',
+      );
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (changes: UpdateUser) => {
+      if (!user) {
+        throw new Error('No user selected.');
+      }
+      return updateUser(apiFetch, user.id, changes);
+    },
+
+    onSuccess: (updatedUser) => {
+      queryClient.setQueryData<User[]>(['users'], (users = []) =>
+        users.map((item) => (item.id === updatedUser.id ? updatedUser : item)),
+      );
+      toast.success('User updated successfully');
+      onUpdated?.();
+    },
+
+    onError: (error) => {
+      setFormError(
+        error instanceof Error ? error.message : 'Something went wrong',
+      );
+    },
+  });
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -115,69 +170,45 @@ export default function useUsersSettings({
     return isValid;
   };
 
-  const runSubmit = async (submitFn: () => Promise<void>) => {
+  const validateForm = () => {
     const isEmailValid = validateEmail();
     const isPasswordValid = validatePassword();
 
-    if (!isEmailValid || !isPasswordValid) {
-      return;
-    }
-    setIsFormSubmitting(true);
-    setFormError('');
-    try {
-      await submitFn();
-    } catch (error) {
-      setFormError(
-        error instanceof Error ? error.message : 'Something went wrong',
-      );
-    } finally {
-      setIsFormSubmitting(false);
-    }
+    return isEmailValid && isPasswordValid;
   };
 
   const handleAddUserSubmit = () => {
-    void runSubmit(async () => {
-      const newUser = await addUser(apiFetch, {
-        email: email.trim(),
-        role,
-        password,
-      });
-      onCreated?.(newUser);
-      toast.success('User added successfully');
-    });
+    if (!validateForm()) return;
+    setFormError('');
+    addMutation.mutate();
   };
 
   const handleEditUserSubmit = () => {
-    if (!user) {
-      setFormError('No user selected.');
+    if (mode !== 'edit') return;
+    if (!validateForm()) return;
+
+    const changes: UpdateUser = {};
+    const normalizedEmail = email.trim();
+
+    if (normalizedEmail !== user.email) {
+      changes.email = normalizedEmail;
+    }
+
+    if (role !== user.role) {
+      changes.role = role;
+    }
+
+    if (password) {
+      changes.password = password;
+    }
+
+    if (Object.keys(changes).length === 0) {
+      toast.info('No changes to save.');
       return;
     }
 
-    void runSubmit(async () => {
-      const changes: UpdateUser = {};
-      const normalizedEmail = email.trim();
-
-      if (normalizedEmail !== user.email) {
-        changes.email = normalizedEmail;
-      }
-
-      if (role !== user.role) {
-        changes.role = role;
-      }
-
-      if (password) {
-        changes.password = password;
-      }
-
-      if (Object.keys(changes).length === 0) {
-        toast.info('No changes to save.');
-        return;
-      }
-      const updatedUser = await updateUser(apiFetch, user.id, changes);
-
-      onUpdated?.(updatedUser);
-      toast.success('User updated successfully');
-    });
+    setFormError('');
+    updateMutation.mutate(changes);
   };
 
   return {
@@ -189,7 +220,7 @@ export default function useUsersSettings({
     confirmPasswordError,
     formError,
     role,
-    isFormSubmitting,
+    isFormSubmitting: addMutation.isPending || updateMutation.isPending,
     handleEmailChange,
     handlePasswordChange,
     handleConfirmPasswordChange,

@@ -7,32 +7,28 @@ import Button from '../shared/Button';
 import useUsersSettings from '../../hooks/useUsersSettings';
 import type { User } from '../../api/usersApi';
 
-interface Data {
-  isOpen: boolean;
-  mode: 'create' | 'edit';
-  user?: User;
+type UseUsersSettingsOptions =
+  | {
+      mode: 'create';
+      user?: never;
+      onCreated?: () => void;
+      onUpdated?: () => void;
+    }
+  | {
+      mode: 'edit';
+      user: User;
+      onCreated?: () => void;
+      onUpdated?: () => void;
+    };
+
+type Data = UseUsersSettingsOptions & {
   onClose: () => void;
-  onCreated?: (user: User) => void;
-  onUpdated?: (user: User) => void;
-}
+};
 
-export default function UserModal({
-  isOpen,
-  mode,
-  user,
-  onClose,
-  onCreated,
-  onUpdated,
-}: Data) {
+export default function UserModal(props: Data) {
+  const form = useUsersSettings(props);
+  const { mode, onClose } = props;
   const isEdit = mode === 'edit';
-  const form = useUsersSettings({
-    mode,
-    user,
-    onCreated,
-    onUpdated,
-  });
-
-  if (!isOpen) return null;
 
   return (
     <div className="bg-[#050810b3] backdrop-blur-sm z-98 fixed inset-0">
@@ -70,7 +66,7 @@ export default function UserModal({
             className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-blue"
           />
           <PasswordInput
-            title="Confirm Password"
+            title="Confirm New Password"
             error={form.confirmPasswordError}
             onChange={form.handleConfirmPasswordChange}
             className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-blue"
