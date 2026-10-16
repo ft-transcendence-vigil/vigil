@@ -60,7 +60,7 @@ export default function UsersSettings() {
       >
         <table className="w-full border-collapse">
           <thead>
-            <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[15px]">
+            <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px]">
               <th className="py-2 md:py-4 px-2 md:px-3">Email</th>
               <th className="py-2 md:py-4 px-2 md:px-3">Role</th>
               <th className="py-2 md:py-4 px-2 md:px-3">Actions</th>
