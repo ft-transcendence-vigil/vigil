@@ -27,7 +27,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const clearAuthState = useCallback((): void => {
     setAccessToken(null);
     setUser(null);
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (!hasRefreshHint()) return;
@@ -63,9 +63,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const signOut = async (): Promise<void> => {
     try {
       await logout();
+    } catch {
+      // Ignore server logout failure.
     } finally {
-      navigate('/auth/login', { replace: true });
       clearAuthState();
+      navigate('/auth/login', { replace: true });
     }
   };
 
@@ -84,26 +86,29 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     });
   };
 
-  const apiFetch = useCallback(async <T = unknown,>(
-    url: string,
-    options: AxiosRequestConfig = {},
-  ): Promise<AxiosResponse<T>> => {
-    if (!accessToken) throw new Error('No access token available');
-    try {
-      return await requestWithToken<T>(accessToken, url, options);
-    } catch (error) {
-      if (!axios.isAxiosError(error) || error.response?.status !== 401)
-        throw error;
-    }
-    try {
-      const data = await refresh();
-      setAccessToken(data.access_token);
-      return await requestWithToken<T>(data.access_token, url, options);
-    } catch (refreshError) {
-      clearAuthState();
-      throw new Error('Session expired', { cause: refreshError });
-    }
-  }, [accessToken, clearAuthState]);
+  const apiFetch = useCallback(
+    async <T = unknown,>(
+      url: string,
+      options: AxiosRequestConfig = {},
+    ): Promise<AxiosResponse<T>> => {
+      if (!accessToken) throw new Error('No access token available');
+      try {
+        return await requestWithToken<T>(accessToken, url, options);
+      } catch (error) {
+        if (!axios.isAxiosError(error) || error.response?.status !== 401)
+          throw error;
+      }
+      try {
+        const data = await refresh();
+        setAccessToken(data.access_token);
+        return await requestWithToken<T>(data.access_token, url, options);
+      } catch (refreshError) {
+        clearAuthState();
+        throw new Error('Session expired', { cause: refreshError });
+      }
+    },
+    [accessToken, clearAuthState],
+  );
 
   return (
     <AuthContext.Provider
