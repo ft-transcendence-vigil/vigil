@@ -25,7 +25,7 @@ export default function UsersSettings() {
   const usersQuery = useQuery({
     queryKey: ['users'],
     queryFn: () => getAllUsers(apiFetch),
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
   });
 
   const deleteMutation = useMutation({
