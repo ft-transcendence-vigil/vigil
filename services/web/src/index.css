@@ -420,3 +420,83 @@ button:hover .num {
     border: 1px solid #1f2937;
     border-radius: 0;
 }
+
+/* ConfirmDialog */
+
+.vigil-overlay {
+    position: fixed;
+    inset: 0;
+    background: #050810b3;
+    backdrop-filter: blur(4px);
+    z-index: 99;
+}
+
+.vigil-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 430px;
+    padding: 30px;
+    background: #0A0E1E;
+    border: 1px solid #1f2937;
+    border-left: 3px solid #ef4444ce;
+    border-radius: 0;
+    color: #e5e7eb;
+    z-index: 99;
+
+}
+
+.vigil-dialog-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.vigil-dialog-desc {
+    margin: 8px 0 20px;
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.vigil-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.vigil-btn-cancel,
+.vigil-btn-danger {
+    padding: 10px 18px;
+    border-radius: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.vigil-btn-cancel {
+    background: transparent;
+    color: #9ca3af;
+    border: 1px solid #1f2937;
+    transition: color 0.3s, border-color 0.3s;
+}
+
+.vigil-btn-danger {
+    background: #ef4444ce;
+    color: #fff;
+    border: 0;
+    transition: opacity 0.3s;
+}
+
+.vigil-btn-danger:hover {
+    opacity: 0.8;
+}
+
+.vigil-btn-cancel:hover {
+    color: #cacfd7;
+    border-color: #727d8c;
+}

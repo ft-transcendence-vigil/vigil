@@ -6,9 +6,11 @@ import { deleteWebhook, getAllWebhooks } from '../../api/webhooksApi';
 import { useAuth } from '../../auth/authContext';
 import WebhookRow from '../../components/Settings/WebhookRow';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 
 export default function WebhooksSettings() {
   const [modal, setModal] = useState(false);
+  const [webhookToDelete, setWebhookToDelete] = useState<string | null>(null);
   const { apiFetch } = useAuth();
   const queryClient = useQueryClient();
 
@@ -63,7 +65,7 @@ export default function WebhooksSettings() {
                 <WebhookRow
                   key={webhook.id}
                   url={webhook.url}
-                  onDelete={() => webhookMutation.mutate(webhook.id)}
+                  onDelete={() => setWebhookToDelete(webhook.id)}
                 />
               ))}
             </tbody>
@@ -80,6 +82,18 @@ export default function WebhooksSettings() {
         </div>
       </CardLayout>
       {modal && <WebhookModal onClose={() => setModal(false)} />}
+      {webhookToDelete && (
+        <ConfirmDialog
+          open={webhookToDelete != null}
+          onOpenChange={(o) => !o && setWebhookToDelete(null)}
+          title="Delete webhook?"
+          description='It will stop receiving alerts. This cannot be undone.'
+          confirmLabel="Delete"
+          onConfirm={() => {
+            if (webhookToDelete) webhookMutation.mutate(webhookToDelete);
+          }}
+        />
+      )}
     </div>
   );
 }

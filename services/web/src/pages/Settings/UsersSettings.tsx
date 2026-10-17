@@ -7,6 +7,7 @@ import { deleteUser, getAllUsers } from '../../api/usersApi';
 import { useAuth } from '../../auth/authContext';
 import { toast } from 'sonner';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 
 type ModalState =
   | {
@@ -21,6 +22,7 @@ export default function UsersSettings() {
   const { apiFetch, user: currentUser } = useAuth();
   const queryClient = useQueryClient();
   const [modal, setModal] = useState<ModalState | null>(null);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
   const usersQuery = useQuery({
     queryKey: ['users'],
@@ -79,7 +81,7 @@ export default function UsersSettings() {
                     user,
                   })
                 }
-                onDelete={() => deleteMutation.mutate(user.id)}
+                onDelete={() => setUserToDelete(user.id)}
               />
             ))}
           </tbody>
@@ -93,7 +95,6 @@ export default function UsersSettings() {
           onCreated={() => setModal(null)}
         />
       )}
-
       {modal?.mode === 'edit' && (
         <UserModal
           key={`edit-${modal.user.id}`}
@@ -101,6 +102,18 @@ export default function UsersSettings() {
           user={modal.user}
           onClose={() => setModal(null)}
           onUpdated={() => setModal(null)}
+        />
+      )}
+      {userToDelete && (
+        <ConfirmDialog
+          open={userToDelete != null}
+          onOpenChange={(o) => !o && setUserToDelete(null)}
+          title="Delete user?"
+          description="They will lose access immediately and their sessions will be ended. This cannot be undone."
+          confirmLabel="Delete"
+          onConfirm={() => {
+            if (userToDelete) deleteMutation.mutate(userToDelete);
+          }}
         />
       )}
     </div>
