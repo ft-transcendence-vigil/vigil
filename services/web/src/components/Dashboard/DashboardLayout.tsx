@@ -3,7 +3,7 @@ import Header from './Header';
 import { useState } from 'react';
 import DesktopSidebar from './Sidebar/DesktopSidebar';
 import MobileSidebar from './Sidebar/MobileSidebar';
-import { getPageTitle } from './Sidebar/navigation';
+import { getPageTitle } from './Sidebar/dashboardNavigation';
 import AIDrawer from './AIDrawer/AIDrawer';
 
 export default function DashboardLayout() {

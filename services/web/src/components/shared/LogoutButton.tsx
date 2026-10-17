@@ -1,9 +1,8 @@
-import { useContext } from 'react';
-import { AuthContext } from '../../auth/authContext';
+import { useAuth } from '../../auth/authContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function LogoutButton() {
-  const auth = useContext(AuthContext);
+  const auth = useAuth();
   const navigate = useNavigate();
 
   if (!auth) throw new Error('AuthContext must be used inside AuthProvider');

@@ -2,11 +2,17 @@ import { useId, useState } from 'react';
 
 interface Data {
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  error: string | undefined;
+  error: string | undefined | boolean;
   title?: string;
+  className?: string;
 }
 
-export default function PasswordInput({ onChange, error, title }: Data) {
+export default function PasswordInput({
+  onChange,
+  error,
+  title,
+  className,
+}: Data) {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleShowPassword = () => {
@@ -25,7 +31,7 @@ export default function PasswordInput({ onChange, error, title }: Data) {
           name="password"
           id={id}
           placeholder="••••••••••"
-          className={`placeholder:text-vigil-muted ${error ? 'border! border-red-400! focus:outline-0!' : ''}`}
+          className={`placeholder:text-vigil-muted ${error ? 'border! border-red-400! focus:outline-0!' : ''} ${className}`}
           onChange={onChange}
         />
         <span className="show-btn" onClick={handleShowPassword}>

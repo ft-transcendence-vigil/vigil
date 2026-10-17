@@ -13,13 +13,20 @@ import MetricsPage from './pages/Metrics/MetricsPage';
 import TracesPage from './pages/Traces/TracesPage';
 import ServicesPage from './pages/Services/ServicesPage';
 import AlertsRulesPage from './pages/AlertRules/AlertsRulesPage';
-import SettingsPage from './pages/Settings/SettingsPage';
 import StatusPage from './pages/Status/StatusPage';
 import AiInsightsPage from './pages/AIInsights/AIInsightsPage';
+import SettingsLayout from './components/Settings/SettingsLayout';
+import AccountSettings from './pages/Settings/AccountSettings';
+import SessionsSettings from './pages/Settings/SessionsSettings';
+import UsersSettings from './pages/Settings/UsersSettings';
+import ApiKeysSettings from './pages/Settings/ApiKeysSettings';
+import WebhooksSettings from './pages/Settings/WebhooksSettings';
+import AppToaster from './components/shared/AppToaster';
 
 function App() {
   return (
     <>
+      <AppToaster />
       <Routes>
         <Route element={<PublicOnlyRoute />}>
           <Route element={<AuthEntryGuard />}>
@@ -39,7 +46,14 @@ function App() {
             <Route path="/traces" element={<TracesPage />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/alert-rules" element={<AlertsRulesPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings" element={<SettingsLayout />}>
+              <Route index element={<Navigate to="account" replace />} />
+              <Route path="account" element={<AccountSettings />} />
+              <Route path="sessions" element={<SessionsSettings />} />
+              <Route path="users" element={<UsersSettings />} />
+              <Route path="api-keys" element={<ApiKeysSettings />} />
+              <Route path="webhooks" element={<WebhooksSettings />} />
+            </Route>
           </Route>
         </Route>
       </Routes>
