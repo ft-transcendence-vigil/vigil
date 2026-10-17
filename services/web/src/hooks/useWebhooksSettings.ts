@@ -47,22 +47,28 @@ export default function useWebhooksSettings({ onClose }: Data) {
 
   const validateUrl = (): boolean => {
     const normalizedUrl = url.trim();
-    let validUrl;
 
     if (!normalizedUrl) {
       setUrlError('URL is required');
       return false;
     }
+
+    if (!normalizedUrl.startsWith('https://')) {
+      setUrlError('URL must start with https://');
+      return false;
+    }
+
     try {
-      validUrl = new URL(normalizedUrl);
-      if (validUrl.protocol !== 'https:') {
-        setUrlError('URL is not https:');
+      const validUrl = new URL(normalizedUrl);
+      if (!validUrl.hostname) {
+        setUrlError('Enter a valid URL');
         return false;
       }
     } catch {
       setUrlError('Enter valid URL');
       return false;
     }
+    setUrlError('');
     return true;
   };
 
