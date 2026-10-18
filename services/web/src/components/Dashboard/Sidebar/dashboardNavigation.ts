@@ -22,8 +22,8 @@ export const dashboardNavigation = [
   {
     title: 'configure',
     links: [
-      { label: 'services', path: '/services' },
-      { label: 'alert rules', path: '/alert-rules' },
+      { label: 'services', path: '/services', adminOnly: true },
+      { label: 'alert rules', path: '/alert-rules', adminOnly: true },
       { label: 'settings', path: '/settings' },
     ],
   },

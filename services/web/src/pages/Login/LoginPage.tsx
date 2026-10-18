@@ -1,5 +1,5 @@
 import Logo from '../../components/shared/Logo';
-import LoginForm from '../../components/auth/Login/LoginForm';
+import LoginForm from '../../components/Auth/Login/LoginForm';
 import Branding from '../../components/shared/Branding';
 
 export default function LoginPage() {

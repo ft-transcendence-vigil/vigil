@@ -1,4 +1,4 @@
-import SetupForm from '../../components/auth/Setup/SetupForm';
+import SetupForm from '../../components/Auth/Setup/SetupForm';
 import Branding from '../../components/shared/Branding';
 import Logo from '../../components/shared/Logo';
 

@@ -22,6 +22,7 @@ import UsersSettings from './pages/Settings/UsersSettings';
 import ApiKeysSettings from './pages/Settings/ApiKeysSettings';
 import WebhooksSettings from './pages/Settings/WebhooksSettings';
 import AppToaster from './components/shared/AppToaster';
+import PermissionRoute from './auth/PermissionRoute';
 
 function App() {
   return (
@@ -44,15 +45,50 @@ function App() {
             <Route path="/metrics" element={<MetricsPage />} />
             <Route path="/ai-insights" element={<AiInsightsPage />} />
             <Route path="/traces" element={<TracesPage />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/alert-rules" element={<AlertsRulesPage />} />
+            <Route
+              path="/services"
+              element={
+                <PermissionRoute>
+                  <ServicesPage />
+                </PermissionRoute>
+              }
+            />
+            <Route
+              path="/alert-rules"
+              element={
+                <PermissionRoute>
+                  <AlertsRulesPage />
+                </PermissionRoute>
+              }
+            />
             <Route path="/settings" element={<SettingsLayout />}>
               <Route index element={<Navigate to="account" replace />} />
               <Route path="account" element={<AccountSettings />} />
               <Route path="sessions" element={<SessionsSettings />} />
-              <Route path="users" element={<UsersSettings />} />
-              <Route path="api-keys" element={<ApiKeysSettings />} />
-              <Route path="webhooks" element={<WebhooksSettings />} />
+              <Route
+                path="users"
+                element={
+                  <PermissionRoute>
+                    <UsersSettings />
+                  </PermissionRoute>
+                }
+              />
+              <Route
+                path="api-keys"
+                element={
+                  <PermissionRoute>
+                    <ApiKeysSettings />
+                  </PermissionRoute>
+                }
+              />
+              <Route
+                path="webhooks"
+                element={
+                  <PermissionRoute>
+                    <WebhooksSettings />
+                  </PermissionRoute>
+                }
+              />
             </Route>
           </Route>
         </Route>

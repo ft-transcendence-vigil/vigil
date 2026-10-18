@@ -1,11 +1,15 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { settingsNavigation } from './settingsNavigation';
+import { useAuth } from '../../auth/authContext';
+import { filterNavigation } from '../../auth/permissions';
 
 export default function SettingsLayout() {
+  const {user} = useAuth();
+  const navigation = filterNavigation(settingsNavigation, user?.role === 'admin');
   return (
     <div className="flex flex-col">
       <aside className="flex text-center mb-7">
-        {settingsNavigation.map((nav) => (
+        {navigation.map((nav) => (
           <NavLink
             key={nav.path}
             to={nav.path}
