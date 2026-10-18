@@ -20,7 +20,7 @@ export default function LoginPage() {
               three: 'all system live',
             }}
           />
-          <div className="flex items-center justify-between wrap-anywhere">
+          <div className="flex items-center justify-between">
             <div className="footer-text">
               vigil observability · secure access
             </div>
@@ -37,7 +37,7 @@ export default function LoginPage() {
                 to="/legal#privacy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:underline hover:text-vigil-blue ms-10"
+                className="hover:underline hover:text-vigil-blue ms-3 md:ms-5 lg:ms-10"
               >
                 Privacy Policy
               </Link>
