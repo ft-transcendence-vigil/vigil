@@ -111,7 +111,6 @@
     background-color: var(--color-vigil-blue);
 } */
 
-
 @theme {
     --color-vigil-bg: var(--color-vigil-bg);
     --color-vigil-bg-input: var(--color-vigil-bg-input);
@@ -167,6 +166,18 @@ pre,
     line-height: 1;
     letter-spacing: -.04em;
 }
+
+button:disabled,
+input[type='submit']:disabled {
+    opacity: 0.4;
+    cursor: not-allowed !important;
+}
+
+button:disabled:hover,
+input[type='submit']:disabled:hover {
+    opacity: 0.4 !important;
+}
+
 
 .login,
 .setup {

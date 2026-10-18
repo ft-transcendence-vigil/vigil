@@ -2,10 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../auth/authContext';
 import useAuhForm from '../../../hooks/useAuthForm';
 import AuthFormShell from '../AuthFormShell';
+import { useState } from 'react';
 
 export default function LoginForm() {
   const auth = useAuth();
   const navigate = useNavigate();
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState('');
   const {
     email,
     password,
@@ -24,10 +27,19 @@ export default function LoginForm() {
 
   const handleSetup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!termsAccepted) {
+      setTermsError('You must accept the Terms and Privacy Policy.');
+      return;
+    }
     runSubmit(async () => {
       await auth.signUp(email, password);
       navigate('/dashboard');
     });
+  };
+
+  const handleTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTermsAccepted(e.target.checked);
+    if (e.target.checked) setTermsError('');
   };
 
   return (
@@ -38,13 +50,16 @@ export default function LoginForm() {
       emailError={emailError}
       passwordError={passwordError}
       confirmPasswordError={confirmPasswordError}
-      showConfirmPassword={true}
+      isSetup={true}
       submitLabel="Create admin account"
       onSubmit={handleSetup}
       onEmailChange={handleEmailChange}
       onPasswordChange={handlePasswordChange}
       onConfirmPasswordChange={handleConfirmPasswordChange}
       isSubmitting={isSubmitting}
+      termsAccepted={termsAccepted}
+      termsError={termsError}
+      onTermsChange={handleTermsChange}
     />
   );
 }

@@ -1,6 +1,7 @@
 import FormButton from '../shared/FormButton';
 import FormInput from '../shared/FormInput';
 import PasswordInput from '../shared/PasswordInput';
+import TermsCheckbox from './Setup/TermsCheckbox';
 
 interface Data {
   title: string;
@@ -9,9 +10,12 @@ interface Data {
   emailError: string;
   passwordError: string;
   confirmPasswordError?: string;
-  showConfirmPassword?: boolean;
+  isSetup?: boolean;
   submitLabel: string;
   isSubmitting: boolean;
+  termsAccepted?: boolean;
+  termsError?: string;
+  onTermsChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPasswordChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -19,6 +23,8 @@ interface Data {
 }
 
 export default function AuthFormShell(props: Data) {
+  const blocked = !!props.isSetup && !props.termsAccepted;
+
   return (
     <div className="setup-form w-full px-20 sm:px-40 lg:px-0 lg:w-3/5 xl:w-3/6">
       <h1 className="title text-[33px] text-center lg:text-start">
@@ -44,14 +50,26 @@ export default function AuthFormShell(props: Data) {
           onChange={props.onPasswordChange}
           error={props.passwordError}
         />
-        {props.showConfirmPassword && (
-          <PasswordInput
-            onChange={props.onConfirmPasswordChange}
-            error={props.confirmPasswordError}
-            title="Confirm password"
-          />
+        {props.isSetup && (
+          <>
+            <PasswordInput
+              onChange={props.onConfirmPasswordChange}
+              error={props.confirmPasswordError}
+              title="Confirm password"
+            />
+            {props.onTermsChange && (
+              <TermsCheckbox
+                checked={!!props.termsAccepted}
+                onChange={props.onTermsChange}
+                error={props.termsError}
+              />
+            )}
+          </>
         )}
-        <FormButton value={props.submitLabel} disabled={props.isSubmitting} />
+        <FormButton
+          value={props.submitLabel}
+          disabled={props.isSubmitting || blocked}
+        />
       </form>
     </div>
   );

@@ -1,6 +1,7 @@
 import Logo from '../../components/shared/Logo';
 import LoginForm from '../../components/Auth/Login/LoginForm';
 import Branding from '../../components/shared/Branding';
+import { Link } from 'react-router-dom';
 
 export default function LoginPage() {
   return (
@@ -19,7 +20,29 @@ export default function LoginPage() {
               three: 'all system live',
             }}
           />
-          <div className="footer-text">vigil observability · secure access</div>
+          <div className="flex items-center justify-between wrap-anywhere">
+            <div className="footer-text">
+              vigil observability · secure access
+            </div>
+            <div className="footer-text">
+              <Link
+                to="/legal#terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline hover:text-vigil-blue"
+              >
+                Terms of Service
+              </Link>
+              <Link
+                to="/legal#privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline hover:text-vigil-blue ms-10"
+              >
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
         </div>
         <div className="form-panel">
           <LoginForm />

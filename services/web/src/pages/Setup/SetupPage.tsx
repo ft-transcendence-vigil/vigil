@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import SetupForm from '../../components/Auth/Setup/SetupForm';
 import Branding from '../../components/shared/Branding';
 import Logo from '../../components/shared/Logo';
@@ -21,7 +22,29 @@ export default function SetupPage() {
               three: 'all system live',
             }}
           />
-          <div className="footer-text">vigil observability · secure access</div>
+          <div className="flex items-center justify-between">
+            <div className="footer-text">
+              vigil observability · secure access
+            </div>
+            <div className="footer-text">
+              <Link
+                to="/legal#terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline hover:text-vigil-blue"
+              >
+                Terms of Service
+              </Link>
+              <Link
+                to="/legal#privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline hover:text-vigil-blue ms-10"
+              >
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
         </div>
         <div className="form-panel">
           <SetupForm />

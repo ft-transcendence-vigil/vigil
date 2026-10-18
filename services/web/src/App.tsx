@@ -23,6 +23,7 @@ import ApiKeysSettings from './pages/Settings/ApiKeysSettings';
 import WebhooksSettings from './pages/Settings/WebhooksSettings';
 import AppToaster from './components/shared/AppToaster';
 import PermissionRoute from './auth/PermissionRoute';
+import Legal from './components/Auth/Legal';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
       <AppToaster />
       <Routes>
         <Route element={<PublicOnlyRoute />}>
+          <Route path="/legal" element={<Legal />} />
           <Route element={<AuthEntryGuard />}>
             <Route path="/auth/login" element={<LoginPage />} />
             <Route path="/auth/setup" element={<SetupPage />} />
