@@ -15,15 +15,15 @@ import ServicesPage from './pages/Services/ServicesPage';
 import AlertsRulesPage from './pages/AlertRules/AlertsRulesPage';
 import StatusPage from './pages/Status/StatusPage';
 import AiInsightsPage from './pages/AIInsights/AIInsightsPage';
-import SettingsLayout from './components/Settings/SettingsLayout';
-import AccountSettings from './pages/Settings/AccountSettings';
-import SessionsSettings from './pages/Settings/SessionsSettings';
-import UsersSettings from './pages/Settings/UsersSettings';
-import ApiKeysSettings from './pages/Settings/ApiKeysSettings';
-import WebhooksSettings from './pages/Settings/WebhooksSettings';
 import AppToaster from './components/shared/AppToaster';
 import PermissionRoute from './auth/PermissionRoute';
 import Legal from './components/Auth/Legal';
+import SettingsLayout from './components/Settings/SettingsLayout';
+import AccountSettingsPage from './pages/Settings/AccountSettingsPage';
+import SessionsSettingsPage from './pages/Settings/SessionsSettingsPage';
+import UsersSettingsPage from './pages/Settings/UsersSettingsPage';
+import ApiKeysSettingsPage from './pages/Settings/ApiKeysSettingsPage';
+import WebhooksSettingsPage from './pages/Settings/WebhooksSettingsPage';
 
 function App() {
   return (
@@ -65,13 +65,13 @@ function App() {
             />
             <Route path="/settings" element={<SettingsLayout />}>
               <Route index element={<Navigate to="account" replace />} />
-              <Route path="account" element={<AccountSettings />} />
-              <Route path="sessions" element={<SessionsSettings />} />
+              <Route path="account" element={<AccountSettingsPage />} />
+              <Route path="sessions" element={<SessionsSettingsPage />} />
               <Route
                 path="users"
                 element={
                   <PermissionRoute>
-                    <UsersSettings />
+                    <UsersSettingsPage />
                   </PermissionRoute>
                 }
               />
@@ -79,7 +79,7 @@ function App() {
                 path="api-keys"
                 element={
                   <PermissionRoute>
-                    <ApiKeysSettings />
+                    <ApiKeysSettingsPage />
                   </PermissionRoute>
                 }
               />
@@ -87,7 +87,7 @@ function App() {
                 path="webhooks"
                 element={
                   <PermissionRoute>
-                    <WebhooksSettings />
+                    <WebhooksSettingsPage />
                   </PermissionRoute>
                 }
               />

@@ -2,7 +2,7 @@ import ApiKeyCard from '../../components/Settings/ApiKeyCard';
 import CardLayout from '../../components/Settings/CardLayout';
 import useApiKeySettings from '../../hooks/useApiKeySettings';
 
-export default function ApiKeysSettings() {
+export default function ApiKeysSettingsPage() {
   const { apiKeys, error } = useApiKeySettings();
   const generalApiKey = error
     ? 'Failed to load API key'
