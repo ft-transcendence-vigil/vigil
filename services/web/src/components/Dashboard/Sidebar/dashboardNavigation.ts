@@ -16,10 +16,6 @@ export const dashboardNavigation = [
     ],
   },
   {
-    title: 'intelligence',
-    links: [{ label: 'AI insights', path: '/ai-insights' }],
-  },
-  {
     title: 'configure',
     links: [
       { label: 'services', path: '/services', adminOnly: true },

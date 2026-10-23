@@ -2,9 +2,9 @@ import axios from 'axios';
 import api from './api';
 import type {
   AuthResponse,
-  CurrentUser,
   RefreshResponse,
 } from '../auth/authTypes';
+import type { User } from './usersApi';
 
 async function login(email: string, password: string): Promise<AuthResponse> {
   try {
@@ -79,9 +79,9 @@ async function logout(): Promise<void> {
   }
 }
 
-async function getCurrentUser(accessToken: string): Promise<CurrentUser> {
+async function getCurrentUser(accessToken: string): Promise<User> {
   try {
-    const res = await api.get<CurrentUser>('/users/me', {
+    const res = await api.get<User>('/users/me', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

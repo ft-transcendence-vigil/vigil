@@ -1,13 +1,20 @@
 interface Data {
   title: string;
   options: string[];
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  value?: string;
+  disabled?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
-export default function Dropdown({ title, options, value, onChange }: Data) {
+export default function Dropdown({
+  title,
+  options,
+  value,
+  onChange,
+  disabled,
+}: Data) {
   return (
-    <div className="mb-6.25">
+    <div className="mb-3.5">
       <label htmlFor="role" className="block mb-2 text-vigil-muted capitalize">
         {title}
       </label>
@@ -16,7 +23,8 @@ export default function Dropdown({ title, options, value, onChange }: Data) {
         name="role"
         value={value}
         onChange={onChange}
-        className="capitalize outline-none px-4 py-3 w-full border border-vigil-border focus:border-vigil-blue"
+        disabled={disabled}
+        className="capitalize outline-none px-4 py-3 w-full border border-vigil-border focus:border-vigil-blue disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {options.map((option) => (
           <option

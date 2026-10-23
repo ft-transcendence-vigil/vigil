@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import type { CurrentUser } from './authTypes';
 import { AuthContext } from './authContext';
 import {
   getCurrentUser,
@@ -13,6 +12,7 @@ import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { hasRefreshHint } from './refreshHint';
+import type { User } from '../api/usersApi';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -20,7 +20,7 @@ interface AuthProviderProps {
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [user, setUser] = useState<CurrentUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(() => hasRefreshHint());
   const navigate = useNavigate();
 

@@ -1,4 +1,5 @@
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { User } from '../api/usersApi';
 
 export type Role = 'admin' | 'viewer';
 
@@ -12,7 +13,7 @@ export interface ApiError {
 }
 
 export interface AuthState {
-  user: CurrentUser | null;
+  user: User | null;
   accessToken: string | null;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
@@ -22,14 +23,14 @@ export interface AuthState {
     options: AxiosRequestConfig,
   ) => Promise<AxiosResponse<T>>;
   isAuthChecking: boolean;
-  setUser: React.Dispatch<React.SetStateAction<CurrentUser | null>>;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 export interface RefreshResponse {
   access_token: string;
 }
 
-export interface CurrentUser {
+export interface AlertRulesCurrentUser {
   id: string;
   email: string;
   role: Role;

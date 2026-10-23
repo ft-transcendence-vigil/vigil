@@ -142,6 +142,7 @@ body {
     /* font-family: "Inter", sans-serif; */
     font-family: "Ubuntu", sans-serif;
     color: white;
+    letter-spacing: 0.015em;
 }
 
 h1,
@@ -433,7 +434,6 @@ button:hover .num {
 }
 
 /* ConfirmDialog */
-
 .vigil-overlay {
     position: fixed;
     inset: 0;

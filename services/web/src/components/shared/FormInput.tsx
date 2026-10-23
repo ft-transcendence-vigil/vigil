@@ -8,6 +8,7 @@ interface Data {
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   error: string;
   className?: string;
+  mb?: string;
 }
 
 export default function FormInput({
@@ -18,10 +19,11 @@ export default function FormInput({
   value,
   error,
   className,
+  mb = 'mb-6.25',
 }: Data) {
   const id = useId();
   return (
-    <div className="input mb-6.25">
+    <div className={`input ${mb}`}>
       <label htmlFor={id} className="text-vigil-muted block mb-2">
         {title}
       </label>

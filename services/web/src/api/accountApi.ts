@@ -1,13 +1,13 @@
 import axios from 'axios';
-import type { CurrentUser } from '../auth/authTypes';
 import type { ApiFetch } from './api';
+import type { User } from './usersApi';
 
 async function updateEmail(
   apiFetch: ApiFetch,
   email: string,
-): Promise<CurrentUser> {
+): Promise<User> {
   try {
-    const res = await apiFetch<CurrentUser>('/users/me', {
+    const res = await apiFetch<User>('/users/me', {
       method: 'PATCH',
       data: {
         email,

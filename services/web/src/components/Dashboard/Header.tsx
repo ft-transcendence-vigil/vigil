@@ -1,15 +1,13 @@
 import { faBars } from '@fortawesome/free-solid-svg-icons';
-import AskAIButton from '../shared/AskAIButton';
 import LogoutButton from '../shared/LogoutButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface Data {
   title: string | undefined;
   onMenuClick: () => void;
-  onAskAiClick: () => void;
 }
 
-export default function Header({ title, onMenuClick, onAskAiClick }: Data) {
+export default function Header({ title, onMenuClick }: Data) {
   return (
     <div className="header shrink-0 z-40 sticky top-0 bg-inherit text-center border-b border-b-vigil-border flex justify-between items-center py-4 md:py-5 lg:py-4.5 px-4 md:px-8">
       <div className="right-section flex items-center">
@@ -28,7 +26,6 @@ export default function Header({ title, onMenuClick, onAskAiClick }: Data) {
         </div>
       </div>
       <div className="left-section space-x-3">
-        <AskAIButton onClick={onAskAiClick} />
         <LogoutButton />
       </div>
     </div>

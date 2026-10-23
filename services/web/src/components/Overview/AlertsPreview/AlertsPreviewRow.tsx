@@ -63,9 +63,6 @@ export default function AlertsPreviewRow({
           <p className="text-[11px] tracking-wide text-vigil-muted mb-2">
             {llmAnalysis}
           </p>
-          <button className="border border-vigil-border uppercase text-[10px] tracking-wider py-1.5 w-18 cursor-pointer text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80] transition-[color, border-color] duration-300">
-            ✦ ask ai
-          </button>
         </div>
       )}
     </div>
