@@ -150,7 +150,6 @@ export default function AlertsRulesPage() {
                     >
                       <span className="me-2">‹</span> Prev
                     </button>
-                    <button></button>
                     <button
                       onClick={() =>
                         hasMore && setOffset((prev) => prev + PAGE_SIZE)
