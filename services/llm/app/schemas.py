@@ -22,7 +22,7 @@ class MetricsRow(TelemetryRow):
     service: str
     timestamp: datetime
     name: str
-    value: float
+    value: float | None = None
     attributes: dict[str, str] = Field(default_factory=dict)
 
 class TracesRow(TelemetryRow):
