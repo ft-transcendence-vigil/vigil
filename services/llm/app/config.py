@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     max_context_logs: int = 20
     max_context_metrics: int = 10
     max_context_traces: int = 10
+    llm_ask_limit: int = 5
+    llm_ask_window_seconds: int = 60
+    llm_max_concurrency: int = 1
+    llm_queue_sec: float = 0.5
 
 settings = Settings()
 
