@@ -33,7 +33,7 @@ export default function LoginForm() {
     }
     runSubmit(async () => {
       await auth.signUp(email, password);
-      navigate('/dashboard');
+      navigate('/service-onboarding');
     });
   };
 

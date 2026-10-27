@@ -176,7 +176,7 @@ export default function LegalPage() {
 
           <H2>8. Your rights</H2>
           <P>
-            Depending on where you live (including under the GDPR and Morocco’s
+            Depending on where you live (including under the GDPR and Moroccos
             Law 09-08), you may have the right to access, correct, delete,
             restrict or export your personal data, and to object to its
             processing. To exercise these rights, contact <Mail />.

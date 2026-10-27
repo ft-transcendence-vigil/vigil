@@ -10,6 +10,7 @@ interface Data {
   emailError: string;
   passwordError: string;
   confirmPasswordError?: string;
+  showConfirmPassword?: boolean;
   isSetup?: boolean;
   submitLabel: string;
   isSubmitting: boolean;
