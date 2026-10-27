@@ -16,7 +16,7 @@ class LogRow(TelemetryRow):
     message: str
     #field a way to attach more rules to the field for example message: str = field(min_length = 1) the string show have a minimum of 1 length
     #we use default_factory = disct so that for each instance we get an u seperate dict
-    attribute: dict[str, str] = Field(default_factory=dict)
+    attributes: dict[str, str] = Field(default_factory=dict)
 
 class MetricsRow(TelemetryRow):
     service: str
