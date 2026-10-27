@@ -11,10 +11,8 @@ import AlertsPage from './pages/Alerts/AlertsPage';
 import LogsPage from './pages/Logs/LogsPage';
 import MetricsPage from './pages/Metrics/MetricsPage';
 import TracesPage from './pages/Traces/TracesPage';
-import ServicesPage from './pages/Services/ServicesPage';
 import AlertsRulesPage from './pages/AlertRules/AlertsRulesPage';
 import StatusPage from './pages/Status/StatusPage';
-import AiInsightsPage from './pages/AIInsights/AIInsightsPage';
 import AppToaster from './components/shared/AppToaster';
 import PermissionRoute from './auth/PermissionRoute';
 import Legal from './components/Auth/Legal';
@@ -24,6 +22,9 @@ import SessionsSettingsPage from './pages/Settings/SessionsSettingsPage';
 import UsersSettingsPage from './pages/Settings/UsersSettingsPage';
 import ApiKeysSettingsPage from './pages/Settings/ApiKeysSettingsPage';
 import WebhooksSettingsPage from './pages/Settings/WebhooksSettingsPage';
+import OnboardingLayout from './components/Services/OnboardingLayout';
+import ServicesOnboardingPage from './pages/Services/ServicesOnboardingPage';
+import AddServicePage from './pages/Services/AddServicePage';
 
 function App() {
   return (
@@ -39,19 +40,28 @@ function App() {
         </Route>
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Navigate to="/overview" replace />} />
+          <Route element={<OnboardingLayout />}>
+            <Route
+              path="/service-onboarding"
+              element={
+                <PermissionRoute>
+                  <ServicesOnboardingPage />
+                </PermissionRoute>
+              }
+            />
+          </Route>
           <Route element={<DashboardLayout />}>
             <Route path="/overview" element={<OverviewPage />} />
             <Route path="/alerts" element={<AlertsPage />} />
             <Route path="/status" element={<StatusPage />} />
             <Route path="/logs" element={<LogsPage />} />
             <Route path="/metrics" element={<MetricsPage />} />
-            <Route path="/ai-insights" element={<AiInsightsPage />} />
             <Route path="/traces" element={<TracesPage />} />
             <Route
-              path="/services"
+              path="/add-service"
               element={
                 <PermissionRoute>
-                  <ServicesPage />
+                  <AddServicePage />
                 </PermissionRoute>
               }
             />
