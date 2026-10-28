@@ -41,13 +41,28 @@ class AlertsContext(TelemetryRow):
     metrics: list[MetricsRow] = Field(default_factory=list)
     traces: list[TracesRow] = Field(default_factory=list)
 
+
+
+class AlertRule(TelemetryRow):
+    signal_type: str | None = None
+    metric_name: str | None = None
+    aggregation: str | None = None
+    threshold: float | None = None
+    window_seconds: int | None = None
+    severity: str | None = None
+
 #for POST /internal/llm/forward
 class ForwardRequest(TelemetryRow):
     alert_id: UUID
-    service: str 
+    service: str
     triggered_at: datetime
+    rule: AlertRule | None =None
     context: AlertsContext = Field(default_factory=AlertsContext)
 
+class AskRequest(ForwardRequest):
+    model_config = ConfigDict(extra = "forbid", str_strip_whitespace = True)
+    question: str = Field(min_length = 1, max_length = 500)
+    previous_analysis: str | None = Field(default = None, max_length = 5000) 
 
 #for  POST /internal/llm/chat
 
