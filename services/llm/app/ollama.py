@@ -1,8 +1,8 @@
 import json
 import httpx
+import time
 from app.config import settings
 from collections.abc import AsyncIterator
-
 
 class OllamaException(Exception):
     pass
@@ -36,6 +36,7 @@ async def stream_chat(messages: list[dict[str]]) -> AsyncIterator[str]:
         pool= 5.0,
 
     )
+    deadline = time.monotonic() + settings.llm_timeout_seconds
 #     you call client.stream(...)
 #   ↓  request sent
 #   ↓  server thinks
@@ -65,6 +66,8 @@ async def stream_chat(messages: list[dict[str]]) -> AsyncIterator[str]:
                     )
                 #aiter_lines is an async iterator that yields each line of the response body as it arrives, without waiting for the entire body to be received.
                 async for line in response.aiter_lines():
+                    if time.monotonic() > deadline:
+                        raise OllamaException(f"generation took longer than {settings.llm_timeout_seconds}s")
                     if not line.strip():
                         continue
                     try:
