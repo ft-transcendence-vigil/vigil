@@ -2,7 +2,6 @@ from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID
 
-from typing import Literal
 #basemodel is a class we inhernt from for validation we dont use constructor and we specify the fields that we are filling in the class
 
 class TelemetryRow(BaseModel):
@@ -16,13 +15,13 @@ class LogRow(TelemetryRow):
     message: str
     #field a way to attach more rules to the field for example message: str = field(min_length = 1) the string show have a minimum of 1 length
     #we use default_factory = disct so that for each instance we get an u seperate dict
-    attribute: dict[str, str] = Field(default_factory=dict)
+    attributes: dict[str, str] = Field(default_factory=dict)
 
 class MetricsRow(TelemetryRow):
     service: str
     timestamp: datetime
     name: str
-    value: float
+    value: float | None = None
     attributes: dict[str, str] = Field(default_factory=dict)
 
 class TracesRow(TelemetryRow):
@@ -41,21 +40,25 @@ class AlertsContext(TelemetryRow):
     metrics: list[MetricsRow] = Field(default_factory=list)
     traces: list[TracesRow] = Field(default_factory=list)
 
+
+
+class AlertRule(TelemetryRow):
+    signal_type: str | None = None
+    metric_name: str | None = None
+    aggregation: str | None = None
+    threshold: float | None = None
+    window_seconds: int | None = None
+    severity: str | None = None
+
 #for POST /internal/llm/forward
 class ForwardRequest(TelemetryRow):
     alert_id: UUID
-    service: str 
+    service: str
     triggered_at: datetime
+    rule: AlertRule | None =None
     context: AlertsContext = Field(default_factory=AlertsContext)
 
-
-#for  POST /internal/llm/chat
-
-class ChatMessage(BaseModel):
-    model_config= ConfigDict(extra = "forbid")
-    role: Literal["user", "assistant"]
-    content: str = Field(min_length = 1)
-
-class ChatRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    messages: list[ChatMessage] = Field(min_length = 1)
+class AskRequest(ForwardRequest):
+    model_config = ConfigDict(extra = "forbid", str_strip_whitespace = True)
+    question: str = Field(min_length = 1, max_length = 500)
+    previous_analysis: str | None = Field(default = None, max_length = 5000)
