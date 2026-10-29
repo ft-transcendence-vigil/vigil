@@ -88,5 +88,5 @@ def final_str(context: AlertsContext, alert_time: datetime) -> str:
         f"Alert happened at {alert_time:%H:%M:%S}", 
         "LOGS\n" + "\n".join(f"{r.timestamp:%H:%M:%S} severity: {r.severity} message: {cut_message(r.message)}" for r in logs),
         "TRACES\n" + "\n" .join(f"name: {r.name}  duration: {r.duration_ms:.0f}ms status: {r.status} " for r in traces),
-        "METRICS\n" + "\n" .join(f"name: {r.name} value: {r.value:g} " for r in metrics)
+        "METRICS\n" + "\n" .join(f"name: {r.name} value: {'n/a' if r.value is None else f'{r.value:g}'} " for r in metrics)
     ])
