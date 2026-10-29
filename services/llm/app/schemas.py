@@ -2,7 +2,6 @@ from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID
 
-from typing import Literal
 #basemodel is a class we inhernt from for validation we dont use constructor and we specify the fields that we are filling in the class
 
 class TelemetryRow(BaseModel):
@@ -62,15 +61,4 @@ class ForwardRequest(TelemetryRow):
 class AskRequest(ForwardRequest):
     model_config = ConfigDict(extra = "forbid", str_strip_whitespace = True)
     question: str = Field(min_length = 1, max_length = 500)
-    previous_analysis: str | None = Field(default = None, max_length = 5000) 
-
-#for  POST /internal/llm/chat
-
-class ChatMessage(BaseModel):
-    model_config= ConfigDict(extra = "forbid")
-    role: Literal["user", "assistant"]
-    content: str = Field(min_length = 1)
-
-class ChatRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    messages: list[ChatMessage] = Field(min_length = 1)
+    previous_analysis: str | None = Field(default = None, max_length = 5000)
