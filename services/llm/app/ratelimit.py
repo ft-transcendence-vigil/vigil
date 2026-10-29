@@ -31,7 +31,7 @@ class FixedWindowLimiter:
         # wait until the window ends how much time left till he can ask again at atleast 1 sec
         return max(1, math.ceil(self.window_seconds - (now - window.started_at)))
     
-    
+#asyncio.Semaphore(N) is a counter with a waiting line that lets at most N asyncio tasks
 class Slot:
     def __init__(self, semaphore: asyncio.Semaphore):
         self._semaphore = semaphore

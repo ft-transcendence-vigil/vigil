@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     max_context_traces: int = 10
     llm_ask_limit: int = 5
     llm_ask_window_seconds: int = 60
-    llm_max_concurrency: int = 1
-    llm_queue_sec: float = 0.5
+    llm_max_concurrent: int = 1
+    llm_queue_wait_seconds: float = 0.5
 
 settings = Settings()
 
