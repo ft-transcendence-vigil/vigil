@@ -1,5 +1,5 @@
 from app.context import final_str
-from app.schemas import ChatMessage, AlertRule, ForwardRequest
+from app.schemas import ChatMessage, AlertRule, ForwardRequest, AskRequest
 
 
 
@@ -29,7 +29,15 @@ Never invent log lines, metric values, span names or timestamps.
 
 Be direct and short. Engineers are reading this while something is broken."""
 
+ASK_MESSAGE = """You are an on-call assistant for an observability platform.
+An engineer is asking a question about one specific alert. You are given the alert,
+the telemetry collected around the moment it fired, and maybe an earlier automatic analysis.
 
+Rules:
+- Answer the question in at most 5 sentences. Plain prose, no markdown.
+- Use only the data given. Never invent log lines, metric values, span names or timestamps.
+- If the data cannot answer the question, say so plainly and name what is missing.
+- If the question is not about this alert or its telemetry, say you can only answer questions about this alert."""
 def _rule_line(rule: AlertRule | None) -> str:
     if rule is None:
         return "rule: unknown"
@@ -57,4 +65,13 @@ def chat_prompt(messages: list[ChatMessage]) ->list[dict[str, str]]:
         #model_dump converts pydantic model to dict
         {"role": "system", "content":  f"{CHAT_SYSTEM}", },
         *(m.model_dump() for m in messages)
+    ]
+def ask_prompt(req: AskRequest) -> list[dict[str, str]]:
+    analysis = f"Earlier analysis: {req.previous_analysis}\n\n" if req.previous_analysis else ""
+    return [
+        {"role": "system", "content": ASK_MESSAGE},
+        {
+            "role": "user",
+            "content": f"service: {req.service}\n{_rule_line(req.rule)}\n\n{final_str(req.context, req.triggered_at)}\n\n{analysis}Question: {req.question}",
+        },
     ]
