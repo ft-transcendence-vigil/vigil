@@ -15,8 +15,10 @@ import java.util.function.Consumer;
 public class LogRepository {
 
     private static final String SELECT = """
-            SELECT service, timestamp, trace_id, severity, message, attributes
-            FROM default.logs
+            SELECT service, timestamp,
+                   if(attributes['trace_id'] != '', attributes['trace_id'], attributes['otelTraceID']) AS trace_id,
+                   severity, message, attributes
+            FROM logs
             """;
 
     private final JdbcTemplate jdbcTemplate;
