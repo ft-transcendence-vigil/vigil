@@ -1,5 +1,5 @@
 from app.context import final_str
-from app.schemas import ChatMessage, AlertRule, ForwardRequest, AskRequest
+from app.schemas import AlertRule, ForwardRequest, AskRequest
 
 
 
@@ -17,17 +17,6 @@ Rules:
 - If the telemetry does not show a cause, say so plainly and name what is missing.
 - Plain prose. No markdown, no headings, no bullet points, no preamble.
 - If no telemetry was recorded, reply exactly: Analysis unavailable. No telemetry was recorded in this window."""
-
-CHAT_SYSTEM = """You are an assistant inside an observability platform.
-
-You can only see this conversation. You have no access to logs, metrics or
-traces, and you cannot run queries.
-
-If the user asks about telemetry they have not pasted into the conversation,
-say you cannot see it and tell them what to paste or which page to open.
-Never invent log lines, metric values, span names or timestamps.
-
-Be direct and short. Engineers are reading this while something is broken."""
 
 ASK_MESSAGE = """You are an on-call assistant for an observability platform.
 An engineer is asking a question about one specific alert. You are given the alert,
@@ -59,12 +48,6 @@ def alert_prompt(req: ForwardRequest) -> list[dict[str, str]]:
             "role": "user",
             "content": f"service: {req.service}\n{_rule_line(req.rule)}\n\n{final_str(req.context, req.triggered_at)}",
         },
-    ]
-def chat_prompt(messages: list[ChatMessage]) ->list[dict[str, str]]:
-    return [
-        #model_dump converts pydantic model to dict
-        {"role": "system", "content":  f"{CHAT_SYSTEM}", },
-        *(m.model_dump() for m in messages)
     ]
 def ask_prompt(req: AskRequest) -> list[dict[str, str]]:
     analysis = f"Earlier analysis: {req.previous_analysis}\n\n" if req.previous_analysis else ""
