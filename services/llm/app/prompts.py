@@ -1,7 +1,5 @@
-from datetime import datetime
-from app.schemas import AlertsContext
 from app.context import final_str
-from app.schemas import ChatMessage
+from app.schemas import ChatMessage, AlertRule, ForwardRequest
 
 
 
@@ -31,12 +29,28 @@ Never invent log lines, metric values, span names or timestamps.
 
 Be direct and short. Engineers are reading this while something is broken."""
 
-def alert_prompt(context: AlertsContext, Alert_time: datetime, service:str) ->list[dict[str, str]]:
+
+def _rule_line(rule: AlertRule | None) -> str:
+    if rule is None:
+        return "rule: unknown"
+    if rule.threshold is None:
+        return "rule: the service went silent (no telemetry before the timeout)"
+    what = rule.aggregation or "value"
+    if rule.metric_name:
+        what = f"{what}({rule.metric_name})"
+    window = f" over {rule.window_seconds}s" if rule.window_seconds else ""
+    severity = f" ({rule.severity})" if rule.severity else ""
+    return (f"rule: {what} on {rule.signal_type or 'telemetry'}{window} "
+            f"reached {rule.threshold:g} or more{severity}")
+
+
+def alert_prompt(req: ForwardRequest) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content":  f"{ALERT_MESSAGE}"},
+        {"role": "system", "content": ALERT_MESSAGE},
         {
-            "role": "user", "content": f"service:{service}\n\n{final_str(context, Alert_time)} "
-        }
+            "role": "user",
+            "content": f"service: {req.service}\n{_rule_line(req.rule)}\n\n{final_str(req.context, req.triggered_at)}",
+        },
     ]
 def chat_prompt(messages: list[ChatMessage]) ->list[dict[str, str]]:
     return [

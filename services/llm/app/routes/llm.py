@@ -30,7 +30,7 @@ async def _fromatter(messages: list[dict[str, str]])-> AsyncIterator:
 
 @router.post("/internal/llm/forward")
 async def forward(req: ForwardRequest) -> StreamingResponse:
-    messages = alert_prompt(req.context, req.triggered_at, req.service)
+    messages = alert_prompt(req)
     return StreamingResponse(_fromatter(messages), media_type="text/event-stream")
 
 
