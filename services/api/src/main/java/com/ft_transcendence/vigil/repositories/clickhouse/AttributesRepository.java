@@ -19,19 +19,19 @@ public class AttributesRepository {
             FROM
             (
                 SELECT arrayJoin(mapKeys(attributes)) AS key, attributes[key] AS value
-                FROM default.logs
+                FROM logs
                 WHERE timestamp >= now() - INTERVAL 7 DAY
 
                 UNION ALL
 
                 SELECT arrayJoin(mapKeys(attributes)) AS key, attributes[key] AS value
-                FROM default.metrics
+                FROM metrics
                 WHERE timestamp >= now() - INTERVAL 7 DAY
 
                 UNION ALL
 
                 SELECT arrayJoin(mapKeys(attributes)) AS key, attributes[key] AS value
-                FROM default.traces
+                FROM traces
                 WHERE timestamp >= now() - INTERVAL 7 DAY
             )
             GROUP BY key

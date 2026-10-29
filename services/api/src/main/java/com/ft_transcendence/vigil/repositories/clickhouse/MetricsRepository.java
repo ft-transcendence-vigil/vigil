@@ -16,7 +16,7 @@ public class MetricsRepository {
 
     private static final String SELECT = """
             SELECT service, timestamp, name, value, attributes
-            FROM default.metrics
+            FROM metrics
             """;
 
     private final JdbcTemplate jdbcTemplate;
