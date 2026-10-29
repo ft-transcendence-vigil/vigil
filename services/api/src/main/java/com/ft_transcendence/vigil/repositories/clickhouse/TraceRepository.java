@@ -17,7 +17,7 @@ public class TraceRepository {
     private static final String SELECT = """
             SELECT trace_id, span_id, parent_span_id, name, service,
                    timestamp, duration_ms, status, attributes
-            FROM default.traces
+            FROM traces
             """;
 
     private final JdbcTemplate jdbcTemplate;
