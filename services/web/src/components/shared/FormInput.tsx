@@ -1,7 +1,7 @@
 import { useId } from 'react';
 
 interface Data {
-  title: string;
+  title?: string;
   type: string;
   placeholder?: string;
   value?: string;
@@ -24,9 +24,11 @@ export default function FormInput({
   const id = useId();
   return (
     <div className={`input ${mb}`}>
-      <label htmlFor={id} className="text-vigil-muted block mb-2">
-        {title}
-      </label>
+      {title && (
+        <label htmlFor={id} className="text-vigil-muted block mb-2">
+          {title}
+        </label>
+      )}
       <input
         type={type}
         name={type}
