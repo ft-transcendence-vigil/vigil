@@ -42,6 +42,7 @@ export default function LogsFilters(filter: Data) {
         options={[
           { label: 'All severities', value: '' },
           { label: 'Critical', value: 'critical' },
+          { label: 'Error', value: 'error' },
           { label: 'Warning', value: 'warning' },
           { label: 'Info', value: 'info' },
         ]}
