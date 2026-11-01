@@ -511,3 +511,17 @@ button:hover .num {
     color: #cacfd7;
     border-color: #727d8c;
 }
+
+@keyframes log-flash {
+    0% {
+        background-color: rgba(47, 150, 255, 0.3);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+.animate-log-flash {
+    animation: log-flash 1.2s ease-out;
+}

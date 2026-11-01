@@ -22,7 +22,10 @@ export default function DashboardLayout() {
           title={title}
           onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
         />
-        <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-5 xl:overflow-hidden overflow-x-hidden">
+        <div
+          id="dashboard-scroll-container"
+          className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-5 overflow-x-hidden"
+        >
           <Outlet />
         </div>
       </main>
