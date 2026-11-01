@@ -19,16 +19,24 @@ interface Data {
   severity: LogsSeverity;
   message: string;
   attributes: Attributes;
+  isLive?: boolean;
 }
 
-export default function LogsRow({ time, service, severity, message, attributes }: Data) {
+export default function LogsRow({
+  time,
+  service,
+  severity,
+  message,
+  attributes,
+  isLive,
+}: Data) {
   const [isOpen, setIsOpen] = useState(false);
   const levelColor = severityColors[severity];
 
   return (
     <>
       <tr
-        className={`border-b border-vigil-border hover:bg-[#0C1424] transition-colors duration-200 cursor-pointer relative after:absolute after:right-5 after:top-1/2 after:-translate-y-1/2 ${isOpen ? "after:content-['▴']" : "after:content-['▾']"} text-[12px] text-vigil-muted`}
+        className={`border-b border-vigil-border hover:bg-[#0C1424] transition-colors duration-200 cursor-pointer relative after:absolute after:right-5 after:top-1/2 after:-translate-y-1/2 ${isOpen ? "after:content-['▴']" : "after:content-['▾']"} text-[12px] text-vigil-muted ${isLive ? 'animate-log-flash' : ''}`}
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <td
@@ -41,7 +49,6 @@ export default function LogsRow({ time, service, severity, message, attributes }
         </td>
         <td className="text-[13px] py-1 md:py-3 px-2 md:px-3">
           <span className={`px-2 py-1 mono ${levelColor}`}>{severity}</span>
-          {/* <span className={`w-21 h-6.5 flex items-center justify-center mono ${levelColor}`}>{severity}</span> */}
         </td>
         <td className="text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3">
           {message}
