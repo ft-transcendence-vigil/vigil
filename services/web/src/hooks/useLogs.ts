@@ -40,6 +40,10 @@ export default function useLogs(params: LogsParams) {
   return {
     logs: logsQuery.data?.pages.flatMap((page) => page.data) ?? [],
     hasMore: logsQuery.hasNextPage,
+    isLoading: logsQuery.isLoading,
+    isError: logsQuery.isError,
+    error: logsQuery.error,
+    refetch: logsQuery.refetch,
     fetchNextPage: logsQuery.fetchNextPage,
     isFetchingNextPage: logsQuery.isFetchingNextPage,
     handleExportCsv,

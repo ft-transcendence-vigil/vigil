@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { ApiFetch } from './api';
 import type { Attributes } from '../components/Logs/LogsRow';
 
-interface Log {
+export interface Log {
   service: string;
   timestamp: string;
   trace_id: string;
