@@ -1,19 +1,12 @@
 package com.ft_transcendence.vigil.websocket;
 
 import com.ft_transcendence.vigil.configuration.VigilProperties;
-import com.ft_transcendence.vigil.websocket.AlertSocketHandler;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.server.ServerHttpRequest;
-import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-import org.springframework.web.socket.server.HandshakeInterceptor;
 
-import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
