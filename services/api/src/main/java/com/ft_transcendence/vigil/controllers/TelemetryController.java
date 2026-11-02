@@ -4,6 +4,7 @@ import com.ft_transcendence.vigil.domain.dtos.telemetry.Log;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Metric;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Trace;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.AttributeResponse;
+import com.ft_transcendence.vigil.domain.dtos.telemetry.MetricSeriesResponse;
 import com.ft_transcendence.vigil.serversentevents.LogSseRegistry;
 import com.ft_transcendence.vigil.serversentevents.MetricSseRegistry;
 import com.ft_transcendence.vigil.serversentevents.TraceSseRegistry;
@@ -88,6 +89,18 @@ public class TelemetryController {
         return ResponseEntity.status(HttpStatus.OK).body(
                 telemetryService.getTraces(service, period, sort, count, before, offset));
     }
+
+	@GetMapping("/metrics/series")
+	ResponseEntity<MetricSeriesResponse> getMetricSeries(
+			@RequestParam String period,
+			@RequestParam(required = false) String service,
+			@RequestParam(name = "vigil.internal", required = false)
+			Boolean internalOnly) {
+
+		return ResponseEntity.ok(
+				telemetryService.getMetricSeries(period, service, internalOnly)
+		);
+	}
 
     @GetMapping("/attributes")
     ResponseEntity<List<AttributeResponse>> getAttributes() {
