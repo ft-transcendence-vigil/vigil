@@ -1,0 +1,17 @@
+# ft_transcendence mandatory/local secrets
+.env
+
+# TLS private material (use your deployment's certificate mechanism)
+waf/certs/*
+!waf/certs/.gitkeep
+*.key
+*.pem
+
+# Never commit Vault bootstrap/auth/runtime material
+vault/runtime/
+vault/init/
+vault/credentials/
+
+# Logs
+waf/logs/*
+!waf/logs/.gitkeep
