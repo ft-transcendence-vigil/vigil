@@ -1,0 +1,107 @@
+
+# Overlay for test/docker-compose.yml. Copy this folder into test/security/.
+# Run: docker compose -f docker-compose.yml -f security/docker-compose.security.yml up -d
+
+services:
+  waf:
+    build:
+      context: ./security/waf
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/ | grep -q '^404$'"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    environment:
+      PORT: "8080"
+      SERVER_NAME: localhost
+      BACKEND: http://api:8080
+      SERVER_TOKENS: "off"
+      SERVER_HEADER: ""
+      MODSEC_RULE_ENGINE: "On"
+      MODSEC_REQ_BODY_ACCESS: "On"
+      MODSEC_REQ_BODY_LIMIT: "13107200"
+      MODSEC_REQ_BODY_NOFILES_LIMIT: "13107200"
+      MODSEC_REQ_BODY_LIMIT_ACTION: "Reject"
+      MODSEC_RESP_BODY_ACCESS: "Off"
+      MODSEC_AUDIT_ENGINE: "RelevantOnly"
+      MODSEC_AUDIT_LOG_FORMAT: "JSON"
+      MODSEC_AUDIT_LOG_PARTS: "AFHZ"
+      BLOCKING_PARANOIA: "1"
+      ANOMALY_INBOUND: "5"
+      ANOMALY_OUTBOUND: "4"
+      NGINX_X_FORWARDED_PROTO: https
+      NGINX_X_FORWARDED_PORT: "443"
+    # Caddy remains the only public entrypoint.
+    networks: [default]
+
+  vault:
+    image: hashicorp/vault:1.17
+    restart: unless-stopped
+    cap_add: [IPC_LOCK]
+    entrypoint: ["vault"]
+    command: ["server", "-config=/vault/config/vault.hcl"]
+    volumes:
+      - vault_data:/vault/file
+      - ./security/vault/config:/vault/config:ro
+    networks: [vault_internal]
+
+  vault-init:
+    image: hashicorp/vault:1.17
+    restart: unless-stopped
+    user: "0:0"
+    entrypoint: ["/bin/sh", "/vault/scripts/init-vault.sh"]
+    environment:
+      VAULT_ADDR: http://vault:8200
+    volumes:
+      - ./security/vault/scripts:/vault/scripts:ro
+      - ./security/vault/policies:/vault/policies:ro
+      - vault_init:/vault/init
+      - vault_credentials:/vault/credentials
+    depends_on: [vault]
+    networks: [vault_internal]
+
+  vault-agent:
+    image: hashicorp/vault:1.17
+    restart: unless-stopped
+    user: "0:0"
+    entrypoint: ["/bin/sh", "/vault/scripts/start-agent.sh"]
+    volumes:
+      - ./security/vault/scripts:/vault/scripts:ro
+      - ./security/vault/agent:/vault/agent:ro
+      - vault_credentials:/vault/credentials:ro
+      - vault_backend_secrets:/run/secrets
+    depends_on: [vault-init]
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /run/secrets/JWT_SECRET"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+    networks: [vault_internal]
+
+  reverse-proxy:
+    depends_on:
+      waf:
+        condition: service_started
+
+  api:
+    environment:
+      SPRING_CONFIG_IMPORT: "configtree:/run/secrets/"
+    volumes:
+      - vault_backend_secrets:/run/secrets:ro
+    depends_on:
+      vault-agent:
+        condition: service_healthy
+    # API stays on the default network.
+
+networks:
+  vault_internal:
+    internal: true
+
+volumes:
+  vault_data:
+  vault_init:
+  vault_credentials:
+  vault_backend_secrets:
