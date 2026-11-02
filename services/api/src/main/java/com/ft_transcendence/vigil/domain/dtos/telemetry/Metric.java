@@ -14,6 +14,6 @@ public class Metric {
     private String service;
     private Instant timestamp;
     private String name;
-    private double value;
+    private Double value;
     private Map<String, String> attributes;
 }
