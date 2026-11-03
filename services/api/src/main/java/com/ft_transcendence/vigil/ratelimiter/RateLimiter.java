@@ -36,7 +36,7 @@ public class RateLimiter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String key =request.getRemoteAddr();
+        String key = request.getRemoteAddr() + "|" + request.getMethod() + "|" + request.getRequestURI();
 
         try {
             rateLimiterRegistry.addLimiter(key, 10, 60);
