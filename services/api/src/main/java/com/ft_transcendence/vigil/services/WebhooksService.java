@@ -18,6 +18,7 @@ import java.util.UUID;
 public class WebhooksService {
     private final WebhookRepository webhookRepository;
     private final WebhooksMapper webhooksMapper;
+    private final WebhookUrlValidator webhookUrlValidator;
 
     public List<WebhooksGetAndPostDto> listWebhooks() {
         return webhookRepository.findAll().stream().map(webhooksMapper::map).toList();
@@ -25,6 +26,7 @@ public class WebhooksService {
 
     @Transactional
     public WebhooksGetAndPostDto createWebhook(WebhooksGetAndPostDto webhooksPostDto) {
+        webhookUrlValidator.validate(webhooksPostDto.getUrl());
         if (webhookRepository.findByUrl(webhooksPostDto.getUrl()).isPresent())
             throw new DuplicatedResourcesException("webhook url already registered");
 
