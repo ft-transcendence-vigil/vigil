@@ -7,6 +7,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -56,15 +58,20 @@ public class LlmClient {
         {
             try (InputStream input = response.getBody())
             {
-                if (response.getStatusCode().value() != 200)
-                    throw new IOException("LLM returned HTTP " + response.getStatusCode().value());
-                MediaType contentType = response.getHeaders().getContentType();
-                if (contentType == null || !MediaType.TEXT_EVENT_STREAM.isCompatibleWith(contentType))
-                    throw new IOException("LLM did not return an SSE stream");
                 ScheduledFuture<?> cancellation = timeouts.schedule(() -> close(input),
                         Math.max(0, deadline - System.nanoTime()), TimeUnit.NANOSECONDS);
                 try
                 {
+                    int status = response.getStatusCode().value();
+                    if (status != 200)
+                    {
+                        String message = readErrorMessage(input);
+                        throw new RestClientResponseException(message, status, response.getStatusText(),
+                                response.getHeaders(), null, null);
+                    }
+                    MediaType contentType = response.getHeaders().getContentType();
+                    if (contentType == null || !MediaType.TEXT_EVENT_STREAM.isCompatibleWith(contentType))
+                        throw new IOException("LLM did not return an SSE stream");
                     return readEvents(input, onToken);
                 }
                 finally
@@ -73,6 +80,21 @@ public class LlmClient {
                 }
             }
         });
+    }
+
+    private String readErrorMessage(InputStream input)
+    {
+        try
+        {
+            JsonNode message = objectMapper.readTree(input).path("message");
+            if (!message.isString())
+                return "";
+            return message.asString();
+        }
+        catch (JacksonException ex)
+        {
+            return "";
+        }
     }
 
     private String readEvents(InputStream input, Consumer<String> onToken) throws IOException

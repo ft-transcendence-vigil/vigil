@@ -28,7 +28,7 @@ public class AlertsController {
     private final AlertsService alertsService;
     private final LlmService llmService;
 
-    @PostMapping(value = "/{id}/ask", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PostMapping(value = "/{id}/ask")
     @PreAuthorize("hasAnyRole('admin', 'viewer')")
     public SseEmitter llmAskController(@PathVariable UUID id, @Valid @RequestBody AlertAskRequestDto dto)
     {

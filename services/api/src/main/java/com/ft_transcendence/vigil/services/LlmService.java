@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -60,6 +61,7 @@ public class LlmService {
                 @Override
                 public void afterCommit()
                 {
+
                     submit.run();
                 }
             });
@@ -132,7 +134,16 @@ public class LlmService {
                 log.warn("LLM question failed for alert {}", id, ex);
                 try
                 {
-                    send(emitter, "error", Map.of("message", UNAVAILABLE));
+                    Map<String, Object> error = Map.of("message", UNAVAILABLE);
+                    if (ex instanceof RestClientResponseException responseError)
+                    {
+                        String message = responseError.getMessage();
+                        if (message == null || message.isBlank())
+                            message = UNAVAILABLE;
+                        int status = responseError.getStatusCode().value();
+                        error = Map.of("status", status, "message", message);
+                    }
+                    send(emitter, "error", error);
                     emitter.complete();
                 }
                 catch (RuntimeException disconnected)
@@ -154,9 +165,6 @@ public class LlmService {
 
     private LlmRequestDto createRequestDto(AlertHistory alert, AlertRules rule, String question)
     {
-        if (alert.getId() == null || alert.getService() == null || alert.getService().isBlank()
-                || alert.getTriggeredAt() == null)
-            throw new InvalidRequestException("Save the alert with its service and trigger time before requesting analysis");
         LlmRequestDto.Rule details;
         if (rule == null)
         {
