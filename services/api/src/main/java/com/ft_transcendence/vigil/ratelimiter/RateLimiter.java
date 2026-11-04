@@ -1,11 +1,14 @@
 package com.ft_transcendence.vigil.ratelimiter;
 
+import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.exceptions.TooManyRequestsException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -34,7 +37,14 @@ public class RateLimiter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String key = request.getRemoteAddr() + "|" + request.getMethod() + "|" + request.getRequestURI();
+        String identity = "ip:" + request.getRemoteAddr();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!request.getRequestURI().equals("/api/auth/login")
+                && auth != null && auth.isAuthenticated()
+                && auth.getPrincipal() instanceof UserPrincipal principal) {
+            identity = "user:" + principal.getUser().getId();
+        }
+        String key = identity + "|" + request.getMethod() + "|" + request.getRequestURI();
 
         try {
             if (request.getRequestURI().equals("/api/auth/login"))
