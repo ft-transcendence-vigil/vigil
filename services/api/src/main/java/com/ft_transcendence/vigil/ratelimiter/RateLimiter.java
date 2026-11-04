@@ -37,7 +37,10 @@ public class RateLimiter extends OncePerRequestFilter {
         String key = request.getRemoteAddr() + "|" + request.getMethod() + "|" + request.getRequestURI();
 
         try {
-            rateLimiterRegistry.addLimiter(key, 10, 60);
+            if (request.getRequestURI().equals("/api/auth/login"))
+                rateLimiterRegistry.addLimiter(key, 10, 60);
+            else
+                rateLimiterRegistry.addLimiter(key, 60, 60);
             rateLimiterRegistry.consum(key);
         } catch (TooManyRequestsException e) {
             exceptionResolver.resolveException(
