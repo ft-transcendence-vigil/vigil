@@ -20,10 +20,6 @@ public class VigilProperties {
     private long accessTokenExpiration;
     private long refreshTokenExpiration;
     private String frontEndUrl;
-    private String frontendBaseUrl;
-    private long silenceTimeoutSeconds = 300;
-    private String llmBaseUrl = "http://llm:8000";
-    private long llmTimeoutSeconds = 30;
 
     @PostConstruct
     void init() {
@@ -38,12 +34,7 @@ public class VigilProperties {
         if (ingestionKey == null || ingestionKey.isBlank()) {
             ingestionKey = UUID.randomUUID().toString();
         }
-        if (frontendBaseUrl == null || frontendBaseUrl.isBlank()) {
-            frontendBaseUrl = frontEndUrl == null || frontEndUrl.isBlank()
-                    ? "http://localhost:3000" : frontEndUrl;
-        }
-        if (frontEndUrl == null || frontEndUrl.isBlank()) {
-            frontEndUrl = frontendBaseUrl;
-        }
+        if (frontEndUrl == null || frontEndUrl.isBlank())
+            frontEndUrl = "http://localhost:3000";
     }
 }

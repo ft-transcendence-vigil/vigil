@@ -51,7 +51,7 @@ public class AlertHistory {
     @Enumerated(EnumType.STRING)
     private Severity severity;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = true)
     private String llmAnalysis;
 
 

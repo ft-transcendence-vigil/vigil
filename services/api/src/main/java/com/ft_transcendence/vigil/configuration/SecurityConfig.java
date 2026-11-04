@@ -45,7 +45,7 @@ class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests((requests) -> requests
-                        .dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.ASYNC).permitAll()
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(
                                 "/api/setup",
                                 "/api/auth/login",
