@@ -59,6 +59,14 @@ public class LogRepository {
                 .stream(jdbcTemplate, this::mapLog, consumer, "logs");
     }
 
+    public List<Log> findInWindow(String service, Instant from, Instant to) {
+        return ClickHouseQuery.from(SELECT)
+                .eq("service", service)
+                .between(from, to)
+                .orderBy("timestamp ASC")
+                .list(jdbcTemplate, this::mapLog, "logs");
+    }
+
     private ClickHouseQuery filtered(String period, String service, String severity, String search) {
         return ClickHouseQuery.from(SELECT)
                 .since(period)

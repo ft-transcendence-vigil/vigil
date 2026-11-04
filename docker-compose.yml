@@ -88,6 +88,8 @@ services:
       VIGIL_FRONTEND_BASE_URL: "${VIGIL_FRONTEND_BASE_URL:-https://localhost}"
       VIGIL_FRONT_END_URL: "${VIGIL_FRONT_END_URL:-${VIGIL_FRONTEND_BASE_URL:-https://localhost}}"
       VIGIL_SILENCE_TIMEOUT_SECONDS: "${VIGIL_SILENCE_TIMEOUT_SECONDS:-300}"
+      VIGIL_LLM_BASE_URL: "${VIGIL_LLM_BASE_URL:-http://llm:8000}"
+      VIGIL_LLM_TIMEOUT_SECONDS: "${VIGIL_LLM_TIMEOUT_SECONDS:-30}"
       VIGIL_TLS_CA_PATH: /etc/vigil/ca/root.crt
     volumes:
       - caddy_public_ca:/etc/vigil/ca:ro
