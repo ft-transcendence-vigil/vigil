@@ -35,7 +35,7 @@ class SecurityConfig {
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
         http.addFilterBefore(jjwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
 
-                .addFilterBefore(rateLimiter, JjwtAuthFilter.class)
+                .addFilterAfter(rateLimiter, JjwtAuthFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) ->
                                 exceptionResolver.resolveException(
