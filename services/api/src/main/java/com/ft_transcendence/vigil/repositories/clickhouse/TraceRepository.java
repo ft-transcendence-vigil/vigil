@@ -50,9 +50,8 @@ public class TraceRepository {
                 .stream(jdbcTemplate, this::mapTrace, consumer, "traces");
     }
 
-    public List<Trace> findInWindow(String service, Instant from, Instant to) {
-        return ClickHouseQuery.from(SELECT)
-                .eq("service", service)
+    public List<Trace> findTrace(String service, Instant from, Instant to) {
+        return filtered(service, null)
                 .between(from, to)
                 .orderBy("timestamp ASC")
                 .list(jdbcTemplate, this::mapTrace, "traces");
