@@ -29,17 +29,18 @@ public class RateLimiter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         return path.equals("/internal/ingest")
-                || path.startsWith("/internal/ingest/")
-                || path.equals("/internal/llm/forward")
-                || path.startsWith("/internal/llm/forward/");
+                || path.startsWith("/internal/ingest/");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String key =request.getRemoteAddr();
+        String key = request.getRemoteAddr() + "|" + request.getMethod() + "|" + request.getRequestURI();
 
         try {
-            rateLimiterRegistry.addLimiter(key, 10, 60);
+            if (request.getRequestURI().equals("/api/auth/login"))
+                rateLimiterRegistry.addLimiter(key, 10, 60);
+            else
+                rateLimiterRegistry.addLimiter(key, 60, 60);
             rateLimiterRegistry.consum(key);
         } catch (TooManyRequestsException e) {
             exceptionResolver.resolveException(
