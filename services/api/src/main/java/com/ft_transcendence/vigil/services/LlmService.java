@@ -191,11 +191,9 @@ public class LlmService {
         Instant from = triggeredAt.minusSeconds(window);
         String service = llmRequestDto.getService();
         LlmRequestDto.Context context = new LlmRequestDto.Context(
-                logRepository.findInWindow(service, from, triggeredAt).stream()
-                        .map(row -> new LlmRequestDto.LogRow(row.getService(), row.getTimestamp(),
-                                row.getSeverity(), row.getMessage(), row.getAttributes())).toList(),
-                metricsRepository.findInWindow(service, from, triggeredAt),
-                traceRepository.findInWindow(service, from, triggeredAt));
+                logRepository.findLogs(service, from, triggeredAt),
+                metricsRepository.findMetrics(service, from, triggeredAt),
+                traceRepository.findTrace(service, from, triggeredAt));
         llmRequestDto.setContext(context);
     }
 

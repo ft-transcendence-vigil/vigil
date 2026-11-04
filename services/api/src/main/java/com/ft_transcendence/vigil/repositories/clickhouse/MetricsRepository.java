@@ -58,9 +58,8 @@ public class MetricsRepository {
 				.stream(jdbcTemplate, this::mapMetric, consumer, "metrics");
 	}
 
-	public List<Metric> findInWindow(String service, Instant from, Instant to) {
-		return ClickHouseQuery.from(SELECT)
-				.eq("service", service)
+	public List<Metric> findMetrics(String service, Instant from, Instant to) {
+		return filtered(service, null, null)
 				.between(from, to)
 				.orderBy("timestamp ASC")
 				.list(jdbcTemplate, this::mapMetric, "metrics");
