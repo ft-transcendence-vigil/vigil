@@ -22,6 +22,8 @@ public class VigilProperties {
     private String frontEndUrl;
     private String frontendBaseUrl;
     private long silenceTimeoutSeconds = 300;
+    private String llmBaseUrl = "http://llm:8000";
+    private long llmTimeoutSeconds = 30;
 
     @PostConstruct
     void init() {
