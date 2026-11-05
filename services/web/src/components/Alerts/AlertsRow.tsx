@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { AlertHistory, AlertStatus } from '../../api/alertHistoryApi';
 import { severityColors, statusColors } from './colorsGuid';
 import AlertsDetails from './AlertsDetails';
@@ -11,6 +11,9 @@ export interface Data extends AlertHistory {
   onStatusChange: (status: AlertStatus) => void;
   isUpdatingStatus: boolean;
   currentUserId?: string;
+  isTarget?: boolean;
+  isUnseen: boolean;
+  onSeen: () => void;
 }
 
 function getActions(status: AlertStatus): AlertAction[] {
@@ -43,8 +46,16 @@ const actionToStatus: Record<AlertAction, AlertStatus> = {
 };
 
 export default function AlertsRow(props: Data) {
-  const { isLive, onStatusChange, isUpdatingStatus, currentUserId, ...alert } =
-    props;
+  const {
+    isLive,
+    onStatusChange,
+    isUpdatingStatus,
+    currentUserId,
+    isTarget,
+    isUnseen,
+    onSeen,
+    ...alert
+  } = props;
   const [isOpen, setIsOpen] = useState(false);
   const {
     severity,
@@ -73,19 +84,46 @@ export default function AlertsRow(props: Data) {
     alert.owner_id === null ||
     (currentUserId !== undefined && alert.owner_id === currentUserId);
   const actions = canAct ? getActions(status) : [];
+  const hasAutoOpened = useRef(false);
+
+  const markSeenIfNeeded = () => {
+    if (isUnseen) {
+      onSeen();
+    }
+  };
+
+  useEffect(() => {
+    if (!isTarget) {
+      hasAutoOpened.current = false;
+      return;
+    }
+
+    if (hasAutoOpened.current) return;
+
+    setIsOpen(true);
+    hasAutoOpened.current = true;
+  }, [isTarget]);
 
   return (
     <>
       <tr
+        id={`alert-${alert.id}`}
         className={`border-b border-vigil-border hover:bg-[#0C1424] transition-colors duration-200 cursor-pointer relative after:absolute after:right-5 after:top-1/2 after:-translate-y-1/2 ${
           isOpen ? "after:content-['▴']" : "after:content-['▾']"
-        } text-[12px] text-vigil-muted ${isLive ? 'animate-log-flash' : ''}`}
-        onClick={() => setIsOpen((prev) => !prev)}
+        } text-[12px] text-vigil-muted ${isLive ? 'animate-log-flash' : ''}
+        ${isTarget ? 'bg-vigil-blue/10 outline outline-vigil-blue/40' : ''}`}
+        onClick={() => {
+          markSeenIfNeeded();
+          setIsOpen((prev) => !prev);
+        }}
       >
         <td className="text-[12px] py-1 md:py-3 px-2 md:px-3 uppercase tracking-wider">
           <span className={`px-2 py-1.5 mono ${levelColor}`}>{severity}</span>
         </td>
-        <td className="text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3 text-white">
+        <td className="relative text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3 text-white">
+          {isUnseen && (
+            <span className="absolute top-1/2 -translate-y-1/2 -left-2 w-1 h-1 rounded-full bg-vigil-blue"></span>
+          )}
           {service}
         </td>
         <td
@@ -116,6 +154,7 @@ export default function AlertsRow(props: Data) {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
+                markSeenIfNeeded();
                 onStatusChange(actionToStatus[action]);
               }}
               disabled={isUpdatingStatus}

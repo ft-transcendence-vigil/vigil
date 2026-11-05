@@ -1,27 +1,32 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../auth/authContext';
+import type { AlertHistory } from '../../api/alertHistoryApi';
 import AlertsFilters, {
   type Period,
 } from '../../components/Alerts/AlertsFilters';
 import AlertsRow from '../../components/Alerts/AlertsRow';
-import useAlerts from '../../hooks/useAlerts';
-import useAlertsWebSocket, {
-  type LlmUpdate,
-} from '../../hooks/useAlertsWebSocket';
-import type { AlertHistory } from '../../api/alertHistoryApi';
 import Button from '../../components/shared/Button';
-import { toast } from 'sonner';
+import useAlerts from '../../hooks/useAlerts';
+import { type LlmUpdate } from '../../hooks/useAlertsWebSocket';
+import {
+  subscribeToAlerts,
+  subscribeToLlm,
+} from '../../Realtime/alertsRealtime';
+import useAlertNotifications from '../../hooks/useAlertNotifications';
 
 export default function AlertsPage() {
   const [period, setPeriod] = useState<Period>('24h');
   const [service, setService] = useState('');
   const [debouncedService, setDebouncedService] = useState('');
-  const loadMoreRef = useRef<HTMLTableRowElement | null>(null);
-  const topRef = useRef<HTMLDivElement | null>(null);
   const [isNearTop, setIsNearTop] = useState(true);
   const [liveAlerts, setLiveAlerts] = useState<AlertHistory[]>([]);
   const [pendingAlerts, setPendingAlerts] = useState<AlertHistory[]>([]);
+  const loadMoreRef = useRef<HTMLTableRowElement | null>(null);
+  const topRef = useRef<HTMLDivElement | null>(null);
   const { apiFetch, user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const targetAlertId = searchParams.get('alert');
   const {
     alerts,
     isLoading,
@@ -41,42 +46,109 @@ export default function AlertsPage() {
     service: debouncedService,
   });
 
-  const handleLiveAlert = (incoming: AlertHistory) => {
-    const historical = alerts.find((alert) => alert.id === incoming.id);
+  const { notifications, updateSeen: updateNotificationSeen } =
+    useAlertNotifications({
+      apiFetch,
+      userId: user!.id,
+    });
 
-    if (historical) {
-      updateCachedAlert(incoming);
-      return;
-    }
+  const unseenAlertIds = new Set(
+    notifications
+      .filter((notification) => !notification.seen)
+      .map((notification) => notification.alert_history_id),
+  );
 
-    const live = liveAlerts.find((alert) => alert.id === incoming.id);
+  const updateAlertEverywhere = useCallback(
+    (updatedAlert: AlertHistory) => {
+      updateCachedAlert(updatedAlert);
 
-    if (live) {
-      if (incoming.version <= live.version) return;
       setLiveAlerts((prev) =>
-        prev.map((alert) => (alert.id === incoming.id ? incoming : alert)),
+        prev.map((alert) =>
+          alert.id === updatedAlert.id ? updatedAlert : alert,
+        ),
       );
-      return;
-    }
 
-    const pending = pendingAlerts.find((alert) => alert.id === incoming.id);
-
-    if (pending) {
-      if (incoming.version <= pending.version) return;
       setPendingAlerts((prev) =>
-        prev.map((alert) => (alert.id === incoming.id ? incoming : alert)),
+        prev.map((alert) =>
+          alert.id === updatedAlert.id ? updatedAlert : alert,
+        ),
       );
-      return;
-    }
+    },
+    [updateCachedAlert],
+  );
 
-    if (debouncedService && incoming.service !== debouncedService) return;
+  const handleLiveAlert = useCallback(
+    (incoming: AlertHistory) => {
+      const historical = alerts.find((alert) => alert.id === incoming.id);
+      const live = liveAlerts.find((alert) => alert.id === incoming.id);
+      const pending = pendingAlerts.find((alert) => alert.id === incoming.id);
 
-    if (isNearTop) {
-      setLiveAlerts((prev) => [incoming, ...prev]);
-    } else {
-      setPendingAlerts((prev) => [incoming, ...prev]);
-    }
-  };
+      if (historical || live || pending) {
+        const existing = [historical, live, pending].filter(
+          (alert): alert is AlertHistory => alert !== undefined,
+        );
+
+        const newestExisting = existing.reduce((newest, alert) =>
+          alert.version > newest.version ? alert : newest,
+        );
+
+        const newest =
+          incoming.version >= newestExisting.version
+            ? incoming
+            : newestExisting;
+
+        updateAlertEverywhere(newest);
+        return;
+      }
+
+      if (debouncedService && incoming.service !== debouncedService) {
+        return;
+      }
+
+      if (isNearTop) {
+        setLiveAlerts((prev) => [incoming, ...prev]);
+      } else {
+        setPendingAlerts((prev) => [incoming, ...prev]);
+      }
+    },
+    [
+      alerts,
+      liveAlerts,
+      pendingAlerts,
+      debouncedService,
+      isNearTop,
+      updateAlertEverywhere,
+    ],
+  );
+
+  const handleLlmUpdate = useCallback(
+    (data: LlmUpdate) => {
+      updateCachedLlm(data.id, data.llm_analysis);
+
+      setLiveAlerts((prev) =>
+        prev.map((alert) =>
+          alert.id === data.id
+            ? {
+                ...alert,
+                llm_analysis: data.llm_analysis,
+              }
+            : alert,
+        ),
+      );
+
+      setPendingAlerts((prev) =>
+        prev.map((alert) =>
+          alert.id === data.id
+            ? {
+                ...alert,
+                llm_analysis: data.llm_analysis,
+              }
+            : alert,
+        ),
+      );
+    },
+    [updateCachedLlm],
+  );
 
   const allAlerts = Array.from(
     new Map(
@@ -88,6 +160,9 @@ export default function AlertsPage() {
   );
 
   const liveAlertIds = new Set(liveAlerts.map((alert) => alert.id));
+  const targetAlertLoaded =
+    targetAlertId !== null &&
+    allAlerts.some((alert) => alert.id === targetAlertId);
 
   function handleClear() {
     setPeriod('24h');
@@ -104,40 +179,46 @@ export default function AlertsPage() {
     });
   };
 
-  const handleLlmUpdate = (data: LlmUpdate) => {
-    updateCachedLlm(data.id, data.llm_analysis);
+  useEffect(() => {
+    if (!targetAlertId || !targetAlertLoaded) {
+      return;
+    }
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(`alert-${targetAlertId}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    });
 
-    setLiveAlerts((prev) =>
-      prev.map((alert) =>
-        alert.id === data.id
-          ? { ...alert, llm_analysis: data.llm_analysis }
-          : alert,
-      ),
-    );
+    return () => cancelAnimationFrame(frame);
+  }, [targetAlertId, targetAlertLoaded]);
 
-    setPendingAlerts((prev) =>
-      prev.map((alert) =>
-        alert.id === data.id
-          ? { ...alert, llm_analysis: data.llm_analysis }
-          : alert,
-      ),
-    );
-  };
+  useEffect(() => {
+    if (!targetAlertId) return;
+    if (targetAlertLoaded) return;
+    if (!hasMore) return;
+    if (isFetchingNextPage) return;
 
-  const handleServerError = (message: string) => {
-    toast.error(message);
-  };
+    fetchNextPage();
+  }, [
+    targetAlertId,
+    targetAlertLoaded,
+    hasMore,
+    isFetchingNextPage,
+    fetchNextPage,
+  ]);
 
-  const handleReconnect = () => {
-    refetch();
-  };
+  useEffect(() => {
+    const unsubscribe = subscribeToAlerts(handleLiveAlert);
 
-  useAlertsWebSocket({
-    onAlert: handleLiveAlert,
-    onLlm: handleLlmUpdate,
-    onServerError: handleServerError,
-    onReconnect: handleReconnect,
-  });
+    return () => unsubscribe();
+  }, [handleLiveAlert]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToLlm(handleLlmUpdate);
+
+    return () => unsubscribe();
+  }, [handleLlmUpdate]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -168,7 +249,6 @@ export default function AlertsPage() {
         rootMargin: '300px',
       },
     );
-
     observer.observe(target);
 
     return () => {
@@ -220,13 +300,13 @@ export default function AlertsPage() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-250 border-collapse border border-vigil-border">
           <thead>
-            <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px] bg-[#0D1425] tracking-wide">
-              <th className="py-2 md:py-4 px-2 md:px-3">Severity</th>
-              <th className="py-2 md:py-4 px-2 md:px-3">Service</th>
-              <th className="py-2 md:py-4 px-2 md:px-3">Metric</th>
-              <th className="py-2 md:py-4 px-2 md:px-3">Triggered</th>
-              <th className="py-2 md:py-4 px-2 md:px-3">Status</th>
-              <th className="py-2 md:py-4 px-2 md:px-3">Actions</th>
+            <tr className="border-b border-vigil-border bg-[#0D1425] text-left text-[12px] tracking-wide text-vigil-muted uppercase md:text-[13px]">
+              <th className="px-2 py-2 md:px-3 md:py-4">Severity</th>
+              <th className="px-2 py-2 md:px-3 md:py-4">Service</th>
+              <th className="px-2 py-2 md:px-3 md:py-4">Metric</th>
+              <th className="px-2 py-2 md:px-3 md:py-4">Triggered</th>
+              <th className="px-2 py-2 md:px-3 md:py-4">Status</th>
+              <th className="px-2 py-2 md:px-3 md:py-4">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-vigil-card">
@@ -240,15 +320,15 @@ export default function AlertsPage() {
             {isError && (
               <tr>
                 <td colSpan={6} className="py-15 text-center">
-                  <h1 className="text-[20px] mb-1">Could not load alerts</h1>
-                  <p className="text-red-400 text-[14px] tracking-wider">
+                  <h1 className="mb-1 text-[20px]">Could not load alerts</h1>
+                  <p className="text-[14px] tracking-wider text-red-400">
                     {error instanceof Error
                       ? error.message
                       : 'Something went wrong.'}
                   </p>
                   <button
                     type="button"
-                    className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border mt-5 py-2 px-5 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-300"
+                    className="mt-5 cursor-pointer border border-vigil-border px-5 py-2 text-[12px] text-vigil-muted transition-[color,border-color] duration-300 hover:border-white/60 hover:text-white/60 md:text-[13px]"
                     onClick={() => refetch()}
                   >
                     Retry
@@ -256,11 +336,11 @@ export default function AlertsPage() {
                 </td>
               </tr>
             )}
-            {!isLoading && !isError && alerts.length === 0 && (
+            {!isLoading && !isError && allAlerts.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-15 text-center">
-                  <h1 className="text-[20px] mb-1">No alerts found</h1>
-                  <p className="text-vigil-muted text-[14px] tracking-wider">
+                  <h1 className="mb-1 text-[20px]">No alerts found</h1>
+                  <p className="text-[14px] tracking-wider text-vigil-muted">
                     Try another period or service.
                   </p>
                 </td>
@@ -273,18 +353,29 @@ export default function AlertsPage() {
                   key={alert.id}
                   {...alert}
                   onStatusChange={(status) =>
-                    updateStatus({ id: alert.id, status })
+                    updateStatus({
+                      id: alert.id,
+                      status,
+                    })
                   }
                   isUpdatingStatus={updatingAlertId === alert.id}
                   currentUserId={user?.id}
                   isLive={liveAlertIds.has(alert.id)}
+                  isTarget={alert.id === targetAlertId}
+                  isUnseen={unseenAlertIds.has(alert.id)}
+                  onSeen={() =>
+                    updateNotificationSeen({
+                      id: alert.id,
+                      seen: true,
+                    })
+                  }
                 />
               ))}
-            {!isLoading && !isError && alerts.length > 0 && (
+            {!isLoading && !isError && allAlerts.length > 0 && (
               <tr ref={loadMoreRef}>
                 <td
                   colSpan={6}
-                  className="text-center text-vigil-muted-extra py-2.5"
+                  className="py-2.5 text-center text-vigil-muted-extra"
                 >
                   {isFetchingNextPage
                     ? 'Loading more...'
