@@ -11,7 +11,7 @@ export default function useLogsFilter() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setDebouncedSearch(search);
+      setDebouncedSearch(search.trim());
     }, 500);
 
     return () => clearTimeout(timeout);
