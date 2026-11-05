@@ -277,7 +277,7 @@ export default function LogsPage() {
 
                 return (
                   <LogsRow
-                    key={`${log.timestamp}-${log.service}-${log.message}`}
+                    key={key}
                     time={formatDate(log.timestamp)}
                     service={log.service}
                     severity={log.severity as LogsSeverity}
