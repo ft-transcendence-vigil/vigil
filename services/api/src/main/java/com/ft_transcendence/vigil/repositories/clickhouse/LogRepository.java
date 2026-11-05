@@ -59,13 +59,6 @@ public class LogRepository {
                 .stream(jdbcTemplate, this::mapLog, consumer, "logs");
     }
 
-    public List<Log> findLogs(String service, Instant from, Instant to) {
-        return filtered(null, service, null, null)
-                .between(from, to)
-                .orderBy("timestamp ASC")
-                .list(jdbcTemplate, this::mapLog, "logs");
-    }
-
     private ClickHouseQuery filtered(String period, String service, String severity, String search) {
         return ClickHouseQuery.from(SELECT)
                 .since(period)
