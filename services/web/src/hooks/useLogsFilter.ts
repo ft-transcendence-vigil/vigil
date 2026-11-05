@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { LogsParams, Period } from '../api/logsApi';
 
 export default function useLogsFilter() {
-  const [period, setPeriod] = useState<Period | ''>('');
+  const [period, setPeriod] = useState<Period | ''>('24h');
   const [service, setService] = useState('');
   const [severity, setSeverity] = useState('');
   const [search, setSearch] = useState('');
