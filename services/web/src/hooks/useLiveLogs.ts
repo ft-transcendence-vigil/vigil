@@ -8,6 +8,7 @@ interface Data {
   severity?: LogsSeverity;
   enabled: boolean;
   onLog: (log: Log) => void;
+  onError?: () => void;
 }
 
 export default function useLiveLogs({
@@ -15,13 +16,19 @@ export default function useLiveLogs({
   severity,
   enabled,
   onLog,
+  onError,
 }: Data) {
   const { accessToken } = useAuth();
   const onLogRef = useRef(onLog);
+  const onErrorRef = useRef(onError);
 
   useEffect(() => {
     onLogRef.current = onLog;
   }, [onLog]);
+
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
 
   useEffect(() => {
     if (!accessToken || !enabled) return;
@@ -45,7 +52,10 @@ export default function useLiveLogs({
       }
     };
 
-    source.onerror = () => {};
+    source.onerror = () => {
+      source.close();
+      onErrorRef.current?.();
+    };
 
     return () => source.close();
   }, [accessToken, service, severity, enabled]);

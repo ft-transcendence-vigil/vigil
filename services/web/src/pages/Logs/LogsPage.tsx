@@ -12,11 +12,12 @@ import Button from '../../components/shared/Button';
 export default function LogsPage() {
   const loadMoreRef = useRef<HTMLTableRowElement | null>(null);
   const filter = useLogsFilter();
-  const [isLive, setIsLive] = useState(true);
+  const [isLive, setIsLive] = useState(false);
   const topRef = useRef<HTMLDivElement | null>(null);
   const [isNearTop, setIsNearTop] = useState(true);
   const [liveLogs, setLiveLogs] = useState<Log[]>([]);
   const [pendingLogs, setPendingLogs] = useState<Log[]>([]);
+  const MAX_LIVE_LOGS = 200;
 
   const matchesCurrentFilters = (log: Log) => {
     if (filter.service && log.service !== filter.service) {
@@ -41,9 +42,9 @@ export default function LogsPage() {
       return;
     }
     if (isNearTop) {
-      setLiveLogs((prev) => [log, ...prev]);
+      setLiveLogs((prev) => [log, ...prev].slice(0, MAX_LIVE_LOGS));
     } else {
-      setPendingLogs((prev) => [log, ...prev]);
+      setPendingLogs((prev) => [log, ...prev].slice(0, MAX_LIVE_LOGS));
     }
   };
 
@@ -52,6 +53,7 @@ export default function LogsPage() {
     severity: filter.severity as LogsSeverity,
     enabled: isLive,
     onLog: handleLiveLog,
+    onError: () => setIsLive(false),
   });
 
   const {
@@ -115,7 +117,7 @@ export default function LogsPage() {
     Boolean(filter.search);
 
   const handleShowNewLogs = () => {
-    setLiveLogs((prev) => [...pendingLogs, ...prev]);
+    setLiveLogs((prev) => [...pendingLogs, ...prev].slice(0, MAX_LIVE_LOGS));
     setPendingLogs([]);
     document.getElementById('dashboard-scroll-container')?.scrollTo({
       top: 0,
@@ -148,7 +150,7 @@ export default function LogsPage() {
       ([entry]) => {
         setIsNearTop(entry.isIntersecting);
         if (entry.isIntersecting && pendingLogs.length > 0) {
-          setLiveLogs((prev) => [...pendingLogs, ...prev]);
+          setLiveLogs((prev) => [...pendingLogs, ...prev].slice(0, MAX_LIVE_LOGS));
           setPendingLogs([]);
         }
       },
