@@ -6,7 +6,6 @@ import { borderColor, severityColors } from './colorsGuid';
 export type LogsSeverity = Severity | 'error';
 
 export interface Attributes {
-  seed: string;
   request_id: string;
   status_code: string;
   endpoint: string;
