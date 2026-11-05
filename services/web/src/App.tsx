@@ -31,8 +31,8 @@ function App() {
     <>
       <AppToaster />
       <Routes>
+        <Route path="/legal" element={<Legal />} />
         <Route element={<PublicOnlyRoute />}>
-          <Route path="/legal" element={<Legal />} />
           <Route element={<AuthEntryGuard />}>
             <Route path="/auth/login" element={<LoginPage />} />
             <Route path="/auth/setup" element={<SetupPage />} />

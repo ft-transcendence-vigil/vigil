@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../../auth/authContext';
 import Logo from '../../shared/Logo';
 import SidebarSection from './SidebarSection';
@@ -49,6 +50,12 @@ export default function Sidebar({ isConnected }: Data) {
             ? 'Alerts stream connected'
             : 'Alerts stream disconnected'}
         </p>
+        <Link
+          to="/legal"
+          className="text-[10px] text-vigil-muted hover:text-gray-300 block mt-2"
+        >
+          Privacy · Terms
+        </Link>
       </div>
     </div>
   );
