@@ -17,7 +17,7 @@ interface Data {
 
 export default function LogsFilters(filter: Data) {
   return (
-    <div className="flex items-center space-x-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-center">
       <Dropdown
         options={[
           { label: 'Last 1h', value: '1h' },
@@ -27,14 +27,15 @@ export default function LogsFilters(filter: Data) {
         ]}
         value={filter.period}
         onChange={filter.handlePeriodOnChange}
-        className="bg-[#0D1425]"
+        className="bg-[#0D1425] w-full min-w-0"
         mb="mb-0"
       />
       <FormInput
         type="text"
         placeholder="Service"
+        value={filter.service}
         onChange={filter.handleServiceOnChange}
-        className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-blue bg-[#0D1425]"
+        className="outline-none px-4 py-2.5 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]"
         error=""
         mb="mb-0"
       />
@@ -48,19 +49,18 @@ export default function LogsFilters(filter: Data) {
         ]}
         value={filter.severity}
         onChange={filter.handleSeverityOnChange}
-        className="bg-[#0D1425]"
+        className="bg-[#0D1425] w-full min-w-0"
         mb="mb-0"
       />
-      <div className="flex-1">
-        <FormInput
-          type="text"
-          placeholder="Search message text"
-          onChange={filter.handleSearchOnChange}
-          className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-blue bg-[#0D1425]"
-          error=""
-          mb="mb-0"
-        />
-      </div>
+      <FormInput
+        type="text"
+        placeholder="Search message text"
+        value={filter.search}
+        onChange={filter.handleSearchOnChange}
+        className="outline-none px-4 py-2.5 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]"
+        error=""
+        mb="mb-0"
+      />
       <Dropdown
         options={[
           { label: 'Newest first', value: 'timestamp' },
@@ -70,7 +70,7 @@ export default function LogsFilters(filter: Data) {
         ]}
         value={filter.sort}
         onChange={filter.handleSortOnChange}
-        className="bg-[#0D1425]"
+        className="bg-[#0D1425] w-full min-w-0"
         mb="mb-0"
       />
     </div>
