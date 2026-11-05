@@ -5,7 +5,7 @@ import Button from '../shared/Button';
 import Dropdown from '../shared/Dropdown';
 import SwitchButton from '../shared/SwitchButton';
 import type { AlertRules } from '../../api/alertRulesApi';
-import useAlertRules from '../../hooks/useAlertRules';
+import useAlertRules from '../../hooks/useAlertRuleForm';
 
 type AlertRulesOptions =
   | {

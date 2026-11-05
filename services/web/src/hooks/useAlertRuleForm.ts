@@ -1,16 +1,15 @@
-import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState, type ChangeEvent } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { useAuth } from '../auth/authContext';
 import {
   addAlertRule,
   updateAlertRule,
-  getAllAlertRules,
   type AlertRules,
   type UpdateAlertRules,
 } from '../api/alertRulesApi';
-import { toast } from 'sonner';
 
-type AlertRulesOptions =
+type AlertRuleFormOptions =
   | {
       mode: 'create';
       rule?: never;
@@ -43,19 +42,17 @@ const METRIC_NAMES: Record<'logs' | 'traces', string[]> = {
 };
 
 const MIN_WINDOW_SECONDS = 10;
-export const PAGE_SIZE = 10;
 
-export default function useAlertRules({
+export default function useAlertRuleForm({
   mode,
   rule,
   onCreated,
   onUpdated,
-}: AlertRulesOptions) {
+}: AlertRuleFormOptions) {
   const { apiFetch } = useAuth();
   const queryClient = useQueryClient();
   const isEdit = mode === 'edit';
-  const isDefault = isEdit && rule.is_default;
-
+  const isDefault = mode === 'edit' && rule.is_default;
   const [service, setService] = useState(isEdit ? rule.service : '');
   const [serviceError, setServiceError] = useState('');
   const [signalType, setSignalType] = useState<SignalType>(
@@ -81,17 +78,6 @@ export default function useAlertRules({
   );
   const [enabled, setEnabled] = useState(isEdit ? rule.enabled : true);
   const [formError, setFormError] = useState('');
-  const [offset, setOffset] = useState(0);
-
-  const alertRulesQuery = useQuery({
-    queryKey: ['alert-rules', PAGE_SIZE, offset],
-    queryFn: () =>
-      getAllAlertRules(apiFetch, {
-        count: PAGE_SIZE,
-        offset,
-      }),
-    staleTime: 5 * 60_000,
-  });
 
   const addMutation = useMutation({
     mutationFn: (newRule: CreateAlertRule) => addAlertRule(apiFetch, newRule),
@@ -100,7 +86,6 @@ export default function useAlertRules({
       queryClient.invalidateQueries({
         queryKey: ['alert-rules'],
       });
-
       toast.success('Alert rule added successfully');
       onCreated?.();
     },
@@ -117,7 +102,6 @@ export default function useAlertRules({
       if (mode !== 'edit') {
         throw new Error('No alert rule selected.');
       }
-
       return updateAlertRule(apiFetch, rule.id, changes);
     },
 
@@ -125,7 +109,6 @@ export default function useAlertRules({
       queryClient.invalidateQueries({
         queryKey: ['alert-rules'],
       });
-
       toast.success('Alert rule updated successfully');
       onUpdated?.();
     },
@@ -139,14 +122,14 @@ export default function useAlertRules({
 
   const isFormSubmitting = addMutation.isPending || updateMutation.isPending;
 
-  const handleServiceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleServiceChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (isDefault) return;
     setService(e.target.value);
     setServiceError('');
     setFormError('');
   };
 
-  const handleSignalTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSignalTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     if (isEdit) return;
     const next = e.target.value as SignalType;
     setSignalType(next);
@@ -159,7 +142,7 @@ export default function useAlertRules({
   };
 
   const handleMetricNameChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     if (isDefault) return;
     setMetricName(e.target.value);
@@ -167,29 +150,27 @@ export default function useAlertRules({
     setFormError('');
   };
 
-  const handleAggregationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleAggregationChange = (e: ChangeEvent<HTMLSelectElement>) => {
     if (isDefault) return;
     setAggregation(e.target.value as Aggregation);
     setFormError('');
   };
 
-  const handleWindowSecondsChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleWindowSecondsChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (isDefault) return;
     setWindowSeconds(e.target.value);
     setWindowSecondsError('');
     setFormError('');
   };
 
-  const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThresholdChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (isDefault) return;
     setThreshold(e.target.value);
     setThresholdError('');
     setFormError('');
   };
 
-  const handleSeverityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSeverityChange = (e: ChangeEvent<HTMLSelectElement>) => {
     if (isDefault) return;
     setSeverity(e.target.value as Severity);
     setFormError('');
@@ -209,7 +190,9 @@ export default function useAlertRules({
     setThresholdError('');
     setFormError('');
 
-    if (isDefault) return true;
+    if (isDefault) {
+      return true;
+    }
 
     if (service.trim().length === 0) {
       setServiceError('Service is required');
@@ -217,8 +200,10 @@ export default function useAlertRules({
     }
 
     const name = metricName.trim();
+
     if (name.length === 0) {
       setMetricNameError('Metric name is required');
+
       isValid = false;
     } else if (
       signalType !== 'metrics' &&
@@ -227,15 +212,15 @@ export default function useAlertRules({
       setMetricNameError('Invalid metric for this signal type');
       isValid = false;
     }
+    const window = Number(windowSeconds);
 
-    const w = Number(windowSeconds);
     if (windowSeconds.trim() === '') {
       setWindowSecondsError('Window is required');
       isValid = false;
-    } else if (!Number.isInteger(w)) {
+    } else if (!Number.isInteger(window)) {
       setWindowSecondsError('Window must be a whole number');
       isValid = false;
-    } else if (w < MIN_WINDOW_SECONDS) {
+    } else if (window < MIN_WINDOW_SECONDS) {
       setWindowSecondsError(
         `Window must be at least ${MIN_WINDOW_SECONDS} seconds`,
       );
@@ -249,12 +234,13 @@ export default function useAlertRules({
       setThresholdError('Threshold must be a number');
       isValid = false;
     }
-
     return isValid;
   };
 
   const handleAddAlertRuleSubmit = () => {
-    if (isEdit || isFormSubmitting || !validateForm()) return;
+    if (isEdit || isFormSubmitting || !validateForm()) {
+      return;
+    }
 
     const newRule: CreateAlertRule = {
       service: service.trim(),
@@ -266,14 +252,18 @@ export default function useAlertRules({
       enabled,
       ...(signalType === 'metrics' ? { aggregation } : {}),
     };
-
     setFormError('');
     addMutation.mutate(newRule);
   };
 
   const handleEditAlertRuleSubmit = () => {
-    if (mode !== 'edit') return;
-    if (isFormSubmitting || !validateForm()) return;
+    if (mode !== 'edit') {
+      return;
+    }
+
+    if (isFormSubmitting || !validateForm()) {
+      return;
+    }
 
     const changes: UpdateAlertRules = {};
 
@@ -285,18 +275,23 @@ export default function useAlertRules({
       if (service.trim() !== rule.service) {
         changes.service = service.trim();
       }
+
       if (metricName.trim() !== rule.metric_name) {
         changes.metric_name = metricName.trim();
       }
+
       if (rule.signal_type === 'metrics' && aggregation !== rule.aggregation) {
         changes.aggregation = aggregation;
       }
+
       if (Number(windowSeconds) !== rule.window_seconds) {
         changes.window_seconds = Number(windowSeconds);
       }
+
       if (Number(threshold) !== rule.threshold) {
         changes.threshold = Number(threshold);
       }
+
       if (severity !== rule.severity) {
         changes.severity = severity;
       }
@@ -306,14 +301,11 @@ export default function useAlertRules({
       toast.info('No changes to save.');
       return;
     }
-
     setFormError('');
     updateMutation.mutate(changes);
   };
 
   return {
-    alertRules: alertRulesQuery.data ?? [],
-    alertRulesQuery,
     formError,
     isFormSubmitting,
     isDefault,
@@ -336,8 +328,6 @@ export default function useAlertRules({
     thresholdError,
     severity,
     enabled,
-    offset,
-    setOffset,
     handleServiceChange,
     handleSignalTypeChange,
     handleMetricNameChange,
