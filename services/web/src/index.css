@@ -354,10 +354,14 @@ button:hover .num {
 
 .vigil-toast {
     --accent: #2196f3;
-    display: flex;
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    row-gap: 2px;
     align-items: center;
-    gap: 12px;
-    width: 100%;
+    width: min(420px, calc(100vw - 32px));
     padding: 14px 16px;
     background: #111827;
     border: 1px solid #1f2937;
@@ -385,26 +389,40 @@ button:hover .num {
 }
 
 .vigil-toast-icon {
+    grid-column: 1;
+    grid-row: 1 / 3;
     color: var(--accent);
 }
 
 .vigil-toast-title {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .vigil-toast-desc {
-    margin-top: 2px;
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
     font-size: 12px;
     color: #6b7280;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .vigil-toast-action {
-    margin-left: auto;
+    grid-column: 3;
+    grid-row: 1 / 3;
     padding: 6px 12px;
-    background: #2196f3;
+    background: var(--accent);
     color: #0a0e17;
     border: 0;
     border-radius: 0;
@@ -412,6 +430,7 @@ button:hover .num {
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    white-space: nowrap;
     cursor: pointer;
 }
 
@@ -427,10 +446,26 @@ button:hover .num {
 }
 
 .vigil-toast-close {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: #111827;
     color: #9ca3af;
-    border: 1px solid #1f2937;
+    border: 0;
     border-radius: 0;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    transition:
+        color 150ms ease,
+        background 150ms ease;
+}
+
+.vigil-toast-close:hover {
+    color: var(--accent);
+    background: #1f2937;
 }
 
 /* ConfirmDialog */
