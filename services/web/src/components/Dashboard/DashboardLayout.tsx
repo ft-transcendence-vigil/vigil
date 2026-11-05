@@ -81,7 +81,7 @@ export default function DashboardLayout() {
     }
   };
 
-  useAlertsWebSocket({
+  const { isConnected } = useAlertsWebSocket({
     onAlert: (alert) => {
       emitAlert(alert);
     },
@@ -131,8 +131,9 @@ export default function DashboardLayout() {
 
   return (
     <div className="dashboard-layout flex h-dvh overflow-hidden">
-      <DesktopSidebar />
+      <DesktopSidebar isConnected={isConnected} />
       <MobileSidebar
+        isConnected={isConnected}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />

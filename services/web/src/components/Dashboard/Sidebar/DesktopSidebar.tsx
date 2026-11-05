@@ -1,9 +1,13 @@
 import Sidebar from './Sidebar';
 
-export default function DesktopSidebar() {
+interface Data {
+  isConnected: boolean;
+}
+
+export default function DesktopSidebar({ isConnected }: Data) {
   return (
     <aside className="hidden lg:block sticky top-0 h-screen">
-      <Sidebar />
+      <Sidebar isConnected={isConnected} />
     </aside>
   );
 }

@@ -3,9 +3,10 @@ import Sidebar from './Sidebar';
 interface Data {
   isOpen: boolean;
   onClose: () => void;
+  isConnected: boolean
 }
 
-export default function MobileSidebar({ isOpen, onClose }: Data) {
+export default function MobileSidebar({ isOpen, onClose, isConnected }: Data) {
   return (
     <>
       <button
@@ -17,7 +18,7 @@ export default function MobileSidebar({ isOpen, onClose }: Data) {
       <aside
         className={`fixed z-50 inset-y-0 left-0 h-screen transition-transform duration-300 lg:hidden ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <Sidebar />
+        <Sidebar isConnected={isConnected}/>
       </aside>
     </>
   );
