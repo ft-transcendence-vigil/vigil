@@ -15,12 +15,14 @@ export default function LogoutButton() {
     }
   };
   return (
-    <button
-      type="button"
-      onClick={handleLogout}
-      className="cursor-pointer tracking-wide font-medium uppercase text-[10px] md:text-[11px] lg:text-[12px] py-1 px-2 text-red-600/70 border hover:opacity-70 transition-opacity duration-300"
-    >
-      Logout
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={handleLogout}
+        className="cursor-pointer tracking-wide font-medium uppercase text-[10px] md:text-[11px] lg:text-[12.5px] py-1.75 px-4.5 text-[#fb2c36e2] border hover:opacity-70 transition-opacity duration-300"
+      >
+        Logout
+      </button>
+    </>
   );
 }

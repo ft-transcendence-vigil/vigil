@@ -1,6 +1,9 @@
-import { faBars } from '@fortawesome/free-solid-svg-icons';
 import LogoutButton from '../shared/LogoutButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Button from '../shared/Button';
+import { useNavigate } from 'react-router-dom';
+import { faBars } from '@fortawesome/free-solid-svg-icons';
+import AlertNotificationsPage from '../../pages/AlertNotifications/AlertNotificationsPage';
 
 interface Data {
   title: string | undefined;
@@ -8,24 +11,28 @@ interface Data {
 }
 
 export default function Header({ title, onMenuClick }: Data) {
+  const navigate = useNavigate();
+
   return (
-    <div className="header shrink-0 z-40 sticky top-0 bg-inherit text-center border-b border-b-vigil-border flex justify-between items-center py-4 md:py-5 lg:py-4.5 px-4 md:px-8">
+    <div className="header sticky top-0 z-40 flex shrink-0 items-center justify-between border-b border-b-vigil-border bg-inherit px-4 py-4 text-center md:px-8 md:py-5 lg:py-4.5">
       <div className="right-section flex items-center">
         <button
           onClick={onMenuClick}
-          className="block lg:hidden me-5 cursor-pointer"
+          className="me-5 block cursor-pointer lg:hidden"
         >
           <FontAwesomeIcon icon={faBars} />
         </button>
-        <h1 className="me-5 uppercase text-[18px] md:text-2xl lg:text-3xl tracking-wider font-bold">
+        <h1 className="me-5 text-[18px] font-bold uppercase tracking-wider md:text-2xl lg:text-3xl">
           {title}
         </h1>
-        <div className="flex rounded-full justify-center items-center uppercase text-[7px] md:text-[8px] lg:text-[10px] font-bold tracking-wider px-2 h-6 border border-[#00d68f75] text-[#00d68f] bg-[#00d68f2b]">
-          <span className="dot rounded w-1 h-1 md:w-1.5 md:h-1.5 bg-[#00d68f] inline-block me-1"></span>
-          live stream
-        </div>
       </div>
-      <div className="left-section space-x-3">
+      <div className="left-section flex items-center gap-4">
+        <AlertNotificationsPage />
+        <Button
+          onClick={() => navigate('/add-service')}
+          value="add service"
+          className="tracking-wide! font-medium! uppercase! text-[10px]! md:text-[11px]! lg:text-[12.5px]! py-1.75! px-4.25!"
+        />
         <LogoutButton />
       </div>
     </div>

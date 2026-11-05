@@ -1,2 +1,4 @@
-resolve the hostname at registration time
-https://hey === false
+fixed logs filter responsive
+remove seed from logs attribute
+log default filter need to change
+trim on search
