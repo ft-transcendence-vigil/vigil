@@ -42,7 +42,7 @@ export interface AlertHistory {
 export interface AlertHistoryResponse {
   data: AlertHistory[];
   has_more?: boolean;
-  hasMore?: boolean; // TODO: 
+  hasMore?: boolean; // TODO: check from new response
 }
 
 export interface AlertHistoryParams {
@@ -97,12 +97,9 @@ export async function updateAlertStatus(
   status: AlertStatus,
 ): Promise<void> {
   try {
-    await apiFetch<AlertHistory>(
-      `/alerts/history/${id}?status=${status}`,
-      {
-        method: 'PATCH',
-      },
-    );
+    await apiFetch<AlertHistory>(`/alerts/history/${id}?status=${status}`, {
+      method: 'PATCH',
+    });
   } catch (error) {
     throw toError(error, 'Unable to edit alerts status.');
   }

@@ -1,19 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../auth/authContext';
 import type { AlertHistory } from '../api/alertHistoryApi';
+import type { AlertNotification } from '../api/alertNotificationsApi';
 
 type WsAlertHistory = Omit<AlertHistory, 'id'> & {
   alert_history_id: string;
-};
-
-type WsNotification = {
-  alert_history_id: string;
-  service: string;
-  triggered_at: string;
-  signal_type: 'logs' | 'metrics' | 'traces' | null;
-  severity: 'info' | 'warning' | 'critical';
-  seen: boolean;
-  seen_at: string | null;
 };
 
 export type LlmUpdate = {
@@ -24,7 +15,7 @@ export type LlmUpdate = {
 
 type AlertWsFrame =
   | { type: 'alert'; data: WsAlertHistory }
-  | { type: 'Notification'; data: WsNotification }
+  | { type: 'Notification'; data: AlertNotification }
   | { type: 'llm'; data: LlmUpdate }
   | { type: 'error'; message: string };
 
@@ -33,6 +24,7 @@ interface Data {
   onLlm: (data: LlmUpdate) => void;
   onServerError: (message: string) => void;
   onReconnect: () => void;
+  onNotification: (notification: AlertNotification) => void;
 }
 
 function normalizeWsAlert(data: WsAlertHistory): AlertHistory {
@@ -49,6 +41,7 @@ export default function useAlertsWebSocket({
   onLlm,
   onServerError,
   onReconnect,
+  onNotification,
 }: Data) {
   const { accessToken } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
@@ -56,13 +49,15 @@ export default function useAlertsWebSocket({
   const onLlmRef = useRef(onLlm);
   const onServerErrorRef = useRef(onServerError);
   const onReconnectRef = useRef(onReconnect);
+  const onNotificationRef = useRef(onNotification);
 
   useEffect(() => {
     onAlertRef.current = onAlert;
     onLlmRef.current = onLlm;
     onServerErrorRef.current = onServerError;
     onReconnectRef.current = onReconnect;
-  }, [onAlert, onLlm, onServerError, onReconnect]);
+    onNotificationRef.current = onNotification;
+  }, [onAlert, onLlm, onServerError, onReconnect, onNotification]);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -74,7 +69,9 @@ export default function useAlertsWebSocket({
     let hasConnected = false;
 
     const connect = () => {
-      ws = new WebSocket(`/api/alerts/ws?token=${encodeURIComponent(accessToken)}`);
+      ws = new WebSocket(
+        `/api/alerts/ws?token=${encodeURIComponent(accessToken)}`,
+      );
 
       ws.onopen = () => {
         setIsConnected(true);
@@ -94,24 +91,28 @@ export default function useAlertsWebSocket({
       };
 
       ws.onmessage = (event) => {
-        try {
-          const frame = JSON.parse(event.data) as AlertWsFrame;
+        let frame: AlertWsFrame;
 
-          switch (frame.type) {
-            case 'alert':
-              onAlertRef.current(normalizeWsAlert(frame.data));
-              break;
-            case 'Notification':
-              break;
-            case 'llm':
-              onLlmRef.current(frame.data);
-              break;
-            case 'error':
-              onServerErrorRef.current(frame.message);
-              break;
-          }
+        try {
+          frame = JSON.parse(event.data) as AlertWsFrame;
         } catch {
           // Ignore malformed frames.
+          return;
+        }
+
+        switch (frame.type) {
+          case 'alert':
+            onAlertRef.current(normalizeWsAlert(frame.data));
+            break;
+          case 'Notification':
+            onNotificationRef.current(frame.data);
+            break;
+          case 'llm':
+            onLlmRef.current(frame.data);
+            break;
+          case 'error':
+            onServerErrorRef.current(frame.message);
+            break;
         }
       };
     };
