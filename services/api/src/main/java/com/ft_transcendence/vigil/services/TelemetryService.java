@@ -77,6 +77,7 @@ public class TelemetryService {
 	public TelemetryPage<Metric> getMetrics(
 			String service,
 			String period,
+			Boolean internalOnly,
 			Integer count,
 			String before) {
 
@@ -87,21 +88,23 @@ public class TelemetryService {
 		List<Metric> metrics = metricsRepository.findMetrics(
 				service,
 				period,
+				internalOnly,
 				before(before),
 				actualCount + 1);
 
 		return TelemetryPage.of(metrics, actualCount);
 	}
 
-	public TelemetryExport<Metric> exportMetricsCsv(String service, String period) {
+	public TelemetryExport<Metric> exportMetricsCsv(String service, String period, Boolean internalOnly) {
 		period(period);
 
-		return consumer -> metricsRepository.streamAllMetrics(service, period, consumer);
+		return consumer -> metricsRepository.streamAllMetrics(service, period, internalOnly, consumer);
 	}
 
 	public MetricSeriesResponse getMetricSeries(
 		String period,
-		String service) {
+		String service,
+		Boolean internalOnly) {
 
 		if (period == null || !PERIODS.contains(period)) {
 			throw new InvalidRequestException(
@@ -120,7 +123,7 @@ public class TelemetryService {
 		return new MetricSeriesResponse(
 				intervalSeconds,
 				metricsRepository.findSeries(
-						period, service, intervalSeconds
+						period, service, internalOnly, intervalSeconds
 				)
 		);
 }
