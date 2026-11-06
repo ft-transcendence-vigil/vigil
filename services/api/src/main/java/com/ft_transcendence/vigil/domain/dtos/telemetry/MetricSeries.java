@@ -7,6 +7,5 @@ public record MetricSeries(
 		String service,
 		String unit,
 		String kind,
-		boolean internal,
 		List<MetricPoint> points
 ) {}

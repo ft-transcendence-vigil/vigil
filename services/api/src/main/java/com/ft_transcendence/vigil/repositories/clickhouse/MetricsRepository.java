@@ -36,11 +36,10 @@ public class MetricsRepository {
 	public List<Metric> findMetrics(
 			String service,
 			String period,
-			Boolean internalOnly,
 			Instant before,
 			int limit) {
 
-		return filtered(service, period, internalOnly)
+		return filtered(service, period)
 				.before(before)
 				.orderBy("timestamp DESC")
 				.limit(limit)
@@ -50,30 +49,24 @@ public class MetricsRepository {
 	public void streamAllMetrics(
 			String service,
 			String period,
-			Boolean internalOnly,
 			Consumer<Metric> consumer) {
 
-		filtered(service, period, internalOnly)
+		filtered(service, period)
 				.orderBy("timestamp DESC")
 				.stream(jdbcTemplate, this::mapMetric, consumer, "metrics");
 	}
 
 	public List<Metric> findMetrics(String service, Instant from, Instant to) {
-		return filtered(service, null, null)
+		return filtered(service, null)
 				.between(from, to)
 				.orderBy("timestamp ASC")
 				.list(jdbcTemplate, this::mapMetric, "metrics");
 	}
 
-	private ClickHouseQuery filtered(String service, String period, Boolean internalOnly) {
+	private ClickHouseQuery filtered(String service, String period) {
 		ClickHouseQuery query = ClickHouseQuery.from(SELECT)
 				.eq("service", service)
 				.since(period);
-
-		if (internalOnly != null)
-			query.where(internalOnly
-					? "attributes['internal'] = 'true'"
-					: "(attributes['internal'] = 'false' OR NOT mapContains(attributes, 'internal'))");
 
 		return query;
 	}
@@ -90,7 +83,6 @@ public class MetricsRepository {
 	public List<MetricSeries> findSeries(
 		String period,
 		String service,
-		Boolean internalOnly,
 		int intervalSeconds) {
 
 		String interval = switch (period) {
@@ -113,18 +105,11 @@ public class MetricsRepository {
 			params.add(service);
 		}
 
-		if (internalOnly != null) {
-			filters.append(internalOnly
-					? " AND attributes['internal'] = 'true'"
-					: " AND (attributes['internal'] = 'false' "
-					+ "OR NOT mapContains(attributes, 'internal'))");
-		}
 
 		String sql = """
 				SELECT service, name,
 					any(unit) AS series_unit,
 					any(point_kind) AS series_kind,
-					any(is_internal) AS series_internal,
 					bucket,
 					multiIf(
 						any(point_kind) = 'histogram',
@@ -135,7 +120,6 @@ public class MetricsRepository {
 					) AS bucket_value
 				FROM (
 					SELECT service, name, unit, value,
-						attributes['internal'] = 'true' AS is_internal,
 						toStartOfInterval(
 							timestamp, toIntervalSecond(%d)
 						) AS bucket,
@@ -208,7 +192,6 @@ public class MetricsRepository {
 							serviceName,
 							rs.getString("series_unit"),
 							rs.getString("series_kind"),
-							rs.getBoolean("series_internal"),
 							points.get(key)
 					));
 				}

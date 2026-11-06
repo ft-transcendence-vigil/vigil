@@ -61,15 +61,14 @@ public class TelemetryController {
             @RequestParam(required = false) String service,
             @RequestParam(required = false) Integer count,
             @RequestParam(required = false) String before,
-            @RequestParam(name = "vigil.internal", required = false) Boolean internalOnly,
             @RequestParam(required = false) String format) {
 
         if (telemetryService.isCsv(format))
             return CsvResponse.of(
-                    telemetryService.exportMetricsCsv(service, period, internalOnly), Metric.class);
+                    telemetryService.exportMetricsCsv(service, period), Metric.class);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                telemetryService.getMetrics(service, period, internalOnly, count, before));
+                telemetryService.getMetrics(service, period, count, before));
     }
 
     @GetMapping("/traces")
@@ -93,12 +92,10 @@ public class TelemetryController {
 	@GetMapping("/metrics/series")
 	ResponseEntity<MetricSeriesResponse> getMetricSeries(
 			@RequestParam String period,
-			@RequestParam(required = false) String service,
-			@RequestParam(name = "vigil.internal", required = false)
-			Boolean internalOnly) {
+			@RequestParam(required = false) String service) {
 
 		return ResponseEntity.ok(
-				telemetryService.getMetricSeries(period, service, internalOnly)
+				telemetryService.getMetricSeries(period, service)
 		);
 	}
 
