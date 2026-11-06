@@ -4,22 +4,29 @@
 }
 
 (vigil-routes) {
-	handle /internal/* {
-		respond 404
-	}
+	route {
+		@sensitive {
+			path /.env /.env.* */.env */.env.* /.git /.git/* */.git/*
+		}
+		respond @sensitive 403
 
-	handle /api/* {
-		reverse_proxy api:8080
-	}
+		handle /internal/* {
+			respond 404
+		}
 
-	handle_path /otlp/* {
-		reverse_proxy telemetry-collector:4318
-	}
+		handle /api/* {
+			reverse_proxy waf:8080
+		}
 
-	handle {
-		root * /usr/share/caddy
-		try_files {path} /index.html
-		file_server
+		handle_path /otlp/* {
+			reverse_proxy telemetry-collector:4318
+		}
+
+		handle {
+			root * /usr/share/caddy
+			try_files {path} /index.html
+			file_server
+		}
 	}
 }
 
