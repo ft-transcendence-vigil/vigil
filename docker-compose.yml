@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: services/reverse-proxy/Dockerfile
     ports:
-      - "${HTTPS_PORT:-443}:443"
+      - "${HTTPS_PORT:-8443}:443"
     volumes:
       - caddy_data:/data
       - caddy_config:/config
@@ -16,6 +16,7 @@ services:
         condition: service_started
       telemetry-collector:
         condition: service_started
+      waf: {condition: service_started}
     networks:
       - default
     restart: unless-stopped
@@ -62,7 +63,8 @@ services:
       ollama-model-init:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health',
+            timeout=5)"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -77,15 +79,14 @@ services:
       CLICKHOUSE_URL: "jdbc:clickhouse://clickhouse:8123/${CLICKHOUSE_DB:-default}"
       CLICKHOUSE_USERNAME: vigil_api
       CLICKHOUSE_USER: vigil_api
-      CLICKHOUSE_PASSWORD: "${CLICKHOUSE_API_PASSWORD:?Set CLICKHOUSE_API_PASSWORD in .env}"
       SPRING_DATASOURCE_URL: "jdbc:postgresql://${POSTGRES_HOST:-postgres}:5432/${POSTGRES_DB:-lopo}"
       SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
-      SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}"
-      JWT_SECRET: "${JWT_SECRET:?Set JWT_SECRET in .env}"
       VIGIL_TLS_CA_PATH: /etc/vigil/ca/root.crt
+      SPRING_CONFIG_IMPORT: "configtree:/run/secrets/"
     volumes:
       - caddy_public_ca:/etc/vigil/ca:ro
+      - vault_api_secrets:/run/secrets:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -94,15 +95,17 @@ services:
       clickhouse-init:
         condition: service_completed_successfully
 
+      vault-agent-api: {condition: service_healthy}
   postgres:
     container_name: vigil-postgres
     image: "${POSTGRES_IMAGE}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - vault_postgres_secrets:/run/secrets:ro
     environment:
       POSTGRES_USER: "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
       POSTGRES_DB: "${POSTGRES_DB:-lopo}"
+      POSTGRES_PASSWORD_FILE: /run/secrets/POSTGRES_PASSWORD
     healthcheck:
       test:
         - CMD
@@ -115,49 +118,42 @@ services:
       timeout: 5s
       retries: 5
 
+    depends_on:
+      vault-agent-postgres: {condition: service_healthy}
   clickhouse:
     container_name: vigil-clickhouse
-    image: "${CLICKHOUSE_IMAGE:-clickhouse/clickhouse-server:26.8.6.5-distroless}"
+    image: "clickhouse/clickhouse-server:26.8.6.5"
     volumes:
       - clickhouse_data:/var/lib/clickhouse
+      - vault_clickhouse_secrets:/run/secrets:ro
+      - ./security/vault/scripts:/security-entrypoint:ro
     environment:
       CLICKHOUSE_USER: "${CLICKHOUSE_USER:?Set CLICKHOUSE_USER in .env}"
-      CLICKHOUSE_PASSWORD: "${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD in .env}"
       CLICKHOUSE_DB: "${CLICKHOUSE_DB:-default}"
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
     healthcheck:
-      test:
-        - CMD
-        - clickhouse-client
-        - --host
-        - localhost
-        - --user
-        - "${CLICKHOUSE_USER:?Set CLICKHOUSE_USER in .env}"
-        - --password
-        - "${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD in .env}"
-        - --database
-        - "${CLICKHOUSE_DB:-default}"
-        - --query
-        - SELECT 1
+      test: [CMD-SHELL, "/security-entrypoint/clickhouse-health.sh"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 12
 
+    entrypoint: [/bin/sh, /security-entrypoint/clickhouse-start.sh]
+    depends_on:
+      vault-agent-clickhouse: {condition: service_healthy}
   clickhouse-init:
     image: "${CLICKHOUSE_CLIENT_IMAGE:-clickhouse/clickhouse-server:26.8.6.5}"
     restart: "no"
     environment:
       CLICKHOUSE_ADMIN_USER: "${CLICKHOUSE_USER:?Set CLICKHOUSE_USER in .env}"
-      CLICKHOUSE_ADMIN_PASSWORD: "${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD in .env}"
-      CLICKHOUSE_API_PASSWORD: "${CLICKHOUSE_API_PASSWORD:?Set CLICKHOUSE_API_PASSWORD in .env}"
       CLICKHOUSE_DB: "${CLICKHOUSE_DB:-default}"
-      CLICKHOUSE_WRITER_PASSWORD: "${CLICKHOUSE_WRITER_PASSWORD}"
     volumes:
       - ./services/telemetry-db/clickhouse-init.sh:/clickhouse-init.sh:ro
+      - vault_clickhouse_secrets:/run/secrets:ro
+      - ./security/vault/scripts:/security-entrypoint:ro
     depends_on:
       clickhouse:
         condition: service_healthy
-    entrypoint: ["/bin/sh", "/clickhouse-init.sh"]
+    entrypoint: [/bin/sh, /security-entrypoint/clickhouse-init.sh]
 
   telemetry-collector:
     container_name: vigil-telemetry-collector
@@ -168,17 +164,19 @@ services:
       CLICKHOUSE_ENDPOINT: "http://clickhouse:8123"
       CLICKHOUSE_DATABASE: "${CLICKHOUSE_DB:-default}"
       CLICKHOUSE_USERNAME: vigil_writer
-      CLICKHOUSE_PASSWORD: "${CLICKHOUSE_WRITER_PASSWORD}"
       BACKEND_CALLBACK_URL: "${BACKEND_CALLBACK_URL}"
       MAX_SERIALIZED_BATCH_BYTES: "${MAX_SERIALIZED_BATCH_BYTES:-1048576}"
       COLLECTOR_MEMORY_LIMIT_MIB: "${COLLECTOR_MEMORY_LIMIT_MIB:-384}"
       COLLECTOR_MEMORY_SPIKE_LIMIT_MIB: "${COLLECTOR_MEMORY_SPIKE_LIMIT_MIB:-96}"
-      VIGIL_INGESTION_KEY: "${VIGIL_INGESTION_KEY:?Set VIGIL_INGESTION_KEY in .env}"
     depends_on:
       clickhouse-init:
         condition: service_completed_successfully
+      vault-agent-collector: {condition: service_healthy}
     restart: unless-stopped
 
+    command: [/vigcol, --config, /run/secrets/collector-config.yaml]
+    volumes:
+      - vault_collector_secrets:/run/secrets:ro
   mock-telemetry-sender:
     container_name: vigil-mock-telemetry-sender
     profiles: ["mock-telemetry-sender"]
@@ -189,7 +187,7 @@ services:
       OTEL_SERVICE_NAME: "checkout-api"
       OTEL_EXPORTER_OTLP_ENDPOINT: "https://localhost/otlp"
       OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
-      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer%20PassWord42!-replace-with-a-long-random-ingestion-key"
+      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer%20configure-a-real-ingestion-key-for-testing"
       OTEL_EXPORTER_OTLP_CERTIFICATE: "/etc/vigil/ca/root.crt"
       OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: "true"
       SEND_INTERVAL_SECONDS: "${MOCK_TELEMETRY_INTERVAL_SECONDS:-5}"
@@ -197,6 +195,145 @@ services:
       # Development convenience only: real producers obtain the public CA separately.
       - caddy_public_ca:/etc/vigil/ca:ro
     restart: unless-stopped
+
+  waf:
+    build:
+      context: ./security/waf
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/ | grep -q '^404$'"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    environment:
+      PORT: "8080"
+      SERVER_NAME: localhost
+      BACKEND: http://api:8080
+      SERVER_TOKENS: "off"
+      SERVER_HEADER: ""
+      MODSEC_RULE_ENGINE: "On"
+      MODSEC_REQ_BODY_ACCESS: "On"
+      MODSEC_REQ_BODY_LIMIT: "13107200"
+      MODSEC_REQ_BODY_NOFILES_LIMIT: "13107200"
+      MODSEC_REQ_BODY_LIMIT_ACTION: "Reject"
+      MODSEC_RESP_BODY_ACCESS: "Off"
+      MODSEC_AUDIT_ENGINE: "RelevantOnly"
+      MODSEC_AUDIT_LOG_FORMAT: "JSON"
+      MODSEC_AUDIT_LOG_PARTS: "AFHZ"
+      BLOCKING_PARANOIA: "2"
+      ANOMALY_INBOUND: "5"
+      ANOMALY_OUTBOUND: "4"
+      NGINX_X_FORWARDED_PROTO: https
+      NGINX_X_FORWARDED_PORT: "443"
+    depends_on:
+      api:
+        condition: service_started
+    networks: [default]
+  vault:
+    image: hashicorp/vault:1.17
+    restart: unless-stopped
+    cap_add: [IPC_LOCK]
+    entrypoint: [vault]
+    command: [server, -config=/vault/config/vault.hcl]
+    volumes:
+      - vault_data:/vault/file
+      - ./security/vault/config:/vault/config:ro
+    networks: [vault_internal]
+  vault-init:
+    image: hashicorp/vault:1.17
+    restart: unless-stopped
+    user: "0:0"
+    entrypoint: [/bin/sh, /vault/scripts/init-vault.sh]
+    environment:
+      VAULT_ADDR: http://vault:8200
+    volumes:
+      - ./security/vault/scripts:/vault/scripts:ro
+      - ./security/vault/policies:/vault/policies:ro
+      - ./.env:/vault/bootstrap/application.env:ro
+      - vault_init:/vault/init
+      - vault_api_credentials:/vault/credentials/api
+      - vault_postgres_credentials:/vault/credentials/postgres
+      - vault_clickhouse_credentials:/vault/credentials/clickhouse
+      - vault_collector_credentials:/vault/credentials/collector
+    depends_on: [vault]
+    networks: [vault_internal]
+  vault-agent-api:
+    image: hashicorp/vault:1.17
+    restart: unless-stopped
+    user: "0:0"
+    entrypoint: [/bin/sh, /vault/scripts/start-agent.sh]
+    depends_on: [vault-init]
+    networks: [vault_internal]
+    environment: {VAULT_ROLE: api}
+    volumes:
+      - ./security/vault/scripts:/vault/scripts:ro
+      - ./security/vault/agent:/vault/agent:ro
+      - vault_api_secrets:/run/secrets
+      - vault_api_credentials:/vault/credentials:ro
+    healthcheck:
+      test: [CMD-SHELL, "test -s /run/secrets/JWT_SECRET && test -s /run/secrets/SPRING_DATASOURCE_PASSWORD && test
+            -s /run/secrets/CLICKHOUSE_PASSWORD"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+
+  vault-agent-postgres:
+    image: hashicorp/vault:1.17
+    restart: unless-stopped
+    user: "0:0"
+    entrypoint: [/bin/sh, /vault/scripts/start-agent.sh]
+    depends_on: [vault-init]
+    networks: [vault_internal]
+    environment: {VAULT_ROLE: postgres}
+    volumes:
+      - ./security/vault/scripts:/vault/scripts:ro
+      - ./security/vault/agent:/vault/agent:ro
+      - vault_postgres_secrets:/run/secrets
+      - vault_postgres_credentials:/vault/credentials:ro
+    healthcheck:
+      test: [CMD-SHELL, "test -s /run/secrets/POSTGRES_PASSWORD"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+
+  vault-agent-clickhouse:
+    image: hashicorp/vault:1.17
+    restart: unless-stopped
+    user: "0:0"
+    entrypoint: [/bin/sh, /vault/scripts/start-agent.sh]
+    depends_on: [vault-init]
+    networks: [vault_internal]
+    environment: {VAULT_ROLE: clickhouse}
+    volumes:
+      - ./security/vault/scripts:/vault/scripts:ro
+      - ./security/vault/agent:/vault/agent:ro
+      - vault_clickhouse_secrets:/run/secrets
+      - vault_clickhouse_credentials:/vault/credentials:ro
+    healthcheck:
+      test: [CMD-SHELL, "test -s /run/secrets/CLICKHOUSE_PASSWORD && test -s /run/secrets/CLICKHOUSE_API_PASSWORD
+            && test -s /run/secrets/CLICKHOUSE_WRITER_PASSWORD"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+
+  vault-agent-collector:
+    image: hashicorp/vault:1.17
+    restart: unless-stopped
+    user: "0:0"
+    entrypoint: [/bin/sh, /vault/scripts/start-agent.sh]
+    depends_on: [vault-init]
+    networks: [vault_internal]
+    environment: {VAULT_ROLE: collector}
+    volumes:
+      - ./security/vault/scripts:/vault/scripts:ro
+      - ./security/vault/agent:/vault/agent:ro
+      - vault_collector_secrets:/run/secrets
+      - vault_collector_credentials:/vault/credentials:ro
+    healthcheck:
+      test: [CMD-SHELL, "test -s /run/secrets/collector-config.yaml"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
 
 volumes:
 
@@ -216,3 +353,16 @@ volumes:
 
   ollama_data:
     name: vigil_ollama_data
+
+  vault_data: {}
+  vault_init: {}
+  vault_api_credentials: {}
+  vault_postgres_credentials: {}
+  vault_clickhouse_credentials: {}
+  vault_collector_credentials: {}
+  vault_api_secrets: {}
+  vault_postgres_secrets: {}
+  vault_clickhouse_secrets: {}
+  vault_collector_secrets: {}
+networks:
+  vault_internal: {internal: true}
