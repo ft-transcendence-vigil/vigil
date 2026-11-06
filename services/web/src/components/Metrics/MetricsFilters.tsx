@@ -5,14 +5,11 @@ import SwitchButton from '../shared/SwitchButton';
 interface Data {
   period: Period;
   service: string;
-  services: string[];
-  showInternal: boolean;
   live: boolean;
   liveState: 'paused' | 'connecting' | 'live' | 'failed';
   isExporting: boolean;
   onPeriodChange: (period: Period) => void;
   onServiceChange: (service: string) => void;
-  onShowInternalChange: (showInternal: boolean) => void;
   onLiveChange: () => void;
   onExport: () => void;
 }
@@ -25,26 +22,25 @@ const PERIODS: { value: Period; label: string }[] = [
 ];
 
 const LIVE_LABELS = {
-  paused: { text: 'Paused', dot: 'bg-[#4a5d7e]' },
-  connecting: { text: 'Connecting…', dot: 'bg-[#f59e0b]' },
-  live: { text: 'Live', dot: 'bg-[#00d68f] animate-pulse' },
-  failed: { text: 'Disconnected', dot: 'bg-[#ff4757]' },
+  paused: { text: 'Paused' },
+  connecting: { text: 'Connecting…' },
+  live: { text: 'Live' },
+  failed: { text: 'Disconnected' },
 };
 
-const fieldClass =
-  'outline-none px-3 py-2 text-[13px] bg-vigil-card border border-vigil-border focus:border-vigil-blue';
+const selectClass =
+  'capitalize outline-none px-4 py-3 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]';
+const inputClass =
+  'placeholder:text-vigil-muted-extra outline-none px-4 py-2.5 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]';
 
 export default function MetricsFilters({
   period,
   service,
-  services,
-  showInternal,
   live,
   liveState,
   isExporting,
   onPeriodChange,
   onServiceChange,
-  onShowInternalChange,
   onLiveChange,
   onExport,
 }: Data) {
@@ -56,60 +52,49 @@ export default function MetricsFilters({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <select
-        value={period}
-        onChange={(e) => onPeriodChange(e.target.value as Period)}
-        className={fieldClass}
-      >
-        {PERIODS.map((p) => (
-          <option key={p.value} value={p.value} className="bg-vigil-card">
-            {p.label}
-          </option>
-        ))}
-      </select>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          applyService();
-        }}
-      >
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={applyService}
-          list="metrics-services"
-          placeholder="All services"
-          className={`${fieldClass} w-40`}
-        />
-        <datalist id="metrics-services">
-          {services.map((s) => (
-            <option key={s} value={s} />
-          ))}
-        </datalist>
-      </form>
-      <label className="flex items-center gap-2 text-[13px] text-vigil-muted cursor-pointer">
-        <input
-          type="checkbox"
-          checked={showInternal}
-          onChange={(e) => onShowInternalChange(e.target.checked)}
-          className="h-3.5 w-3.5 accent-[#2196F3] cursor-pointer"
-        />
-        Show internal infra metrics
-      </label>
-      <div className="flex items-center gap-2 text-[12px] text-vigil-muted uppercase tracking-wider">
-        <SwitchButton checked={live} onCheckedChange={onLiveChange} />
-        <span className={`inline-block w-1.5 h-1.5 rounded ${label.dot}`} />
-        {label.text}
+    <div className="mb-9">
+      <div className="flex justify-between items-center mb-7">
+        <div className="flex items-center space-x-4">
+          <SwitchButton checked={live} onCheckedChange={onLiveChange} />
+          <span className="text-2xl text-vigil-muted">{label.text}</span>
+        </div>
+        <button
+          type="button"
+          onClick={onExport}
+          disabled={isExporting}
+          className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border py-3 px-5 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-300"
+        >
+          {isExporting ? 'Exporting…' : 'Export CSV'}
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={onExport}
-        disabled={isExporting}
-        className="ms-auto text-[12px] md:text-[13px] cursor-pointer border border-vigil-border px-4 h-9 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-200"
-      >
-        {isExporting ? 'Exporting…' : '↓ CSV export'}
-      </button>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-center">
+        <select
+          value={period}
+          onChange={(e) => onPeriodChange(e.target.value as Period)}
+          className={selectClass}
+        >
+          {PERIODS.map((p) => (
+            <option key={p.value} value={p.value} className="bg-vigil-card">
+              {p.label}
+            </option>
+          ))}
+        </select>
+        <form
+          className="min-w-0"
+          onSubmit={(e) => {
+            e.preventDefault();
+            applyService();
+          }}
+        >
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={applyService}
+            placeholder="Service"
+            className={inputClass}
+          />
+        </form>
+      </div>
     </div>
   );
 }

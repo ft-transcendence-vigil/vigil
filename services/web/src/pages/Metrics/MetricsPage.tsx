@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { Period } from '../../api/metricsApi';
+import type { Metric, Period } from '../../api/metricsApi';
 import useMetrics from '../../hooks/useMetrics';
 import useMetricSeries from '../../hooks/useMetricSeries';
 import useLiveMetrics from '../../hooks/useLiveMetrics';
@@ -7,7 +7,7 @@ import MetricsFilters from '../../components/Metrics/MetricsFilters';
 import SeriesPicker from '../../components/Metrics/SeriesPicker';
 import MetricChartCard from '../../components/Metrics/MetricChartCard';
 import MetricsTable from '../../components/Metrics/MetricsTable';
-import { isInternal, metricKey } from '../../components/Metrics/metricData';
+import { metricKey } from '../../components/Metrics/metricData';
 import SectionHeader from '../../components/shared/SectionHeader';
 import StateMessage from '../../components/shared/StateMessage';
 
@@ -16,17 +16,11 @@ const DEFAULT_SELECTION = 2;
 export default function MetricsPage() {
   const [period, setPeriod] = useState<Period>('24h');
   const [service, setService] = useState('');
-  const [showInternal, setShowInternal] = useState(false);
   const [live, setLive] = useState(false);
+  //the open row is kept here and not in the url like traces because the key is long and ugly and nothing links to a metric point
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [picked, setPicked] = useState<string[] | null>(null);
-  const [expanded, setExpanded] = useState<string[]>([]);
 
-  const {
-    groups,
-    isLoading: seriesLoading,
-    error: seriesError,
-    isUnavailable,
-  } = useMetricSeries({ period, service, showInternal, live });
   const {
     metrics,
     isLoading,
@@ -36,61 +30,32 @@ export default function MetricsPage() {
     isFetchingNextPage,
     exportCsv,
     isExporting,
-  } = useMetrics({ period, service, showInternal });
+  } = useMetrics({ period, service });
   const { liveMetrics, isConnected, hasError } = useLiveMetrics({
     enabled: live,
     service,
   });
-
-  // Until the user picks, show the first few non-internal metrics.
-  const selected =
-    picked ??
-    groups
-      .filter((g) => !g.internal)
-      .slice(0, DEFAULT_SELECTION)
-      .map((g) => g.name);
-  const selectedGroups = groups.filter((g) => selected.includes(g.name));
-
-  const chartServices = useMemo(
-    () =>
-      [
-        ...new Set(groups.flatMap((g) => g.series.map((s) => s.service))),
-      ].sort(),
-    [groups],
-  );
-  const allServices = useMemo(
-    () =>
-      [...new Set([...chartServices, ...metrics.map((m) => m.service)])].sort(),
-    [chartServices, metrics],
-  );
-  const units = useMemo(
-    () => Object.fromEntries(groups.map((g) => [g.name, g.unit])),
-    [groups],
-  );
+  const {
+    groups,
+    isLoading: seriesLoading,
+    error: seriesError,
+  } = useMetricSeries({ period, service, live });
 
   const rows = useMemo(() => {
-    const liveRows = showInternal
-      ? liveMetrics
-      : liveMetrics.filter((m) => !isInternal(m));
-    const seen = new Set<string>();
-    return [...liveRows, ...metrics].filter((m) => {
-      const key = metricKey(m);
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-  }, [liveMetrics, metrics, showInternal]);
+    if (liveMetrics.length === 0) return metrics;
+    const loaded = new Set(metrics.map(metricKey));
+    return [
+      ...liveMetrics.filter((m) => !loaded.has(metricKey(m))),
+      ...metrics,
+    ];
+  }, [metrics, liveMetrics]);
 
-  const toggleSeries = (name: string) =>
-    setPicked(
-      selected.includes(name)
-        ? selected.filter((n) => n !== name)
-        : [...selected, name],
-    );
-  const toggleRow = (key: string) =>
-    setExpanded((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
-    );
+  //same toggle as selectSpan in traces if we click the open row we close it if not we open the new one
+  //prev is the current value of selectedKey so we compare with it and return null to close or the new key to open
+  const selectMetric = (metric: Metric) => {
+    const key = metricKey(metric);
+    setSelectedKey((prev) => (prev === key ? null : key));
+  };
 
   const liveState = !live
     ? 'paused'
@@ -100,24 +65,42 @@ export default function MetricsPage() {
         ? 'live'
         : 'connecting';
 
+  const selected =
+    picked ?? groups.slice(0, DEFAULT_SELECTION).map((g) => g.name);
+  const selectedGroups = groups.filter((g) => selected.includes(g.name));
+  const chartServices = useMemo(
+    () =>
+      [
+        ...new Set(groups.flatMap((g) => g.series.map((s) => s.service))),
+      ].sort(),
+    [groups],
+  );
+  const units = useMemo(
+    () => Object.fromEntries(groups.map((g) => [g.name, g.unit])),
+    [groups],
+  );
+  const toggleSeries = (name: string) =>
+    setPicked(
+      selected.includes(name)
+        ? selected.filter((n) => n !== name)
+        : [...selected, name],
+    );
+
   return (
-    <div className="space-y-6 xl:h-full xl:overflow-y-auto xl:pe-2">
+    <div>
       <MetricsFilters
         period={period}
         service={service}
-        services={allServices}
-        showInternal={showInternal}
         live={live}
         liveState={liveState}
         isExporting={isExporting}
         onPeriodChange={setPeriod}
         onServiceChange={setService}
-        onShowInternalChange={setShowInternal}
         onLiveChange={() => setLive((prev) => !prev)}
         onExport={() => exportCsv()}
       />
 
-      <section className="space-y-4">
+      <section className="space-y-4 mb-9">
         <SectionHeader
           title="Series"
           caption={
@@ -126,9 +109,6 @@ export default function MetricsPage() {
               : 'Every service, averaged per time bucket'
           }
         />
-        {isUnavailable && (
-          <StateMessage text="Charts need the /api/telemetry/metrics/series endpoint, which the backend doesn't have yet. The raw points below are real data." />
-        )}
         {seriesLoading && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {Array.from({ length: 2 }, (_, i) => (
@@ -140,7 +120,7 @@ export default function MetricsPage() {
           </div>
         )}
         {seriesError && <StateMessage text={seriesError.message} isError />}
-        {!seriesLoading && !seriesError && !isUnavailable && (
+        {!seriesLoading && !seriesError && (
           <>
             {groups.length === 0 ? (
               <StateMessage text="No metrics recorded in this period." />
@@ -170,20 +150,17 @@ export default function MetricsPage() {
         )}
       </section>
 
-      <section>
-        <SectionHeader title="Raw points" caption="Newest first" />
-        <MetricsTable
-          metrics={rows}
-          units={units}
-          expanded={expanded}
-          isLoading={isLoading}
-          error={error}
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          onLoadMore={() => fetchNextPage()}
-          onToggle={toggleRow}
-        />
-      </section>
+      <MetricsTable
+        metrics={rows}
+        units={units}
+        selectedKey={selectedKey}
+        isLoading={isLoading}
+        error={error}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        onLoadMore={() => fetchNextPage()}
+        onSelect={selectMetric}
+      />
     </div>
   );
 }

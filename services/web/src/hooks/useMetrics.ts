@@ -8,23 +8,19 @@ import { downloadBlob } from '../components/shared/utils/format';
 interface Params {
   period: Period;
   service: string;
-  showInternal: boolean;
 }
 
 export const METRICS_PAGE_SIZE = 50;
 
-export default function useMetrics({ period, service, showInternal }: Params) {
+export default function useMetrics({ period, service }: Params) {
   const { apiFetch } = useAuth();
-  // vigil.internal=false hides internal metrics; leaving it out returns everything.
-  const internalOnly = showInternal ? undefined : false;
 
   const metricsQuery = useInfiniteQuery({
-    queryKey: ['metrics', period, service, showInternal],
+    queryKey: ['metrics', period, service],
     queryFn: ({ pageParam }) =>
       getMetrics(apiFetch, {
         period,
         service: service || undefined,
-        internalOnly,
         count: METRICS_PAGE_SIZE,
         before: pageParam,
       }),
@@ -37,11 +33,7 @@ export default function useMetrics({ period, service, showInternal }: Params) {
 
   const exportMutation = useMutation({
     mutationFn: () =>
-      exportMetricsCsv(apiFetch, {
-        period,
-        service: service || undefined,
-        internalOnly,
-      }),
+      exportMetricsCsv(apiFetch, { period, service: service || undefined }),
     onSuccess: (blob) => downloadBlob(blob, `vigil-metrics-${period}.csv`),
     onError: (error) => toast.error(error.message),
   });
