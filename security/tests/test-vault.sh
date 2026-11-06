@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/../.."
-DC="docker compose -f docker-compose.yml -f security/docker-compose.security.yml"
+DC="docker compose -p vigil-security-integrated -f docker-compose.yml"
 for role in api postgres clickhouse collector; do
   $DC exec -T "vault-agent-$role" sh -c 'test -d /run/secrets' || exit 1
 done

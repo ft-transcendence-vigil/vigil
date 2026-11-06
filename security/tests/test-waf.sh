@@ -3,7 +3,7 @@ set -eu
 
 cd "$(dirname "$0")/../.."
 
-DC="docker compose -f docker-compose.yml -f security/docker-compose.security.yml"
+DC="docker compose -p vigil-security-integrated -f docker-compose.yml"
 
 $DC exec -T waf nginx -t
 $DC exec -T waf sh -c 'test -r /etc/modsecurity.d/owasp-crs/rules/REQUEST-899-CUSTOM.conf'
