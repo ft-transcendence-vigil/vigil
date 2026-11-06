@@ -4,7 +4,6 @@ export const dashboardNavigation = [
     links: [
       { label: 'overview', path: '/overview' },
       { label: 'alerts', path: '/alerts' },
-      { label: 'status', path: '/status' },
     ],
   },
   {
