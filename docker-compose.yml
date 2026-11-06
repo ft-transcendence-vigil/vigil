@@ -84,6 +84,10 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: "${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}"
       JWT_SECRET: "${JWT_SECRET:?Set JWT_SECRET in .env}"
       VIGIL_TLS_CA_PATH: /etc/vigil/ca/root.crt
+      # Caddy opens upstream connections with its own IP; otherwise all clients share a rate-limit bucket.
+      # Let Tomcat resolve X-Forwarded-For from internal proxies so getRemoteAddr() returns the client IP.
+      # Keep the API port unpublished; only trusted containers may reach it (private IPs are trusted by default).
+      SERVER_FORWARD_HEADERS_STRATEGY: native
     volumes:
       - caddy_public_ca:/etc/vigil/ca:ro
     depends_on:
