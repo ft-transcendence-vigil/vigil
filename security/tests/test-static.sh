@@ -5,7 +5,7 @@ cd "$(dirname "$0")/../.."
 [ -f security/vault/config/vault.hcl ]
 grep -q 'reverse_proxy waf:8080' services/reverse-proxy/Caddyfile
 ! grep -q 'JWT_SECRET:.*Set JWT_SECRET' docker-compose.yml
-grep -q 'SPRING_CONFIG_IMPORT' security/docker-compose.security.yml
+grep -q 'SPRING_CONFIG_IMPORT' docker-compose.yml
 sh -n security/vault/scripts/init-vault.sh
 sh -n security/vault/scripts/start-agent.sh
 sh -n security/tests/test-waf.sh
