@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { ApiFetch } from './api';
 
 export type Period = '1h' | '24h' | '7d' | '30d';
+export type MetricKind = 'gauge' | 'counter' | 'histogram';
 
 export interface Metric {
   service: string;
@@ -17,15 +18,12 @@ export interface MetricsResponse {
   hasMore: boolean;
 }
 
-export interface MetricsQueryParams {
+export interface MetricsParams {
   period?: Period;
   service?: string;
   count?: number;
   before?: string;
-  internalOnly?: boolean;
 }
-
-export type MetricKind = 'gauge' | 'counter' | 'histogram';
 
 export interface MetricPoint {
   bucket: string;
@@ -37,7 +35,6 @@ export interface MetricSeries {
   service: string;
   unit: string;
   kind: MetricKind;
-  internal: boolean;
   points: MetricPoint[];
 }
 
@@ -45,11 +42,6 @@ export interface MetricSeriesResponse {
   interval_seconds: number;
   series: MetricSeries[];
 }
-
-export type MetricSeriesParams = Pick<
-  MetricsQueryParams,
-  'period' | 'service' | 'internalOnly'
->;
 
 function toError(error: unknown, fallback: string): Error {
   if (error instanceof Error && !axios.isAxiosError(error)) {
@@ -73,12 +65,12 @@ function toError(error: unknown, fallback: string): Error {
 
 async function getMetrics(
   apiFetch: ApiFetch,
-  { internalOnly, ...params }: MetricsQueryParams = {},
+  params?: MetricsParams,
 ): Promise<MetricsResponse> {
   try {
     const res = await apiFetch<MetricsResponse>('/telemetry/metrics', {
       method: 'GET',
-      params: { ...params, 'vigil.internal': internalOnly },
+      params,
     });
     return res.data;
   } catch (error) {
@@ -86,36 +78,29 @@ async function getMetrics(
   }
 }
 
-// Returns null while the backend does not expose /telemetry/metrics/series yet.
 async function getMetricSeries(
   apiFetch: ApiFetch,
-  { internalOnly, ...params }: MetricSeriesParams,
-): Promise<MetricSeriesResponse | null> {
+  params: Pick<MetricsParams, 'period' | 'service'>,
+): Promise<MetricSeriesResponse> {
   try {
     const res = await apiFetch<MetricSeriesResponse>(
       '/telemetry/metrics/series',
-      {
-        method: 'GET',
-        params: { ...params, 'vigil.internal': internalOnly },
-      },
+      { method: 'GET', params },
     );
     return res.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return null;
-    }
     throw toError(error, 'Unable to fetch metric series.');
   }
 }
 
 async function exportMetricsCsv(
   apiFetch: ApiFetch,
-  { internalOnly, ...params }: MetricSeriesParams,
+  params: Pick<MetricsParams, 'period' | 'service'>,
 ): Promise<Blob> {
   try {
     const res = await apiFetch<Blob>('/telemetry/metrics', {
       method: 'GET',
-      params: { ...params, 'vigil.internal': internalOnly, format: 'csv' },
+      params: { ...params, format: 'csv' },
       responseType: 'blob',
     });
     return res.data;
