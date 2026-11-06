@@ -1,36 +1,126 @@
-# Vigil security module — WAF + Vault
+# Vigil Security Module — WAF + HashiCorp Vault
 
-This is a **development / demonstration implementation**, not a production-ready security boundary. It is based on the architecture described in chat: Caddy public TLS, Spring Boot `api:8080`, `/api/*` API, `/api/alerts/ws` WebSocket, `/api/telemetry/{logs,metrics,traces}/live` SSE. Existing Compose and API source were not available to test here.
+This module provides Web Application Firewall (WAF) protection and centralized secret management for Vigil.
 
-## Installation (team integration)
+**Note:** This is a development/demonstration implementation, not a production-ready security deployment.
 
-1. Copy this entire folder to `test/security/` beside the team's `test/docker-compose.yml`.
-2. In `test/services/reverse-proxy/Caddyfile`, change ONLY the `/api/*` upstream from `reverse_proxy api:8080` to `reverse_proxy waf:8080`. Keep `/otlp/*`, frontend, TLS and `/internal/*` routes unchanged.
-3. Confirm `api` has no `ports:` exposing 8080 on the host; ensure WAF and Caddy are on the same Compose default network. If the original compose uses explicit networks, attach WAF to that network too.
-4. **Important:** if the original API has `JWT_SECRET` set in its `environment`, remove that specific assignment (and keep all other env variables). Otherwise that environment variable overrides the Vault configtree value. Keep your existing DB/ClickHouse secrets working as before; this bundle centralizes the JWT secret only.
-5. Build/start: `cd test && docker compose -f docker-compose.yml -f security/docker-compose.security.yml up -d --build`.
-6. Check: `docker compose -f docker-compose.yml -f security/docker-compose.security.yml logs vault-init vault-agent waf --tail 100` and `docker compose -f docker-compose.yml -f security/docker-compose.security.yml exec waf nginx -t`.
-7. Test browser login, authenticated API, live telemetry SSE, WebSocket alerts, and WAF SQLi. A 403 is not proof of CRS without audit evidence.
+## Architecture
 
-## Known verification / integration gaps
+**HTTP traffic:**
 
-- **Critical:** verify actual base Compose before merging: its networks, `api` service name, dependencies, and any existing `SPRING_CONFIG_IMPORT` setting. Docker Compose overlay `depends_on` is additive and original dependencies are preserved.
-- **Critical:** confirm Spring Boot configtree resolves `${JWT_SECRET}` from `/run/secrets/JWT_SECRET`; if the app uses environment-only access (`System.getenv`), change application wiring or use a secret-loading entrypoint.
-- **Critical:** the ModSecurity connector must actually be enabled in the Nginx location hierarchy. `nginx -t` alone does not prove it. Verify WAF logs with a malicious request and normal request.
-- **Critical:** WebSocket query-string JWTs may be logged by Caddy, ModSecurity audit, upstream logs or monitoring. Nginx access logging is disabled for the WebSocket endpoint only. Audit all logging paths before production.
-- **Critical:** Docker network isolation alone does not prevent direct API access from other containers on the same network. Strong isolation requires a carefully reviewed network split after confirming all service dependencies.
-- Vault is single-node with file storage, no TLS on its private Docker network, and a local auto-unseal key in a Docker volume. This is for coursework, not production. Store bootstrap credentials safely, restrict Docker access, use TLS and KMS/HSM auto-unseal for production.
-- This version uses Vault to supply JWT_SECRET. Other credentials are NOT migrated without reviewing their exact usage, ownership and rotation requirements.
-- Check the image tags are available and pin digests for reproducibility. We could not run Docker in this authoring environment.
-- Nginx template relies on the pinned CRS image's `includes/proxy_backend.conf` and `includes/location_common.conf`; confirm their contents and ModSecurity location inheritance.
+Caddy (HTTPS) → Nginx + ModSecurity (OWASP CRS) → Spring Boot API
 
-## Files
+Caddy continues to handle frontend traffic and OTLP routes.
 
-- `waf/Dockerfile` / `waf/nginx/default.conf.template` — CRS/Nginx proxy
-- `waf/rules/` — custom rule and intentionally empty exclusion hooks
-- `vault/config/vault.hcl` — Vault file storage and listener
-- `vault/scripts/init-vault.sh` — demo bootstrap, AppRole, secret initialization and unseal monitor
-- `vault/agent/agent.hcl` — fetches JWT_SECRET into a Docker volume
-- `vault/policies/backend-policy.hcl` — least-privilege read policy
-- `docker-compose.security.yml` — Compose overlay
-- `tests/` — smoke tests
+**Secret management:**
+
+HashiCorp Vault → Vault Agents → Docker volumes → Application services
+
+## Components
+
+### Web Application Firewall
+
+- Nginx with ModSecurity and OWASP Core Rule Set (CRS).
+- Protects `/api/*` traffic.
+- Operates behind the existing Caddy reverse proxy.
+- Uses blocking paranoia level 2 and an inbound anomaly threshold of 5.
+- Supports the application's API, WebSocket, and SSE endpoints.
+
+### HashiCorp Vault
+
+- Uses persistent file-based storage.
+- Initializes and unseals automatically for demonstration purposes.
+- Imports initial credentials from the root `.env` file.
+- Uses AppRole authentication and four Vault Agents.
+- Generates secret files in Docker volumes for the API, PostgreSQL, ClickHouse, and telemetry collector.
+
+The initial credentials imported are:
+
+- `JWT_SECRET`
+- `POSTGRES_PASSWORD`
+- `CLICKHOUSE_PASSWORD`
+- `CLICKHOUSE_API_PASSWORD`
+- `CLICKHOUSE_WRITER_PASSWORD`
+- `VIGIL_INGESTION_KEY`
+
+Existing secrets are retained in Vault across container restarts.
+
+## Deployment
+
+The security services are integrated directly into the project's main `docker-compose.yml`.
+
+From the project root:
+
+```bash
+docker compose up -d --build
+```
+
+For a fresh deployment, populate the required variables in the root `.env` file before starting the containers.
+
+Do not commit `.env`, Vault initialization credentials, or generated secret files.
+
+## Verification
+
+**Normal API request:**
+
+```bash
+curl -k -o /dev/null -w '%{http_code}\n' \
+  https://localhost:8443/api/auth/sessions
+```
+
+Expected: `401` (authentication required).
+
+**WAF SQL injection test:**
+
+```bash
+curl -k -o /dev/null -w '%{http_code}\n' \
+  --get --data-urlencode "id=1' OR '1'='1" \
+  https://localhost:8443/api/auth/sessions
+```
+
+Expected: `403` (request blocked).
+
+To confirm the block came from ModSecurity CRS rather than the application, inspect the WAF audit logs.
+
+**Container health:**
+
+```bash
+docker compose ps -a
+```
+
+Check that the Vault Agents, PostgreSQL, ClickHouse, and WAF are healthy. Initialization containers may exit successfully with code 0.
+
+## Testing Status
+
+The following integration tests were completed successfully:
+
+- Fresh deployment using isolated Docker volumes.
+- Vault initialization and secret delivery.
+- Four healthy Vault Agents.
+- PostgreSQL and ClickHouse startup.
+- API accessibility through Caddy and WAF.
+- SQL injection blocking by WAF.
+- Single-file Docker Compose startup and smoke tests.
+
+These checks do not constitute a complete production security assessment.
+
+## Security Limitations
+
+- Vault uses single-node file storage.
+- Vault traffic uses HTTP within a private Docker network.
+- The demonstration bootstrap stores the root token and unseal key in a persistent Docker volume.
+- Initial secrets are imported from the root `.env` file.
+- Docker network isolation does not prevent every form of lateral access between containers.
+- WebSocket URLs containing tokens may be captured by proxy or application logs.
+- Production deployments require stronger key management, TLS, access controls, and a security review.
+
+## Project Files
+
+- `waf/` — Nginx, ModSecurity, CRS configuration, and custom rules.
+- `vault/config/` — Vault server configuration.
+- `vault/scripts/` — Initialization, agent startup, and service integration scripts.
+- `vault/agent/` — Vault Agent configurations and templates.
+- `vault/policies/` — AppRole access policies.
+- `tests/` — Security smoke tests.
+
+The main `docker-compose.yml` contains the integrated service definitions.
