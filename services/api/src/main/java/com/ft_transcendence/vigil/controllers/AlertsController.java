@@ -3,11 +3,15 @@ package com.ft_transcendence.vigil.controllers;
 import com.ft_transcendence.vigil.domain.dtos.alerts.*;
 import com.ft_transcendence.vigil.domain.entities.Alerts.Status;
 import com.ft_transcendence.vigil.services.AlertsService;
+import com.ft_transcendence.vigil.services.LlmService;
+import com.ft_transcendence.vigil.domain.dtos.llm.AlertAskRequestDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +26,14 @@ import java.util.UUID;
 
 public class AlertsController {
     private final AlertsService alertsService;
+    private final LlmService llmService;
+
+    @PostMapping(value = "/{id}/ask")
+    @PreAuthorize("hasAnyRole('admin', 'viewer')")
+    public SseEmitter llmAskController(@PathVariable UUID id, @Valid @RequestBody AlertAskRequestDto dto)
+    {
+        return llmService.askService(id, dto);
+    }
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('admin', 'viewer')")

@@ -35,7 +35,7 @@ class SecurityConfig {
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
         http.addFilterBefore(jjwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
 
-                .addFilterBefore(rateLimiter, JjwtAuthFilter.class)
+                .addFilterAfter(rateLimiter, JjwtAuthFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) ->
                                 exceptionResolver.resolveException(
@@ -45,7 +45,7 @@ class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests((requests) -> requests
-                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        .dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.ASYNC).permitAll()
                         .requestMatchers(
                                 "/api/setup",
                                 "/api/auth/login",
