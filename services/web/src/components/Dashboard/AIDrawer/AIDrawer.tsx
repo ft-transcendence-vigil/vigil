@@ -11,7 +11,7 @@ export default function AIDrawer() {
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}
     >
-      <AIPanel onClose={closeAI} />
+      {alertId && <AIPanel key={alertId} onClose={closeAI} />}
     </aside>
   );
 }
