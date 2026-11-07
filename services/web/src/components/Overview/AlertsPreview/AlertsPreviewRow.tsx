@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AskAIButton from '../../shared/AskAIButton';
 
 type AlertSeverity = 'critical' | 'warning';
 type AlertAction = 'ack' | 'resolve';
@@ -63,6 +64,7 @@ export default function AlertsPreviewRow({
           <p className="text-[11px] tracking-wide text-vigil-muted mb-2">
             {llmAnalysis}
           </p>
+          <AskAIButton onClick={() => 1 + 1} />
         </div>
       )}
     </div>

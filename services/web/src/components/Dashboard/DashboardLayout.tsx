@@ -18,8 +18,10 @@ import {
 } from '../../api/alertNotificationsApi';
 import { toast } from 'sonner';
 import { useAuth } from '../../auth/authContext';
+import AIDrawer from './AIDrawer/AIDrawer';
+import { AIDrawerProvider } from './AIDrawer/AIDrawerProvider';
 
-export default function DashboardLayout() {
+function DashboardContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const title = getPageTitle(location.pathname);
@@ -149,6 +151,15 @@ export default function DashboardLayout() {
           <Outlet />
         </div>
       </main>
+      <AIDrawer />
     </div>
+  );
+}
+
+export default function DashboardLayout() {
+  return (
+    <AIDrawerProvider>
+      <DashboardContent />
+    </AIDrawerProvider>
   );
 }
