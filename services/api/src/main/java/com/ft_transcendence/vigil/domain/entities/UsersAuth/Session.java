@@ -8,7 +8,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
-import java.util.List;
 import java.util.UUID;
 @Builder
 @Getter

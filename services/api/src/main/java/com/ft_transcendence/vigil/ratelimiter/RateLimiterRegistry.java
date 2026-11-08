@@ -13,9 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RateLimiterRegistry {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
-    void addLimiter(String key, long capacity, long interval) {
+    void addLimiter(String key) {
         buckets.computeIfAbsent(key, k -> Bucket.builder()
-                .addLimit(l -> l.capacity(capacity).refillIntervally(capacity, Duration.ofSeconds(interval)))
+                .addLimit(l -> l.capacity(ApiRateLimitPolicy.CAPACITY)
+                                        .refillIntervally(ApiRateLimitPolicy.CAPACITY, ApiRateLimitPolicy.REFILL_PERIOD))
                 .build());
     }
 
