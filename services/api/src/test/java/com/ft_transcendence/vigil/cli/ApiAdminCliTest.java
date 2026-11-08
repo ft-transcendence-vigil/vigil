@@ -1,6 +1,7 @@
 package com.ft_transcendence.vigil.cli;
 
 import com.ft_transcendence.vigil.security.ApiKeyFile;
+import com.ft_transcendence.vigil.ratelimiter.ApiRateLimitPolicy;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
@@ -61,6 +62,12 @@ class ApiAdminCliTest {
     private final ByteArrayOutputStream stdout = new ByteArrayOutputStream();
     private final ByteArrayOutputStream stderr = new ByteArrayOutputStream();
     private HttpServer server;
+    private final AtomicInteger requestsInWindow = new AtomicInteger();
+    private final List<java.time.Duration> waits = new ArrayList<>();
+    private ApiAdminCli.Sleeper sleeper = duration -> {
+        waits.add(duration);
+        requestsInWindow.set(0);
+    };
     private String origin;
     private String context = "";
     private Path keyFile;
@@ -97,6 +104,8 @@ class ApiAdminCliTest {
 
     private void handle(HttpExchange exchange) throws IOException {
         try {
+            assertTrue(requestsInWindow.incrementAndGet() <= ApiRateLimitPolicy.CAPACITY,
+                    "CLI exceeded the shared request budget before waiting");
             Expected next = expected.remove();
             assertEquals(next.method(), exchange.getRequestMethod());
             assertEquals(next.path(), exchange.getRequestURI().toString());
@@ -139,7 +148,7 @@ class ApiAdminCliTest {
     private int run(ApiAdminCli.Input input, Map<String, String> env, String... args) {
         Map<String, String> configured = new HashMap<>(env);
         configured.putIfAbsent("VIGIL_API_KEY_FILE", keyFile.toString());
-        return ApiAdminCli.run(args, input, new PrintStream(stdout), new PrintStream(stderr), configured, keyReader, recovery);
+        return ApiAdminCli.run(args, input, new PrintStream(stdout), new PrintStream(stderr), configured, keyReader, recovery, sleeper);
     }
     private String output() { return stdout.toString(StandardCharsets.UTF_8) + stderr.toString(StandardCharsets.UTF_8); }
     private static Map<String, String> user(String id, String email, String role) { return Map.of("id", id, "email", email, "role", role); }
@@ -366,6 +375,55 @@ class ApiAdminCliTest {
         assertEquals(1, input.linePrompts.size());
         assertTrue(output().contains("Deleted 2/2 human account(s)"));
         assertTrue(output().contains("non-atomic"));
+    }
+
+    @Test
+    void bulkDeletionPacesMultipleWindowsIncludingInitialGet() {
+        int count = Math.toIntExact(ApiRateLimitPolicy.CAPACITY * 2 + 3);
+        List<Map<String, String>> snapshot = new ArrayList<>();
+        snapshot.add(BACKING);
+        for (int i = 0; i < count; i++) {
+            snapshot.add(user(new java.util.UUID(1, i).toString(), "human" + i + "@example.com", "viewer"));
+        }
+        expect("GET", "/api/users", API_KEY, null, 200, snapshot);
+        for (int i = 1; i < snapshot.size(); i++) {
+            expect("DELETE", "/api/users/" + snapshot.get(i).get("id"), API_KEY, null, 204, null);
+        }
+        assertEquals(0, run(new ScriptInput(List.of("DELETE ALL HUMAN ACCOUNTS")), "delete-all-accounts"));
+        assertEquals(List.of(ApiRateLimitPolicy.REFILL_PERIOD, ApiRateLimitPolicy.REFILL_PERIOD), waits);
+        assertTrue(output().contains("Done: " + count + " human account(s) deleted"));
+    }
+
+    @Test
+    void interruptedBudgetWaitStopsBeforeNextDelete() {
+        int count = Math.toIntExact(ApiRateLimitPolicy.CAPACITY + 1);
+        List<Map<String, String>> snapshot = new ArrayList<>();
+        snapshot.add(BACKING);
+        for (int i = 0; i < count; i++) {
+            snapshot.add(user(new java.util.UUID(1, i).toString(), "human" + i + "@example.com", "viewer"));
+        }
+        expect("GET", "/api/users", API_KEY, null, 200, snapshot);
+        for (int i = 1; i < ApiRateLimitPolicy.CAPACITY; i++) {
+            expect("DELETE", "/api/users/" + snapshot.get(i).get("id"), API_KEY, null, 204, null);
+        }
+        sleeper = duration -> { throw new InterruptedException(); };
+        try {
+            assertEquals(1, run(new ScriptInput(List.of("DELETE ALL HUMAN ACCOUNTS")), "delete-all-accounts"));
+            assertTrue(Thread.currentThread().isInterrupted());
+            assertTrue(output().contains((ApiRateLimitPolicy.CAPACITY - 1) + "/" + count + " confirmed deleted"));
+            assertTrue(output().contains("next request was not sent"));
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    void rateLimitedDeleteStopsWithoutRetry() {
+        ready();
+        expect("DELETE", "/api/users/" + ADMIN_ID, API_KEY, null, 429, null);
+        assertEquals(1, run(new ScriptInput(List.of("DELETE ALL HUMAN ACCOUNTS")), "delete-all-accounts"));
+        assertTrue(output().contains("0/2 confirmed deleted"));
+        assertTrue(output().contains("HTTP 429. Rate limited; no automatic retry"));
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.ft_transcendence.vigil.cli;
 
 import com.ft_transcendence.vigil.security.ApiKeyFile;
+import com.ft_transcendence.vigil.ratelimiter.ApiRateLimitPolicy;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -54,6 +55,11 @@ public final class ApiAdminCli {
         String read(Path path) throws IOException;
     }
 
+    @FunctionalInterface
+    interface Sleeper {
+        void sleep(Duration duration) throws InterruptedException;
+    }
+
     interface Recovery {
         ApiAccountRecovery.State state();
         void repair();
@@ -80,9 +86,11 @@ public final class ApiAdminCli {
     private final Path keyFile;
     private final KeyReader keyReader;
     private final Supplier<? extends Recovery> recovery;
+    private final Sleeper sleeper;
+    private long requestsInBudget;
 
     private ApiAdminCli(Input input, PrintStream out, URI base, HttpClient http, Path keyFile,
-                        KeyReader keyReader, Supplier<? extends Recovery> recovery) {
+                        KeyReader keyReader, Supplier<? extends Recovery> recovery, Sleeper sleeper) {
         this.input = input;
         this.out = out;
         this.base = base;
@@ -90,6 +98,7 @@ public final class ApiAdminCli {
         this.keyFile = keyFile;
         this.keyReader = keyReader;
         this.recovery = recovery;
+        this.sleeper = sleeper;
     }
 
     public static int run(String[] args) {
@@ -110,6 +119,11 @@ public final class ApiAdminCli {
 
     static int run(String[] args, Input input, PrintStream out, PrintStream err, Map<String, String> env,
                    KeyReader keyReader, Supplier<? extends Recovery> recovery) {
+        return run(args, input, out, err, env, keyReader, recovery, Thread::sleep);
+    }
+
+    static int run(String[] args, Input input, PrintStream out, PrintStream err, Map<String, String> env,
+                   KeyReader keyReader, Supplier<? extends Recovery> recovery, Sleeper sleeper) {
         if (args.length == 1 && isHelp(args[0])) { help(null, out); return 0; }
         if (args.length == 2 && COMMANDS.contains(args[0]) && isHelp(args[1])) { help(args[0], out); return 0; }
         if (args.length == 0 || !COMMANDS.contains(args[0]) || args.length != (args[0].equals("reset-password") ? 2 : 1)) {
@@ -133,7 +147,7 @@ public final class ApiAdminCli {
             }
             try (HttpClient http = builder.build()) {
                 Path keyFile = Path.of(env.getOrDefault("VIGIL_API_KEY_FILE", "/var/lib/vigil/admin/api-key"));
-                new ApiAdminCli(input, out, base, http, keyFile, keyReader, recovery)
+                new ApiAdminCli(input, out, base, http, keyFile, keyReader, recovery, sleeper)
                         .execute(args[0], args.length == 2 ? args[1] : null);
             }
             return 0;
@@ -335,12 +349,29 @@ public final class ApiAdminCli {
         try { return new String(value); } finally { Arrays.fill(value, '\0'); }
     }
 
+    private void awaitRequestBudget() {
+        if (requestsInBudget == ApiRateLimitPolicy.CAPACITY) {
+            out.printf("Request budget used; waiting %d seconds for rate-limit refill.%n",
+                    ApiRateLimitPolicy.REFILL_PERIOD.toSeconds());
+            try {
+                // A full period after the last completed request avoids depending on server window alignment.
+                sleeper.sleep(ApiRateLimitPolicy.REFILL_PERIOD);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new Failure("Interrupted while waiting for rate-limit refill; next request was not sent.");
+            }
+            requestsInBudget = 0;
+        }
+        requestsInBudget++;
+    }
+
     private Object request(String method, String path, String auth, Map<String, String> payload) {
         var request = HttpRequest.newBuilder(URI.create(base + path)).timeout(TIMEOUT).header("Accept", "application/json");
         if (auth != null) request.header("Authorization", auth);
 
         if (payload != null) request.header("Content-Type", "application/json");
         request.method(method, payload == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofByteArray(json.writeValueAsBytes(payload)));
+        awaitRequestBudget();
         var pending = http.sendAsync(request.build(), HttpResponse.BodyHandlers.ofByteArray());
         HttpResponse<byte[]> response;
         try {

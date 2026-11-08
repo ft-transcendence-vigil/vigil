@@ -39,7 +39,7 @@ public class RateLimiter extends OncePerRequestFilter {
         String key =request.getRemoteAddr();
 
         try {
-            rateLimiterRegistry.addLimiter(key, 10, 60);
+            rateLimiterRegistry.addLimiter(key);
             rateLimiterRegistry.consum(key);
         } catch (TooManyRequestsException e) {
             exceptionResolver.resolveException(
