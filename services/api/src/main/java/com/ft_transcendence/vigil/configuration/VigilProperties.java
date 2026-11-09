@@ -2,6 +2,7 @@ package com.ft_transcendence.vigil.configuration;
 
 import com.ft_transcendence.vigil.security.ApiKeyFile;
 import jakarta.annotation.PostConstruct;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,8 +20,9 @@ public class VigilProperties {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private String jwtSecret;
+    @Setter(AccessLevel.NONE)
     private String apiKey;
-    private String apiKeyFile;
+    private String apiKeyFile = "/var/lib/vigil/admin/api-key";
     private String ingestionKey;
     private long accessTokenExpiration;
     private long refreshTokenExpiration;
@@ -37,8 +39,13 @@ public class VigilProperties {
             SECURE_RANDOM.nextBytes(bytes);
             jwtSecret = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
         }
-        if (apiKey == null || apiKey.isBlank()) {
-            apiKey = UUID.randomUUID().toString();
+        try {
+            if (apiKeyFile == null || apiKeyFile.isBlank()) {
+                throw new IOException("An API key file path is required.");
+            }
+            apiKey = ApiKeyFile.loadOrCreate(Path.of(apiKeyFile));
+        } catch (IOException | InvalidPathException exception) {
+            throw new IllegalStateException("Unable to load or initialize the API credential file.", exception);
         }
         if (ingestionKey == null || ingestionKey.isBlank()) {
             ingestionKey = UUID.randomUUID().toString();
@@ -49,13 +56,6 @@ public class VigilProperties {
         }
         if (frontEndUrl == null || frontEndUrl.isBlank()) {
             frontEndUrl = frontendBaseUrl;
-        }
-        if (apiKeyFile != null && !apiKeyFile.isBlank()) {
-            try {
-                ApiKeyFile.publish(Path.of(apiKeyFile), apiKey);
-            } catch (IOException | InvalidPathException exception) {
-                throw new IllegalStateException("Unable to publish the API administration credential file.", exception);
-            }
         }
     }
 }

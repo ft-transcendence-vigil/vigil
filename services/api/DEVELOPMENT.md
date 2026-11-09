@@ -5,7 +5,7 @@ These items were migrated from `notes.txt`. They are historical follow-ups, not 
 ## Follow-ups to verify
 
 - Investigate the previously noted test issues involving secure cookies and HTTPS.
-- Review API-key environment configuration and the deployment's website-name configuration.
+- Review the deployment's website-name configuration. API keys are generated on first startup and persisted in the private credential volume, not configured through an environment value.
 - Check whether the proposed admin-only `GET /api/config/keys` endpoint returning `api_key` and `ingestion_key` is still required. Review secret-exposure implications before implementing it.
 
 ## Account safety

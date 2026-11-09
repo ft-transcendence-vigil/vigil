@@ -11,9 +11,11 @@ Each command supports `--help` and `-h`. The scripts execute the Java client ins
 
 ## Authentication
 
-The API writes its current configured or generated API key to `/var/lib/vigil/admin/api-key` at startup. Docker Compose stores this file in the `api_admin_credentials` volume, mounted only by `api`. The CLI reads the same file automatically; a human admin account is not required.
+The API loads its key from `/var/lib/vigil/admin/api-key` at startup. If the file is missing, it generates a cryptographically random 256-bit key and persists it atomically before serving requests. Docker Compose stores the file in the `api_admin_credentials` volume, mounted only by `api`, so restarts and container rebuilds preserve the key. The CLI reads the same file automatically; a human admin account is not required.
 
-The directory is owner-only (`0700`), the file is owner-only (`0600`), and updates are atomic. Treat access to this volume or the container as administrator access. `VIGIL_API_KEY_FILE` specifies the file path for both processes. Each startup publishes the API's actual key; the file does not change the API's existing key-generation behavior.
+The directory is owner-only (`0700`), the file is owner-only (`0600`), and creation is atomic. A private `.api-key.lock` file serializes concurrent startups; do not delete that lock while the service is running. Treat access to this volume or the container as administrator access. `VIGIL_API_KEY_FILE` specifies only the file path for both processes, never the key value. API-key values cannot be configured through environment variables or Spring properties; `VIGIL_API_KEY` and `vigil.api-key` are not supported and must be removed from existing deployment configuration; supplying them causes configuration binding to fail.
+
+An existing empty, malformed, insecure, or unreadable key file causes startup to fail rather than silently rotating the credential. Existing valid key files from earlier deployments are reused unchanged. Back up the credential volume: removing it causes the next startup to generate a different key. For deliberate rotation, stop the API, securely remove only the key file, and start it again; update external clients to use the new key. Local non-Docker runs must set `VIGIL_API_KEY_FILE` to a writable path in a dedicated credential directory (only the final directory is created automatically).
 
 ## Account recovery
 

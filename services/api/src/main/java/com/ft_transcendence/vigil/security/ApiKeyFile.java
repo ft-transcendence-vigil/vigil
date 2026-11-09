@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryIteratorException;
@@ -20,17 +21,55 @@ import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.attribute.UserPrincipal;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Set;
 import java.util.UUID;
 
-/** Shares the running API's key with local administration commands, never as a key source. */
+/** Persists the API credential and shares it with local administration commands. */
 public final class ApiKeyFile {
     private static final Set<PosixFilePermission> DIRECTORY_PERMISSIONS =
             PosixFilePermissions.fromString("rwx------");
     private static final Set<PosixFilePermission> FILE_PERMISSIONS =
             PosixFilePermissions.fromString("rw-------");
 
+    private static final String LOCK_FILE = ".api-key.lock";
+
     private ApiKeyFile() {}
+
+    /** Reuses the persisted key; only a missing file permits generation of a new credential. */
+    public static synchronized String loadOrCreate(Path path) throws IOException {
+        try {
+            Path file = filePath(path);
+            UserPrincipal owner = currentUser(file);
+            try (SecureDirectoryStream<Path> directory = openParent(file, owner, true)) {
+                Path lockName = file.getFileSystem().getPath(LOCK_FILE);
+                try (SeekableByteChannel channel = directory.newByteChannel(lockName,
+                        Set.of(StandardOpenOption.CREATE, StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS),
+                        PosixFilePermissions.asFileAttribute(FILE_PERMISSIONS))) {
+                    PosixFileAttributes lockAttributes = verifyFile(directory, lockName, owner, true);
+                    if (!(channel instanceof FileChannel lockChannel)) {
+                        throw new IOException("File locking is required for API key initialization.");
+                    }
+                    // Keep the lock inode permanently: deleting it could let two startups lock different files.
+                    try (FileLock ignored = lockChannel.lock()) {
+                        verifyIdentity(lockAttributes, verifyFile(directory, lockName, owner, true));
+                        try {
+                            return read(file);
+                        } catch (NoSuchFileException missing) {
+                            byte[] bytes = new byte[32];
+                            new SecureRandom().nextBytes(bytes);
+                            String key = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+                            publish(file, key);
+                            return key;
+                        }
+                    }
+                }
+            }
+        } catch (UnsupportedOperationException | SecurityException exception) {
+            throw new IOException("Secure API key initialization is unavailable.", exception);
+        }
+    }
 
     /** Publishes exact UTF-8 bytes without a newline, atomically replacing any stale key. */
     public static void publish(Path path, String key) throws IOException {
@@ -177,7 +216,8 @@ public final class ApiKeyFile {
         }
         try {
             for (Path entry : directory) {
-                if (!entry.getFileName().equals(file.getFileName())) {
+                if (!entry.getFileName().equals(file.getFileName())
+                                        && !entry.getFileName().toString().equals(LOCK_FILE)) {
                     throw new IOException("Refusing to change permissions of a non-dedicated API key directory.");
                 }
             }
