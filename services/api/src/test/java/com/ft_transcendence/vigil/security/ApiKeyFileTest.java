@@ -25,7 +25,14 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Base64;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.Map;
 import java.util.UUID;
 
@@ -255,23 +262,17 @@ class ApiKeyFileTest {
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "\t"})
-    void unconfiguredPublicationLeavesExistingDefaultGenerationUnchanged(String path) {
+    void explicitlyUnconfiguredFileAbortsInitialization(String path) {
         VigilProperties properties = new VigilProperties();
         properties.setApiKeyFile(path);
 
-        initialize(properties);
-
-        assertNotNull(UUID.fromString(properties.getApiKey()));
-        assertNotNull(UUID.fromString(properties.getIngestionKey()));
-        assertFalse(properties.getJwtSecret().isBlank());
-        assertEquals("http://localhost:3000", properties.getFrontEndUrl());
+        assertThrows(IllegalStateException.class, () -> initialize(properties));
     }
 
     @Test
-    void initializationPublishesTheConfiguredKeyUnchanged() throws IOException {
-        Path file = root.resolve("credentials/api-key");
+    void initializationReusesAnExistingPrivateKeyUnchanged() throws IOException {
+        Path file = publish();
         VigilProperties properties = new VigilProperties();
-        properties.setApiKey(KEY);
         properties.setApiKeyFile(file.toString());
 
         initialize(properties);
@@ -281,19 +282,23 @@ class ApiKeyFileTest {
     }
 
     @Test
-    void eachStartupPublishesNewlyGeneratedKeyRatherThanUsingTheStaleFileAsASource() throws IOException {
-        Path file = publish();
+    void generatesOnceAndReusesTheKeyAcrossStartups() throws IOException {
+        Path file = root.resolve("credentials/api-key");
         VigilProperties first = new VigilProperties();
         first.setApiKeyFile(file.toString());
         initialize(first);
         assertNotEquals(KEY, first.getApiKey());
-        assertNotNull(UUID.fromString(first.getApiKey()));
+        assertTrue(first.getApiKey().matches("[A-Za-z0-9_-]{43}"));
+        assertEquals(32, Base64.getUrlDecoder().decode(first.getApiKey()).length);
+        assertNotNull(UUID.fromString(first.getIngestionKey()));
+        assertFalse(first.getJwtSecret().isBlank());
+        assertEquals("http://localhost:3000", first.getFrontEndUrl());
         assertEquals(first.getApiKey(), ApiKeyFile.read(file));
 
         VigilProperties second = new VigilProperties();
         second.setApiKeyFile(file.toString());
         initialize(second);
-        assertNotEquals(first.getApiKey(), second.getApiKey());
+        assertEquals(first.getApiKey(), second.getApiKey());
         assertEquals(second.getApiKey(), ApiKeyFile.read(file));
     }
 
@@ -303,33 +308,139 @@ class ApiKeyFileTest {
         Files.delete(file);
         Files.createSymbolicLink(file, root.resolve("missing"));
         VigilProperties properties = new VigilProperties();
-        properties.setApiKey(KEY);
         properties.setApiKeyFile(file.toString());
 
         IllegalStateException failure = assertThrows(IllegalStateException.class, () -> initialize(properties));
 
         assertInstanceOf(IOException.class, failure.getCause());
-        assertEquals(KEY, properties.getApiKey());
+        assertTrue(Files.isSymbolicLink(file));
+        assertFalse(Files.exists(root.resolve("missing"), LinkOption.NOFOLLOW_LINKS));
         assertNoKeyInDiagnostics(failure, KEY);
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void springBindsThePropertyAndExplicitEnvironmentVariable(boolean environmentVariable) throws IOException {
-        Path file = root.resolve("credentials/api-key");
+    void springRejectsRemovedApiKeyPropertyAndEnvironmentVariable(boolean environmentVariable) throws IOException {
+        Path file = publish();
         MockEnvironment environment = new MockEnvironment();
         if (environmentVariable) {
             environment.getPropertySources().addFirst(new SystemEnvironmentPropertySource("test-env",
-                    Map.of("VIGIL_API_KEY_FILE", file.toString())));
+                    Map.of("VIGIL_API_KEY_FILE", file.toString(), "VIGIL_API_KEY", "injected-environment-key")));
         } else {
             environment.getPropertySources().addFirst(new MapPropertySource("test-properties",
-                    Map.of("vigil.api-key-file", file.toString())));
+                    Map.of("vigil.api-key-file", file.toString(), "vigil.api-key", "injected-property-key")));
         }
-        VigilProperties properties = Binder.get(environment).bind("vigil", VigilProperties.class).get();
+        assertThrows(org.springframework.boot.context.properties.bind.BindException.class,
+                () -> Binder.get(environment).bind("vigil", VigilProperties.class));
+        assertEquals(KEY, ApiKeyFile.read(file));
+    }
 
-        assertEquals(file.toString(), properties.getApiKeyFile());
-        initialize(properties);
-        assertEquals(properties.getApiKey(), ApiKeyFile.read(file));
+    @Test
+    void apiKeyHasNoPublicSetterAndUsesThePersistentDefaultPath() {
+        assertThrows(NoSuchMethodException.class,
+                () -> VigilProperties.class.getMethod("setApiKey", String.class));
+        assertEquals("/var/lib/vigil/admin/api-key", new VigilProperties().getApiKeyFile());
+    }
+
+    @Test
+    void loadOrCreateRejectsNullAndBlankPaths() {
+        assertThrows(IOException.class, () -> ApiKeyFile.loadOrCreate(null));
+        for (String path : List.of("", " ", "\t")) {
+            assertThrows(IOException.class, () -> ApiKeyFile.loadOrCreate(Path.of(path)));
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", " ", " leading", "trailing ", "embedded space", "key\n"})
+    void malformedExistingKeyAbortsStartupWithoutRotation(String contents) throws IOException {
+        Path file = publish();
+        Files.writeString(file, contents);
+        VigilProperties properties = new VigilProperties();
+        properties.setApiKeyFile(file.toString());
+
+        assertThrows(IOException.class, () -> ApiKeyFile.loadOrCreate(file));
+        assertThrows(IllegalStateException.class, () -> initialize(properties));
+
+        assertEquals(contents, Files.readString(file));
+        assertEquals(PosixFilePermissions.fromString("rw-------"), Files.getPosixFilePermissions(file));
+    }
+
+    @Test
+    void malformedUtf8ExistingKeyIsNotReplaced() throws IOException {
+        Path file = publish();
+        byte[] contents = {(byte) 0xc3, 0x28};
+        Files.write(file, contents);
+
+        assertThrows(IOException.class, () -> ApiKeyFile.loadOrCreate(file));
+
+        assertArrayEquals(contents, Files.readAllBytes(file));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"rw-r--r--", "rw-rw----", "rwx------", "r--------"})
+    void insecureExistingKeyAbortsStartupWithoutRepairOrRotation(String permissions) throws IOException {
+        Path file = publish();
+        var expected = PosixFilePermissions.fromString(permissions);
+        Files.setPosixFilePermissions(file, expected);
+        VigilProperties properties = new VigilProperties();
+        properties.setApiKeyFile(file.toString());
+
+        assertThrows(IOException.class, () -> ApiKeyFile.loadOrCreate(file));
+        assertThrows(IllegalStateException.class, () -> initialize(properties));
+
+        assertEquals(KEY, Files.readString(file));
+        assertEquals(expected, Files.getPosixFilePermissions(file));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void loadOrCreateRefusesExistingAndDanglingSymlinks(boolean dangling) throws IOException {
+        Path file = root.resolve("credentials/api-key");
+        Files.createDirectory(file.getParent(), PosixFilePermissions.asFileAttribute(
+                PosixFilePermissions.fromString("rwx------")));
+        Path target = root.resolve("target");
+        if (!dangling) Files.writeString(target, KEY);
+        Files.createSymbolicLink(file, target);
+
+        assertThrows(IOException.class, () -> ApiKeyFile.loadOrCreate(file));
+
+        assertTrue(Files.isSymbolicLink(file));
+        if (dangling) assertFalse(Files.exists(target, LinkOption.NOFOLLOW_LINKS));
+        else assertEquals(KEY, Files.readString(target));
+    }
+
+    @Test
+    void concurrentCallsReturnTheSamePersistedKeyAndKeepAPrivatePermanentLock() throws Exception {
+        Path file = root.resolve("credentials/api-key");
+        var executor = Executors.newFixedThreadPool(8);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<String>> results = new ArrayList<>();
+        try {
+            Callable<String> load = () -> {
+                assertTrue(start.await(10, TimeUnit.SECONDS));
+                return ApiKeyFile.loadOrCreate(file);
+            };
+            for (int i = 0; i < 8; i++) results.add(executor.submit(load));
+            start.countDown();
+            String key = results.get(0).get(10, TimeUnit.SECONDS);
+            assertTrue(key.matches("[A-Za-z0-9_-]{43}"));
+            for (Future<String> result : results) assertEquals(key, result.get(10, TimeUnit.SECONDS));
+            assertEquals(key, ApiKeyFile.read(file));
+            assertEquals(PosixFilePermissions.fromString("rw-------"), Files.getPosixFilePermissions(file));
+            Path lock = file.getParent().resolve(".api-key.lock");
+            assertTrue(Files.isRegularFile(lock, LinkOption.NOFOLLOW_LINKS));
+            assertEquals(PosixFilePermissions.fromString("rw-------"), Files.getPosixFilePermissions(lock));
+            try (SeekableByteChannel previous = Files.newByteChannel(lock, StandardOpenOption.WRITE,
+                    LinkOption.NOFOLLOW_LINKS)) {
+                assertEquals(key, ApiKeyFile.loadOrCreate(file));
+                previous.write(StandardCharsets.UTF_8.encode("lock-inode-marker"));
+                assertEquals("lock-inode-marker", Files.readString(lock));
+            }
+        } finally {
+            start.countDown();
+            executor.shutdownNow();
+            assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS));
+        }
     }
 
     private Path publish() throws IOException {
