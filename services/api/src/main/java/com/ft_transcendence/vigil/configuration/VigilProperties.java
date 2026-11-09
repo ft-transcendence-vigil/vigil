@@ -1,9 +1,13 @@
 package com.ft_transcendence.vigil.configuration;
 
+import com.ft_transcendence.vigil.security.ApiKeyFile;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.UUID;
@@ -16,6 +20,7 @@ public class VigilProperties {
 
     private String jwtSecret;
     private String apiKey;
+    private String apiKeyFile;
     private String ingestionKey;
     private long accessTokenExpiration;
     private long refreshTokenExpiration;
@@ -44,6 +49,13 @@ public class VigilProperties {
         }
         if (frontEndUrl == null || frontEndUrl.isBlank()) {
             frontEndUrl = frontendBaseUrl;
+        }
+        if (apiKeyFile != null && !apiKeyFile.isBlank()) {
+            try {
+                ApiKeyFile.publish(Path.of(apiKeyFile), apiKey);
+            } catch (IOException | InvalidPathException exception) {
+                throw new IllegalStateException("Unable to publish the API administration credential file.", exception);
+            }
         }
     }
 }

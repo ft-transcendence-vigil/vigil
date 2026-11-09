@@ -91,8 +91,17 @@ services:
       VIGIL_LLM_BASE_URL: "${VIGIL_LLM_BASE_URL:-http://llm:8000}"
       VIGIL_LLM_TIMEOUT_SECONDS: "${VIGIL_LLM_TIMEOUT_SECONDS:-30}"
       VIGIL_TLS_CA_PATH: /etc/vigil/ca/root.crt
+
+      # Caddy opens upstream connections with its own IP; otherwise all clients share a rate-limit bucket.
+      # Let Tomcat resolve X-Forwarded-For from internal proxies so getRemoteAddr() returns the client IP.
+      # Keep the API port unpublished; only trusted containers may reach it (private IPs are trusted by default).
+      SERVER_FORWARD_HEADERS_STRATEGY: native
+
+      VIGIL_API_KEY_FILE: /var/lib/vigil/admin/api-key
+
     volumes:
       - caddy_public_ca:/etc/vigil/ca:ro
+      - api_admin_credentials:/var/lib/vigil/admin
     depends_on:
       postgres:
         condition: service_healthy
@@ -206,6 +215,8 @@ services:
     restart: unless-stopped
 
 volumes:
+
+  api_admin_credentials:
 
   postgres_data:
     name: postgres_data

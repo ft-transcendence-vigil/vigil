@@ -24,9 +24,6 @@ export default function SeriesPicker({ groups, selected, onToggle }: Data) {
             }`}
           >
             {group.name}
-            {group.internal && (
-              <span className="ms-2 text-[10px] text-[#f59e0b]">internal</span>
-            )}
           </button>
         );
       })}

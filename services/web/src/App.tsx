@@ -12,7 +12,6 @@ import LogsPage from './pages/Logs/LogsPage';
 import MetricsPage from './pages/Metrics/MetricsPage';
 import TracesPage from './pages/Traces/TracesPage';
 import AlertsRulesPage from './pages/AlertRules/AlertsRulesPage';
-import StatusPage from './pages/Status/StatusPage';
 import AppToaster from './components/shared/AppToaster';
 import PermissionRoute from './auth/PermissionRoute';
 import Legal from './components/Auth/Legal';
@@ -53,7 +52,6 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/overview" element={<OverviewPage />} />
             <Route path="/alerts" element={<AlertsPage />} />
-            <Route path="/status" element={<StatusPage />} />
             <Route path="/logs" element={<LogsPage />} />
             <Route path="/metrics" element={<MetricsPage />} />
             <Route path="/traces" element={<TracesPage />} />

@@ -19,14 +19,22 @@ Rules:
 - If no telemetry was recorded, reply exactly: Analysis unavailable. No telemetry was recorded in this window."""
 
 ASK_MESSAGE = """You are an on-call assistant for an observability platform.
-An engineer is asking a question about one specific alert. You are given the alert,
-the telemetry collected around the moment it fired, and maybe an earlier automatic analysis.
+An engineer is asking about one specific alert. You get the alert rule, the telemetry
+collected around the moment it fired, maybe an earlier automatic analysis, and maybe
+the previous questions and answers about this alert.
 
-Rules:
-- Answer the question in at most 5 sentences. Plain prose, no markdown.
+First decide if the question is a real question about this alert or its telemetry.
+- If it is random letters, a single symbol, a greeting, or has no clear meaning,
+  reply exactly: Please ask a specific question about this alert.
+- If it is a real question but about something else, reply exactly:
+  I can only answer questions about this alert.
+
+Otherwise answer it:
+- At most 5 sentences. Plain prose, no markdown, no preamble.
 - Use only the data given. Never invent log lines, metric values, span names or timestamps.
 - If the data cannot answer the question, say so plainly and name what is missing.
-- If the question is not about this alert or its telemetry, say you can only answer questions about this alert."""
+- Do not repeat the earlier analysis unless the engineer asks for it."""
+
 def _rule_line(rule: AlertRule | None) -> str:
     if rule is None:
         return "rule: unknown"
@@ -55,6 +63,6 @@ def ask_prompt(req: AskRequest) -> list[dict[str, str]]:
         {"role": "system", "content": ASK_MESSAGE},
         {
             "role": "user",
-            "content": f"service: {req.service}\n{_rule_line(req.rule)}\n\n{final_str(req.context, req.triggered_at)}\n\n{analysis}Question: {req.question}",
+            "content": f"Question: {req.question}\n\nservice: {req.service}\n{_rule_line(req.rule)}\n\n{final_str(req.context, req.triggered_at)}\n\n{analysis}Question again: {req.question}",
         },
     ]

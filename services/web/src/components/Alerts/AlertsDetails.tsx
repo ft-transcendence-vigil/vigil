@@ -1,4 +1,6 @@
 import type { AlertHistory } from '../../api/alertHistoryApi';
+import { useAIDrawer } from '../../hooks/useAIDrawer';
+import AskAIButton from '../shared/AskAIButton';
 
 interface Props {
   alert: AlertHistory;
@@ -77,12 +79,19 @@ export default function AlertsDetails({ alert }: Props) {
   const acknowledgedAt = formatDate(alert.acked_at);
   const resolvedAt = formatDate(alert.resolved_at);
   const ruleDescription = getRuleDescription(alert);
+  const { openAI } = useAIDrawer();
 
   return (
     <div className="bg-vigil-bg px-3 py-4.5 space-y-4 mono">
       <div>
-        <div className="uppercase mb-2 text-[12px] text-vigil-muted-extra tracking-wider">
-          Evaluation snapshot
+        <div className="flex justify-between items-center">
+          <div className="uppercase mb-2 text-[12px] text-vigil-muted-extra tracking-wider">
+            Evaluation snapshot
+          </div>
+          <AskAIButton
+            className="py-2.25! w-22! text-[11px]!"
+            onClick={() => openAI(alert.id)}
+          />
         </div>
         <div className="flex gap-x-25 gap-y-2 flex-wrap">
           {alert.signal_type && (

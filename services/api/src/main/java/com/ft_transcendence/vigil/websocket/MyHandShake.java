@@ -1,12 +1,10 @@
 package com.ft_transcendence.vigil.websocket;
 
-import com.ft_transcendence.vigil.configuration.VigilProperties;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 import com.ft_transcendence.vigil.security.JjwtService;
 import io.github.bucket4j.Bucket;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
@@ -20,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @Component

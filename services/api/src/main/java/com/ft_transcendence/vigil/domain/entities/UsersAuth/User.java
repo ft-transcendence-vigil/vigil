@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 // import jakarta.validation.constraints.NotBlank;   //old code — input validation moved to DTOs
 import lombok.*;
 
-import java.util.List;
 import java.util.UUID;
 @Getter
 @Setter

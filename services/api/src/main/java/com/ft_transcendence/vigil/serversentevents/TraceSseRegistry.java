@@ -1,6 +1,5 @@
 package com.ft_transcendence.vigil.serversentevents;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Trace;
-import com.ft_transcendence.vigil.repositories.clickhouse.TraceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
