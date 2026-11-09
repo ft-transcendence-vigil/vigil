@@ -278,6 +278,26 @@ class ApiKeyFileTest {
 
         assertEquals(KEY, properties.getApiKey());
         assertEquals(KEY, ApiKeyFile.read(file));
+        assertEquals("http://localhost:3000", properties.getFrontEndUrl());
+        assertEquals(properties.getFrontEndUrl(), properties.getFrontendBaseUrl());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void frontendUrlAliasesRemainCompatibleWhenPublishingTheApiKey(boolean useBaseUrl) throws IOException {
+        Path file = root.resolve("credentials/api-key");
+        VigilProperties properties = new VigilProperties();
+        properties.setApiKey(KEY);
+        properties.setApiKeyFile(file.toString());
+        String frontend = "https://vigil.example.test";
+        if (useBaseUrl) properties.setFrontendBaseUrl(frontend);
+        else properties.setFrontEndUrl(frontend);
+
+        initialize(properties);
+
+        assertEquals(frontend, properties.getFrontEndUrl());
+        assertEquals(frontend, properties.getFrontendBaseUrl());
+        assertEquals(KEY, ApiKeyFile.read(file));
     }
 
     @Test
