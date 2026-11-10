@@ -267,9 +267,18 @@ export default function OverviewPage() {
     setNow(Date.now());
   };
 
-  const handleExportPdf = () => {
-    // the print dialog has "save as pdf"; print styles live in index.css
-    setTimeout(() => print(), 100);
+  const handleExportPdf = async () => {
+    const { exportOverviewPdf } =
+      await import('../../components/Overview/report/OverviewReport');
+
+    await exportOverviewPdf({
+      period: timeWindow.label,
+      critical: rangeAlerts.filter((a) => a.severity === 'critical').length,
+      warning: rangeAlerts.filter((a) => a.severity === 'warning').length,
+      unacknowledged: rangeAlerts.filter((a) => a.status === 'sent').length,
+      healthy,
+      services: services.length,
+    });
   };
 
   return (
