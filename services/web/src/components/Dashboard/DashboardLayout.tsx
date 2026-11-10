@@ -20,6 +20,8 @@ import { toast } from 'sonner';
 import { useAuth } from '../../auth/authContext';
 import AIDrawer from './AIDrawer/AIDrawer';
 import { AIDrawerProvider } from './AIDrawer/AIDrawerProvider';
+import { ErrorBoundary } from 'react-error-boundary';
+import CrashPage from '../../pages/errors/CrashPage';
 
 function DashboardContent() {
   const location = useLocation();
@@ -148,7 +150,9 @@ function DashboardContent() {
           id="dashboard-scroll-container"
           className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5"
         >
-          <Outlet />
+          <ErrorBoundary FallbackComponent={CrashPage} resetKeys={[location.pathname]}>
+            <Outlet />
+          </ErrorBoundary>
         </div>
       </main>
       <AIDrawer />
