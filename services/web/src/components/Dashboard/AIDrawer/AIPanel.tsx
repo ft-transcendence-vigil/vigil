@@ -12,6 +12,11 @@ interface ChatMessage {
   content: string;
 }
 
+export interface HistoryItem {
+  question: string;
+  answer: string;
+}
+
 export default function AIPanel({ onClose }: AIPanelProps) {
   const { answer, isPending, error, askAsync, clearAnswer, abort } =
     useAlertAsk();
@@ -20,6 +25,7 @@ export default function AIPanel({ onClose }: AIPanelProps) {
   const [question, setQuestion] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
 
   const handleQuestionOnChange = (event: ChangeEvent<HTMLInputElement>) => {
     setQuestion(event.target.value);
@@ -39,11 +45,17 @@ export default function AIPanel({ onClose }: AIPanelProps) {
       },
     ]);
     setQuestion('');
-    if (inputRef.current) {
-      inputRef.current.value = '';
-    }
     try {
-      const finalAnswer = await askAsync({ alertId, question: value });
+      const finalAnswer = await askAsync({ alertId, question: value, history });
+      setHistory((prev) =>
+        [
+          ...prev,
+          {
+            question: value,
+            answer: finalAnswer.slice(0, 1000),
+          },
+        ].slice(-3),
+      );
       setMessages((prev) => [
         ...prev,
         {
@@ -141,7 +153,7 @@ export default function AIPanel({ onClose }: AIPanelProps) {
         )}
         {isPending && !answer && (
           <p className="text-[14px] text-vigil-muted px-4 py-2.5 tracking-wide">
-            ✧˖° Thinking...
+            Thinking...
           </p>
         )}
         {error && (

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { ApiFetch } from './api';
+import type { HistoryItem } from '../components/Dashboard/AIDrawer/AIPanel';
 
 interface ParsedSseEvent {
   type: string;
@@ -11,6 +12,7 @@ interface AskAIAboutAlert {
   alertId: string;
   question: string;
   signal?: AbortSignal;
+  history: HistoryItem[];
   onToken: (token: string) => void;
 }
 
@@ -133,6 +135,7 @@ async function askAlert(
   apiFetch: ApiFetch,
   alertId: string,
   question: string,
+  history: HistoryItem[],
   signal?: AbortSignal,
 ): Promise<ReadableStream<Uint8Array>> {
   try {
@@ -146,7 +149,7 @@ async function askAlert(
         headers: {
           Accept: 'text/event-stream',
         },
-        data: { question },
+        data: { question, history },
       },
     );
     return res.data;
@@ -183,9 +186,10 @@ async function askAIAboutAlert({
   alertId,
   question,
   onToken,
+  history,
   signal,
 }: AskAIAboutAlert): Promise<void> {
-  const stream = await askAlert(apiFetch, alertId, question, signal);
+  const stream = await askAlert(apiFetch, alertId, question, history, signal);
 
   await readAlertStream(stream, onToken);
 }

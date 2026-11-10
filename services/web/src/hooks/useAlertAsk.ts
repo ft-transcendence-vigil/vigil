@@ -3,10 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import { askAIAboutAlert } from '../api/alertAskApi';
 import { useAuth } from '../auth/authContext';
 import axios from 'axios';
+import type { HistoryItem } from '../components/Dashboard/AIDrawer/AIPanel';
 
 interface Data {
   alertId: string;
   question: string;
+  history: HistoryItem[];
 }
 
 export function useAlertAsk() {
@@ -15,7 +17,7 @@ export function useAlertAsk() {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const mutation = useMutation({
-    mutationFn: async ({ alertId, question }: Data) => {
+    mutationFn: async ({ alertId, question, history }: Data) => {
       setAnswer('');
       let fullAnswer = '';
 
@@ -28,6 +30,7 @@ export function useAlertAsk() {
           apiFetch,
           alertId,
           question,
+          history,
           onToken: (token) => {
             fullAnswer += token;
             setAnswer((prev) => prev + token);
