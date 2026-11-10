@@ -5,6 +5,7 @@ import com.ft_transcendence.vigil.domain.dtos.telemetry.Metric;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.Trace;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.AttributeResponse;
 import com.ft_transcendence.vigil.domain.dtos.telemetry.MetricSeriesResponse;
+import com.ft_transcendence.vigil.domain.dtos.telemetry.TelemetryPage;
 import com.ft_transcendence.vigil.serversentevents.LogSseRegistry;
 import com.ft_transcendence.vigil.serversentevents.MetricSseRegistry;
 import com.ft_transcendence.vigil.serversentevents.TraceSseRegistry;
@@ -36,7 +37,7 @@ public class TelemetryController {
 
 
     @GetMapping("/logs")
-    ResponseEntity<?> getLogs(
+    public ResponseEntity<TelemetryPage<Log>> getLogs(
             @RequestParam(required = false) String period,
             @RequestParam(required = false) String service,
             @RequestParam(required = false) String severity,
@@ -47,16 +48,29 @@ public class TelemetryController {
             @RequestParam(required = false) Integer offset,
             @RequestParam(required = false) String format) {
 
-        if (telemetryService.isCsv(format))
-            return CsvResponse.of(
-                    telemetryService.exportLogsCsv(period, service, severity, search), Log.class);
-
-        return ResponseEntity.status(HttpStatus.OK).body(
+        telemetryService.isCsv(format);
+        return ResponseEntity.ok(
                 telemetryService.getLogs(period, service, severity, search, sort, count, before, offset));
     }
 
+    @GetMapping(value = "/logs", params = "format=csv")
+    public ResponseEntity<byte[]> exportLogs(
+            @RequestParam(required = false) String period,
+            @RequestParam(required = false) String service,
+            @RequestParam(required = false) String severity,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer count,
+            @RequestParam(required = false) String before,
+            @RequestParam(required = false) Integer offset,
+            @RequestParam String format) {
+
+        telemetryService.isCsv(format);
+        return CsvResponse.of(telemetryService.exportLogsCsv(period, service, severity, search), Log.class);
+    }
+
     @GetMapping("/metrics")
-    ResponseEntity<?> getMetrics(
+    public ResponseEntity<TelemetryPage<Metric>> getMetrics(
             @RequestParam(required = false) String period,
             @RequestParam(required = false) String service,
             @RequestParam(required = false) Integer count,
@@ -64,16 +78,26 @@ public class TelemetryController {
             @RequestParam(name = "vigil.internal", required = false) Boolean internalOnly,
             @RequestParam(required = false) String format) {
 
-        if (telemetryService.isCsv(format))
-            return CsvResponse.of(
-                    telemetryService.exportMetricsCsv(service, period, internalOnly), Metric.class);
-
-        return ResponseEntity.status(HttpStatus.OK).body(
+        telemetryService.isCsv(format);
+        return ResponseEntity.ok(
                 telemetryService.getMetrics(service, period, internalOnly, count, before));
     }
 
+    @GetMapping(value = "/metrics", params = "format=csv")
+    public ResponseEntity<byte[]> exportMetrics(
+            @RequestParam(required = false) String service,
+            @RequestParam(required = false) String period,
+            @RequestParam(required = false) Integer count,
+            @RequestParam(required = false) String before,
+            @RequestParam(name = "vigil.internal", required = false) Boolean internalOnly,
+            @RequestParam String format) {
+
+        telemetryService.isCsv(format);
+        return CsvResponse.of(telemetryService.exportMetricsCsv(service, period, internalOnly), Metric.class);
+    }
+
     @GetMapping("/traces")
-    ResponseEntity<?> getTraces(
+    public ResponseEntity<TelemetryPage<Trace>> getTraces(
             @RequestParam(required = false) String period,
             @RequestParam(required = false) String service,
             @RequestParam(required = false) String sort,
@@ -82,12 +106,23 @@ public class TelemetryController {
             @RequestParam(required = false) Integer offset,
             @RequestParam(required = false) String format) {
 
-        if (telemetryService.isCsv(format))
-            return CsvResponse.of(
-                    telemetryService.exportTracesCsv(service, period), Trace.class);
-
-        return ResponseEntity.status(HttpStatus.OK).body(
+        telemetryService.isCsv(format);
+        return ResponseEntity.ok(
                 telemetryService.getTraces(service, period, sort, count, before, offset));
+    }
+
+    @GetMapping(value = "/traces", params = "format=csv")
+    public ResponseEntity<byte[]> exportTraces(
+            @RequestParam(required = false) String service,
+            @RequestParam(required = false) String period,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer count,
+            @RequestParam(required = false) String before,
+            @RequestParam(required = false) Integer offset,
+            @RequestParam String format) {
+
+        telemetryService.isCsv(format);
+        return CsvResponse.of(telemetryService.exportTracesCsv(service, period), Trace.class);
     }
 
 	@GetMapping("/metrics/series")
