@@ -114,14 +114,16 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         if (!axios.isAxiosError(error) || error.response?.status !== 401)
           throw error;
       }
+      let data;
+
       try {
-        const data = await refreshOnce();
-        setAccessToken(data.access_token);
-        return await requestWithToken<T>(data.access_token, url, options);
+        data = await refreshOnce();
       } catch (refreshError) {
         clearAuthState();
         throw new Error('Session expired', { cause: refreshError });
       }
+      setAccessToken(data.access_token);
+      return requestWithToken<T>(data.access_token, url, options);
     },
     [accessToken, clearAuthState, refreshOnce],
   );
