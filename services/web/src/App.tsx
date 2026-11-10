@@ -24,6 +24,7 @@ import WebhooksSettingsPage from './pages/Settings/WebhooksSettingsPage';
 import OnboardingLayout from './components/Services/OnboardingLayout';
 import ServicesOnboardingPage from './pages/Services/ServicesOnboardingPage';
 import AddServicePage from './pages/Services/AddServicePage';
+import NotFoundPage from './pages/errors/NotFoundPage';
 
 function App() {
   return (
@@ -100,6 +101,7 @@ function App() {
                 }
               />
             </Route>
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
       </Routes>
