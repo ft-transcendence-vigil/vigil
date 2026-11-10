@@ -8,9 +8,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { KpiState } from './KpiCardData';
 
-// one icon per thing the card counts, tinted like the mockup:
-// critical = an incident on fire, warning = a metric trending away from normal,
-// unack = alerts waiting for someone, healthy = the services themselves
 const ICONS: Record<KpiState, { icon: IconDefinition; color: string }> = {
   critical: { icon: faFire, color: 'bg-red-500/15 text-red-400' },
   warning: { icon: faArrowTrendUp, color: 'bg-amber-500/15 text-amber-400' },

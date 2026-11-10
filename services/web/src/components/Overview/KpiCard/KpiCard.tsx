@@ -19,12 +19,10 @@ export default function KpiCard({
   onClick,
 }: Data) {
   const config = KPI_CONFIG[state];
-  // shrinks with the digits so big counts stay inside the card
   const digits = String(value).length;
   const size =
     digits <= 2 ? 'text-[72px]' : digits === 3 ? 'text-[56px]' : 'text-[42px]';
-  // the active/hover blue top line is the ::before bar, not border-t-2,
-  // so the active card's content doesn't move down 1px
+
   return (
     <button
       type="button"
@@ -47,7 +45,7 @@ export default function KpiCard({
         </div>
       </div>
       <div
-        className={`num space ${size} shrink-0 self-end group-hover:-translate-y-1 transition-[translate, color] duration-300`}
+        className={`num space ${size} shrink-0 self-end group-hover:-translate-y-5 transition-[translate, color] duration-300`}
       >
         {value}
         {total !== undefined && (
