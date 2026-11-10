@@ -12,7 +12,7 @@ import { type LlmUpdate } from '../../hooks/useAlertsWebSocket';
 import {
   subscribeToAlerts,
   subscribeToLlm,
-} from '../../Realtime/alertsRealtime';
+} from '../../realtime/alertsRealtime';
 import useAlertNotifications from '../../hooks/useAlertNotifications';
 
 export default function AlertsPage() {

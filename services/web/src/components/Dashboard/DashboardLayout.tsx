@@ -6,7 +6,7 @@ import MobileSidebar from './Sidebar/MobileSidebar';
 import { getPageTitle } from './Sidebar/dashboardNavigation';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import useAlertsWebSocket from '../../hooks/useAlertsWebSocket';
-import { emitAlert, emitLlm } from '../../Realtime/alertsRealtime';
+import { emitAlert, emitLlm } from '../../realtime/alertsRealtime';
 import {
   alertNotificationsKey,
   updateAlertNotificationCache,

@@ -32,7 +32,7 @@ import type { LlmUpdate } from '../../hooks/useAlertsWebSocket';
 import {
   subscribeToAlerts,
   subscribeToLlm,
-} from '../../Realtime/alertsRealtime';
+} from '../../realtime/alertsRealtime';
 import type { AlertHistory } from '../../api/alertHistoryApi';
 import type { Log } from '../../api/logsApi';
 import type { LiveLogsStatus } from '../Logs/LogsPage';
