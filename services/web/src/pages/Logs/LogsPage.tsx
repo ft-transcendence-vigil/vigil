@@ -9,6 +9,8 @@ import useLiveLogs from '../../hooks/useLiveLogs';
 import type { Log } from '../../api/logsApi';
 import Button from '../../components/shared/Button';
 
+export type LiveLogsStatus = 'paused' | 'connecting...' | 'live';
+
 export default function LogsPage() {
   const loadMoreRef = useRef<HTMLTableRowElement | null>(null);
   const filter = useLogsFilter();
@@ -18,6 +20,8 @@ export default function LogsPage() {
   const [liveLogs, setLiveLogs] = useState<Log[]>([]);
   const [pendingLogs, setPendingLogs] = useState<Log[]>([]);
   const MAX_LIVE_LOGS = 200;
+  const [connectionStatus, setConnectionStatus] =
+    useState<LiveLogsStatus>('paused');
 
   const matchesCurrentFilters = (log: Log) => {
     if (filter.service && log.service !== filter.service) {
@@ -54,6 +58,7 @@ export default function LogsPage() {
     enabled: isLive,
     onLog: handleLiveLog,
     onError: () => setIsLive(false),
+    setConnectionStatus,
   });
 
   const {
@@ -150,7 +155,9 @@ export default function LogsPage() {
       ([entry]) => {
         setIsNearTop(entry.isIntersecting);
         if (entry.isIntersecting && pendingLogs.length > 0) {
-          setLiveLogs((prev) => [...pendingLogs, ...prev].slice(0, MAX_LIVE_LOGS));
+          setLiveLogs((prev) =>
+            [...pendingLogs, ...prev].slice(0, MAX_LIVE_LOGS),
+          );
           setPendingLogs([]);
         }
       },
@@ -194,9 +201,7 @@ export default function LogsPage() {
             checked={isLive}
             onCheckedChange={() => setIsLive((prev) => !prev)}
           />
-          <span className="text-2xl text-vigil-muted">
-            {isLive ? 'Live' : 'Paused'}
-          </span>
+          <span className="text-2xl text-vigil-muted capitalize">{connectionStatus}</span>
         </div>
         <button
           className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border py-3 px-5 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-300"

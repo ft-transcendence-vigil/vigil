@@ -1,3 +1,1 @@
 GET /api/telemetry/attributes
-fix the problem of error to start SSE streaming - switch btn only
-the z-index problem.

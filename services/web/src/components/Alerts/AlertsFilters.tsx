@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Dropdown from '../shared/Dropdown';
 import FormInput from '../shared/FormInput';
 
-export type Period = '1h' | '24h' | '7d' | '';
+export type Period = '1h' | '24h' | '7d' | '30d' | '';
 
 interface Props {
   period: Period;
@@ -38,6 +38,10 @@ export default function AlertsFilters({
           {
             label: 'Last 7 days',
             value: '7d',
+          },
+          {
+            label: 'Last 30 days',
+            value: '30d',
           },
           {
             label: 'All time',

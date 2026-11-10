@@ -52,6 +52,7 @@ export default function Sidebar({ isConnected }: Data) {
         </p>
         <Link
           to="/legal"
+          target="_blank"
           className="text-[10px] text-vigil-muted hover:text-gray-300 block mt-2"
         >
           Privacy · Terms

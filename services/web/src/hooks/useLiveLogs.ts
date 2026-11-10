@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '../auth/authContext';
 import type { LogsSeverity } from '../components/Logs/LogsRow';
 import type { Log } from '../api/logsApi';
+import type { LiveLogsStatus } from '../pages/Logs/LogsPage';
 
 interface Data {
   service?: string;
@@ -9,6 +10,7 @@ interface Data {
   enabled: boolean;
   onLog: (log: Log) => void;
   onError?: () => void;
+  setConnectionStatus: (value: LiveLogsStatus) => void;
 }
 
 export default function useLiveLogs({
@@ -17,6 +19,7 @@ export default function useLiveLogs({
   enabled,
   onLog,
   onError,
+  setConnectionStatus,
 }: Data) {
   const { accessToken } = useAuth();
   const onLogRef = useRef(onLog);
@@ -31,8 +34,12 @@ export default function useLiveLogs({
   }, [onError]);
 
   useEffect(() => {
-    if (!accessToken || !enabled) return;
+    if (!accessToken || !enabled) {
+      setConnectionStatus('paused');
+      return;
+    }
 
+    setConnectionStatus('connecting...');
     const params = new URLSearchParams({
       token: accessToken,
     });
@@ -42,6 +49,10 @@ export default function useLiveLogs({
     const source = new EventSource(
       `/api/telemetry/logs/live?${params.toString()}`,
     );
+
+    source.onopen = () => {
+      setConnectionStatus('live');
+    };
 
     source.onmessage = (event) => {
       try {
@@ -53,10 +64,11 @@ export default function useLiveLogs({
     };
 
     source.onerror = () => {
+      setConnectionStatus('paused');
       source.close();
       onErrorRef.current?.();
     };
 
     return () => source.close();
-  }, [accessToken, service, severity, enabled]);
+  }, [accessToken, service, severity, enabled, setConnectionStatus]);
 }

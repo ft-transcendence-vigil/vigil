@@ -3,11 +3,31 @@ import MOCK_DATA from './ServicesPreviewData';
 
 export default function ServicesPreview() {
   return (
-    <div className="flex flex-col h-full min-h-0 border border-vigil-border bg-vigil-card overflow-y-scroll">
-      <div className="flex justify-between border-b border-vigil-border px-3 sm:px-5 py-3 sticky bg-vigil-card z-40 top-0">
-        <h2 className="text-[15px] sm:text-[17px] font-medium tracking-wide">Services</h2>
+    <div className="flex flex-col h-full min-h-0 border border-vigil-border bg-vigil-card">
+      <div className="flex justify-between items-center border-b border-vigil-border px-3 sm:px-5 py-3 sticky bg-vigil-card z-39 top-0">
+        <h2 className="text-[15px] sm:text-[17px] font-medium tracking-wide">
+          Services
+        </h2>
+        <div className="space-x-2">
+          <button className="border border-vigil-border uppercase text-[10px] sm:text-[11px] tracking-wider h-6.5 sm:h-7.5 px-px md:px-2 cursor-pointer text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80] transition-[color, border-color] duration-300">
+            <span className="h-1 w-1 inline-block rounded-full me-3 bg-red-500/80"></span>
+            alerting
+          </button>
+          <button className="border border-vigil-border uppercase text-[10px] sm:text-[11px] tracking-wider h-6.5 sm:h-7.5 px-px md:px-2 cursor-pointer text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80] transition-[color, border-color] duration-300">
+            <span className="h-1 w-1 inline-block rounded-full me-3 bg-blue-500/80"></span>
+            silent
+          </button>
+          <button className="border border-vigil-border uppercase text-[10px] sm:text-[11px] tracking-wider h-6.5 sm:h-7.5 px-px md:px-2 cursor-pointer text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80] transition-[color, border-color] duration-300">
+            <span className="h-1 w-1 inline-block rounded-full me-3 bg-yellow-500/80"></span>
+            degraded
+          </button>
+          <button className="border border-vigil-border uppercase text-[10px] sm:text-[11px] tracking-wider h-6.5 sm:h-7.5 px-px md:px-2 cursor-pointer text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80] transition-[color, border-color] duration-300">
+            <span className="h-1 w-1 inline-block rounded-full me-3 bg-green-500/80"></span>
+            healthy
+          </button>
+        </div>
       </div>
-      <div className="grid grid-cols-12 gap-4 min-h-0 flex-1 mono p-3 sm:p-4">
+      <div className="grid grid-cols-12 gap-4 min-h-0 flex-1 mono p-3 sm:p-4 overflow-y-scroll">
         {MOCK_DATA.slice(0, 5).map((d) => (
           <ServicesPreviewCard
             key={d.title}

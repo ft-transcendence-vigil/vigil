@@ -139,6 +139,11 @@ export default function AIPanel({ onClose }: AIPanelProps) {
             {answer}
           </p>
         )}
+        {isPending && !answer && (
+          <p className="text-[14px] text-vigil-muted px-4 py-2.5 tracking-wide">
+            ✧˖° Thinking...
+          </p>
+        )}
         {error && (
           <p className="wrap-break-word text-[14px] text-red-400 border px-4 py-2.5 tracking-wide w-fit max-w-[90%] whitespace-pre-wrap bg-red-400/10">
             {error.message}
