@@ -12,7 +12,9 @@ export default function useLogs(params: LogsParams) {
     queryFn: ({ pageParam }) =>
       getLogs(apiFetch, {
         ...params,
-        before: isTimestampSort ? (pageParam as string | undefined) : undefined,
+        before: isTimestampSort
+          ? ((pageParam as string | undefined) ?? params.before)
+          : undefined,
         offset: !isTimestampSort
           ? ((pageParam as number | undefined) ?? 0)
           : undefined,

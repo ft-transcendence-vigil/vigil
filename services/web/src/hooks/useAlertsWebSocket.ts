@@ -60,7 +60,6 @@ export default function useAlertsWebSocket({
   }, [onAlert, onLlm, onServerError, onReconnect, onNotification]);
 
   useEffect(() => {
-    return;
     if (!accessToken) return;
 
     let ws: WebSocket | null = null;

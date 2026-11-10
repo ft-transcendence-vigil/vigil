@@ -6,20 +6,27 @@ import { exportTracesCsv, getTraces, type Period } from '../api/tracesApi';
 import { downloadBlob } from '../components/shared/utils/format';
 
 interface Params {
-  period: Period;
+  period?: Period;
   service: string;
+  pageSize?: number;
+  before?: string;
 }
 
 export const TRACES_PAGE_SIZE = 50;
 
-export default function useTraces({ period, service }: Params) {
+export default function useTraces({
+  period,
+  service,
+  pageSize = TRACES_PAGE_SIZE,
+  before,
+}: Params) {
   //we get the http request func to use it later
   const { apiFetch } = useAuth();
 //useInfiniteQuery take instructions for loading 
 // one page from api then fetches and caches the data tracks whether it’s loading or failed and loads the next page when you click Load more
   const tracesQuery = useInfiniteQuery({
     //data saved in query cache to check if any data changed
-    queryKey: ['traces', period, service],
+    queryKey: ['traces', period, service, pageSize, before],
     //how do we want to return a page
 //Receives pageParam: undefined for the first page a timestamp for the next ones.
 //React Query then saves that page under the queryKey, and passes it to getNextPageParam to get the bookmark for the next one.
@@ -27,8 +34,8 @@ export default function useTraces({ period, service }: Params) {
       getTraces(apiFetch, {
         period,
         service: service || undefined,
-        count: TRACES_PAGE_SIZE,
-        before: pageParam,
+        count: pageSize,
+        before: pageParam ?? before,
       }),
     //what 'before' do I use for the first page
     //undefined as string now undifined later string

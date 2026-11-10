@@ -1,70 +1,89 @@
 import { useState } from 'react';
 import AskAIButton from '../../shared/AskAIButton';
+import { useAIDrawer } from '../../../hooks/useAIDrawer';
+import type { AlertHistory, AlertStatus } from '../../../api/alertHistoryApi';
+import { timeAgo } from '../../shared/utils/format';
+import { OTHER_CLASS, SEVERITY_CLASS, describeAlert } from '../overviewData';
 
-type AlertSeverity = 'critical' | 'warning';
-type AlertAction = 'ack' | 'resolve';
+const actionBtn =
+  'border border-vigil-border uppercase text-[9px] sm:text-[10px] tracking-wider h-7 sm:h-8 w-14 sm:w-16 cursor-pointer text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80] transition-[color, border-color] duration-300';
 
-export interface Data {
-  severity: AlertSeverity;
-  title: string;
-  threshold: string;
-  date: string;
-  action: AlertAction;
-  llmAnalysis: string;
-  className: string;
+interface Data {
+  alert: AlertHistory;
+  canAct: boolean;
+  isUpdating: boolean;
+  onStatusChange: (status: AlertStatus) => void;
 }
 
 export default function AlertsPreviewRow({
-  severity,
-  title,
-  threshold,
-  date,
-  action,
-  llmAnalysis,
-  className,
+  alert,
+  canAct,
+  isUpdating,
+  onStatusChange,
 }: Data) {
   const [isOpen, setIsOpen] = useState(false);
+  const { openAI } = useAIDrawer();
+  // sent -> ack, acknowledged -> resolve, resolved -> done
+  const next: AlertStatus | null =
+    alert.status === 'sent'
+      ? 'acknowledged'
+      : alert.status === 'acknowledged'
+        ? 'resolved'
+        : null;
 
   return (
     <div className="alert-preview-row">
       <div
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex justify-between items-center border-b border-b-vigil-border px-3 sm:px-5 py-3 mono hover:bg-[rgba(99,179,237,.03)] transition-[background-color] duration-300 cursor-pointer"
+        className="flex justify-between items-center gap-2 border-b border-b-vigil-border px-3 sm:px-5 py-3 mono hover:bg-[rgba(99,179,237,.03)] transition-[background-color] duration-300 cursor-pointer"
       >
-        <div className="flex items-center">
+        <div className="flex items-center min-w-0">
           <div
-            className={`text-[8px] sm:text-[10px] tracking-widest uppercase py-0.5 w-15 sm:w-16.5 text-center me-3 ${className}`}
+            className={`shrink-0 text-[8px] sm:text-[10px] tracking-widest uppercase py-0.5 w-15 sm:w-16.5 text-center me-3 ${SEVERITY_CLASS[alert.severity] ?? OTHER_CLASS}`}
           >
-            {severity}
+            {alert.severity}
           </div>
-          <div>
-            <div className="text-[12px] mb-0.5">{title}</div>
-            <div className="xs:text-[9px] text-[11px] text-vigil-muted-extra">
-              {threshold}
+          <div className="min-w-0">
+            <div className="text-[12px] mb-0.5 truncate">{alert.service}</div>
+            <div className="xs:text-[9px] text-[11px] text-vigil-muted-extra truncate">
+              {describeAlert(alert)}
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-end">
-          <span className="text-[8.5px] sm:text-[10px] me-2 sm:me-3 text-vigil-muted-extra">
-            {date}
-          </span>
-          <button
-            onClick={(e: React.MouseEvent<HTMLElement>) => {
-              const target = e.target as HTMLElement;
-              target.parentElement?.parentElement?.parentElement?.remove();
-            }}
-            className="border border-vigil-border uppercase text-[9px] sm:text-[10px] tracking-wider h-7 sm:h-8 w-14 sm:w-16 cursor-pointer text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80] transition-[color, border-color] duration-300"
+        <div className="flex items-center justify-end shrink-0">
+          <span
+            className="text-[8.5px] sm:text-[10px] me-2 sm:me-3 text-vigil-muted-extra"
+            title={new Date(alert.triggered_at).toLocaleString()}
           >
-            {action}
-          </button>
+            {timeAgo(alert.triggered_at)}
+          </span>
+          {next === null ? (
+            <span className="text-[10px] text-vigil-muted-extra w-14 sm:w-16 text-center">
+              ✓ done
+            </span>
+          ) : (
+            canAct && (
+              <button
+                type="button"
+                disabled={isUpdating}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onStatusChange(next);
+                }}
+                className={actionBtn}
+              >
+                {next === 'acknowledged' ? 'ack' : 'resolve'}
+              </button>
+            )
+          )}
         </div>
       </div>
       {isOpen && (
         <div className="px-5 py-3 mono bg-[#0D1425]">
-          <p className="text-[11px] tracking-wide text-vigil-muted mb-2">
-            {llmAnalysis}
+          <p className="text-[11px] tracking-wide text-vigil-muted mb-2 whitespace-pre-wrap">
+            {alert.llm_analysis ?? 'The AI analysis is not ready yet.'}
           </p>
-          <AskAIButton onClick={() => 1 + 1} />
+          <AskAIButton onClick={() => openAI(alert.id)} />
         </div>
       )}
     </div>

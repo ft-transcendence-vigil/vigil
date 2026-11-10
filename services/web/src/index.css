@@ -560,3 +560,31 @@ button:hover .num {
 .animate-log-flash {
     animation: log-flash 1.2s ease-out;
 }
+
+
+/* overview "export pdf": print only the page content, with its dark colors */
+@media print {
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    body {
+        background-color: var(--color-vigil-bg);
+    }
+
+    .dashboard-layout {
+        height: auto;
+        overflow: visible;
+    }
+
+    .dashboard-layout aside,
+    .dashboard-layout .header,
+    [data-sonner-toaster] {
+        display: none !important;
+    }
+
+    #dashboard-scroll-container {
+        overflow: visible;
+    }
+}

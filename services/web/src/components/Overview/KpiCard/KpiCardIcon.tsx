@@ -1,28 +1,33 @@
 import {
-  faCircleDot,
-  faExclamation,
-  faHeart,
-  faTriangleExclamation,
+  faArrowTrendUp,
+  faFire,
+  faServer,
+  faUserClock,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { KpiState } from './KpiCardData';
+
+// one icon per thing the card counts, tinted like the mockup:
+// critical = an incident on fire, warning = a metric trending away from normal,
+// unack = alerts waiting for someone, healthy = the services themselves
+const ICONS: Record<KpiState, { icon: IconDefinition; color: string }> = {
+  critical: { icon: faFire, color: 'bg-red-500/15 text-red-400' },
+  warning: { icon: faArrowTrendUp, color: 'bg-amber-500/15 text-amber-400' },
+  unack: { icon: faUserClock, color: 'bg-blue-500/15 text-blue-400' },
+  healthy: { icon: faServer, color: 'bg-green-500/15 text-green-400' },
+};
 
 interface Data {
-  cardIcon: string;
+  cardIcon: KpiState;
 }
 
 export default function KpiCardIcon({ cardIcon }: Data) {
-  function getIcon(): IconDefinition {
-    if (cardIcon === 'critical') return faExclamation;
-    else if (cardIcon === 'warning') return faTriangleExclamation;
-    else if (cardIcon === 'unack') return faCircleDot;
-    return faHeart;
-  }
-
+  const { icon, color } = ICONS[cardIcon];
   return (
     <FontAwesomeIcon
-      className="p-2 text-[11px] me-3 bg-blue-500/20 text-blue-500"
-      icon={getIcon()}
+      className={`p-2 text-[11px] me-3 w-3! h-3! ${color}`}
+      icon={icon}
     />
   );
 }

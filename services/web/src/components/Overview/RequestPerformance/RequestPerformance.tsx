@@ -4,7 +4,8 @@ import MetricsChart from './MetricsChart';
 export type Point = {
   ts: number;
   throughput: number;
-  latency: number;
+  // null when the bucket has no spans, so the line shows a gap instead of 0ms
+  latency: number | null;
   errors: number;
 };
 
@@ -14,14 +15,14 @@ const SERIES: Series<Point>[] = [
     name: 'Throughput',
     color: '#2196F3',
     kind: 'area',
-    unit: 'req/s',
+    unit: 'spans/min',
   },
   {
     key: 'errors',
     name: 'Errors',
     color: '#ef4444',
     kind: 'bar',
-    unit: 'req/s',
+    unit: 'errors/min',
   },
   {
     key: 'latency',
@@ -32,12 +33,35 @@ const SERIES: Series<Point>[] = [
   },
 ];
 
-export default function RequestPerformance({ data }: { data: Point[] }) {
+interface Data {
+  data: Point[];
+  // ranges over 36h show the date instead of the time
+  long: boolean;
+  note?: string;
+}
+
+const formatX = (long: boolean) => (v: unknown) => {
+  const date = new Date(v as number);
+  return long
+    ? `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}h`
+    : date.toLocaleTimeString([], {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+};
+
+export default function RequestPerformance({ data, long, note }: Data) {
   return (
     <div className="flex flex-col h-full min-h-0 border border-vigil-border bg-vigil-card">
       <div className="mb-4 flex justify-between border-b border-vigil-border px-3 sm:px-5 py-3.5">
         <h2 className="text-[15px] sm:text-[17px] font-medium tracking-wide">
           Request performance
+          {note && (
+            <span className="mono ms-2 text-[11px] text-vigil-muted-extra">
+              {note}
+            </span>
+          )}
         </h2>
         <div className="flex gap-4 text-[11px] text-vigil-muted items-center">
           {SERIES.map((s) => (
@@ -56,13 +80,7 @@ export default function RequestPerformance({ data }: { data: Point[] }) {
           data={data}
           xKey="ts"
           series={SERIES}
-          xFormatter={(v) =>
-            new Date(v as number).toLocaleTimeString([], {
-              hour12: false,
-              hour: '2-digit',
-              minute: '2-digit',
-            })
-          }
+          xFormatter={formatX(long)}
         />
       </div>
     </div>

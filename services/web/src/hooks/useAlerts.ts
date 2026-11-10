@@ -19,6 +19,8 @@ interface UseAlertsParams {
   apiFetch: ApiFetch;
   period: '' | AlertHistoryParams['period'];
   service?: string;
+  pageSize?: number;
+  before?: string;
 }
 
 const PAGE_SIZE = 20;
@@ -27,19 +29,21 @@ export default function useAlerts({
   apiFetch,
   period,
   service,
+  pageSize = PAGE_SIZE,
+  before,
 }: UseAlertsParams) {
   const queryClient = useQueryClient();
 
   const alertsQuery = useInfiniteQuery({
-    queryKey: ['alert-history', period, service],
+    queryKey: ['alert-history', period, service, pageSize, before],
     initialPageParam: undefined as string | undefined,
 
     queryFn: ({ pageParam }) =>
       getAlertHistory(apiFetch, {
         period: period || undefined,
         service: service || undefined,
-        count: PAGE_SIZE,
-        before: pageParam,
+        count: pageSize,
+        before: pageParam ?? before,
       }),
 
     staleTime: 5 * 60_000,
@@ -73,7 +77,7 @@ export default function useAlerts({
 
   const updateCachedAlert = (incoming: AlertHistory) => {
     queryClient.setQueryData<InfiniteData<AlertHistoryResponse>>(
-      ['alert-history', period, service],
+      ['alert-history', period, service, pageSize, before],
       (oldData) => {
         if (!oldData) return oldData;
         return {
@@ -93,7 +97,7 @@ export default function useAlerts({
 
   const updateCachedLlm = (id: string, llmAnalysis: string) => {
     queryClient.setQueryData<InfiniteData<AlertHistoryResponse>>(
-      ['alert-history', period, service],
+      ['alert-history', period, service, pageSize, before],
       (oldData) => {
         if (!oldData) return oldData;
         return {
