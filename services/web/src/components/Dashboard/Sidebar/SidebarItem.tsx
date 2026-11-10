@@ -34,6 +34,7 @@ export default function SidebarItem({ title, path }: Data) {
             : 'text-vigil-muted hover:text-white hover:bg-vigil-blue-100 hover:before:opacity-100 hover:before:bg-white'
         }`
       }
+      end={path !== '/settings'}
     >
       {title}
     </NavLink>
