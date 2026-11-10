@@ -5,19 +5,13 @@ import com.ft_transcendence.vigil.security.JjwtAuthFilter;
 import jakarta.servlet.DispatcherType;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -35,7 +29,7 @@ class SecurityConfig {
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
         http.addFilterBefore(jjwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
 
-                .addFilterBefore(rateLimiter, JjwtAuthFilter.class)
+                .addFilterAfter(rateLimiter, JjwtAuthFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) ->
                                 exceptionResolver.resolveException(
@@ -45,7 +39,7 @@ class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests((requests) -> requests
-                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                        .dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.ASYNC).permitAll()
                         .requestMatchers(
                                 "/api/setup",
                                 "/api/auth/login",
