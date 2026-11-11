@@ -61,7 +61,7 @@ export default function AccountSettingsPage() {
             error={form.confirmPasswordError}
             showValidationBtn
             onClick={form.handlePasswordSubmit}
-            disabled={form.isEmailSubmitting}
+            disabled={form.isPasswordSubmitting}
           />
           {form.passwordFieldError && (
             <div className="text-xs text-red-400">
