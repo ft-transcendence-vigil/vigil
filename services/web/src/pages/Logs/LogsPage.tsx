@@ -90,7 +90,14 @@ export default function LogsPage() {
     });
 
   const getLogFingerprint = (log: Log) => {
-    return [log.service, log.timestamp, log.severity, log.message].join('|');
+    return JSON.stringify([
+      log.service,
+      log.timestamp,
+      log.severity,
+      log.message,
+      log.trace_id,
+      log.attributes,
+    ]);
   };
 
   const filteredLiveLogs = liveLogs.filter(matchesCurrentFilters);
@@ -196,7 +203,9 @@ export default function LogsPage() {
             checked={isLive}
             onCheckedChange={() => setIsLive((prev) => !prev)}
           />
-          <span className="text-2xl text-vigil-muted capitalize">{connectionStatus}</span>
+          <span className="text-2xl text-vigil-muted capitalize">
+            {connectionStatus}
+          </span>
         </div>
         <button
           className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border py-3 px-5 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-300"

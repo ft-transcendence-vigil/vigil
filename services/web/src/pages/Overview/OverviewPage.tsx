@@ -247,7 +247,14 @@ export default function OverviewPage() {
     const seen = new Set<string>();
     return [...liveLogs, ...logsQuery.logs]
       .filter((log) => {
-        const key = `${log.timestamp}|${log.service}|${log.message}`;
+        const key = JSON.stringify([
+          log.service,
+          log.timestamp,
+          log.severity,
+          log.message,
+          log.trace_id,
+          log.attributes,
+        ]);
         if (seen.has(key)) return false;
         seen.add(key);
         return (
