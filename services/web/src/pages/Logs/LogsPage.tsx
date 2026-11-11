@@ -24,7 +24,7 @@ export default function LogsPage() {
     useState<LiveLogsStatus>('paused');
 
   const matchesCurrentFilters = (log: Log) => {
-    if (filter.service && log.service !== filter.service) {
+    if (filter.params.service && log.service !== filter.params.service) {
       return false;
     }
 
@@ -33,8 +33,8 @@ export default function LogsPage() {
     }
 
     if (
-      filter.search &&
-      !log.message.toLowerCase().includes(filter.search.toLowerCase())
+      filter.params.search &&
+      !log.message.toLowerCase().includes(filter.params.search.toLowerCase())
     ) {
       return false;
     }
@@ -53,7 +53,7 @@ export default function LogsPage() {
   };
 
   useLiveLogs({
-    service: filter.service,
+    service: filter.params.service,
     severity: filter.severity as LogsSeverity,
     enabled: isLive,
     onLog: handleLiveLog,
@@ -93,12 +93,7 @@ export default function LogsPage() {
     return [log.service, log.timestamp, log.severity, log.message].join('|');
   };
 
-  const filteredLiveLogs = liveLogs.filter((log) => {
-    if (filter.service && log.service !== filter.service) return false;
-    if (filter.severity && log.severity !== filter.severity) return false;
-
-    return true;
-  });
+  const filteredLiveLogs = liveLogs.filter(matchesCurrentFilters);
 
   const allLogs = Array.from(
     new Map(
