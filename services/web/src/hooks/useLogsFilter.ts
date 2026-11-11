@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { LogsParams, Period } from '../api/logsApi';
+import { useSearchParams } from 'react-router-dom';
 
 export default function useLogsFilter() {
+  const [searchParams] = useSearchParams();
+  const initialService = searchParams.get('service') ?? '';
   const [period, setPeriod] = useState<Period | ''>('24h');
-  const [service, setService] = useState('');
-  const [debouncedService, setDebouncedService] = useState('');
+  const [service, setService] = useState(initialService);
+  const [debouncedService, setDebouncedService] = useState(initialService);
   const [severity, setSeverity] = useState('');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
