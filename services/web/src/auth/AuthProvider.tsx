@@ -93,10 +93,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const signOut = async (): Promise<void> => {
     try {
       await logout();
-    } catch {
-      // Ignore server logout failure.
     } finally {
       clearAuthState();
+      document.cookie = 'session_hint=; Max-Age=0; Path=/';
       navigate('/auth/login', { replace: true });
     }
   };

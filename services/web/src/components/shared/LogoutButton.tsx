@@ -1,17 +1,18 @@
+import { toast } from 'sonner';
 import { useAuth } from '../../auth/authContext';
-import { useNavigate } from 'react-router-dom';
 
 export default function LogoutButton() {
   const auth = useAuth();
-  const navigate = useNavigate();
 
   if (!auth) throw new Error('AuthContext must be used inside AuthProvider');
 
   const handleLogout = async () => {
     try {
       await auth.signOut();
-    } finally {
-      navigate('/auth/login');
+    } catch {
+      toast.warning(
+        'We couldn’t fully sign you out. Your session may still be active.',
+      );
     }
   };
   return (
