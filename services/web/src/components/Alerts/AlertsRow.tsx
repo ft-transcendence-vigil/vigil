@@ -69,7 +69,7 @@ export default function AlertsRow(props: Data) {
   const levelColor = severityColors[severity];
   const statusColor = statusColors[status];
   const triggeredDate = new Date(triggered_at);
-  const [now] = useState(() => Date.now());
+  const [now, setNow] = useState(() => Date.now());
   const diff = now - triggeredDate.getTime();
   const lastActive = formatLastActive(diff, triggeredDate);
   const metric =
@@ -91,6 +91,14 @@ export default function AlertsRow(props: Data) {
       onSeen();
     }
   };
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setNow(Date.now());
+    }, 60_000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     if (!isTarget) {

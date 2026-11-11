@@ -24,6 +24,7 @@ export interface AuthState {
   ) => Promise<AxiosResponse<T>>;
   isAuthChecking: boolean;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  authCheckError: boolean;
 }
 
 export interface RefreshResponse {

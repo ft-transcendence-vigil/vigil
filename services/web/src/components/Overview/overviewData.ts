@@ -64,7 +64,7 @@ export function toWindow(
 ): TimeWindow {
   if (range === 'custom' && from && to) {
     const end = Math.min(new Date(`${to}T23:59:59.999`).getTime(), now);
-    const start = Math.min(new Date(`${from}T00:00:00`).getTime(), end - HOUR);
+    const start = Math.min(new Date(`${from}T00:00:00`).getTime(), end);
     const live = end >= now - 1000;
     const periods = Object.keys(DURATION) as Period[];
     return {

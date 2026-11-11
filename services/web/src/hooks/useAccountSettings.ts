@@ -106,7 +106,7 @@ export default function useAccountSettings() {
   };
 
   const runSubmitPasswordChange = async (submitFn: () => Promise<void>) => {
-    if (!validatePassword()) return;
+    if (isPasswordSubmitting || !validatePassword()) return;
     setIsPasswordSubmitting(true);
     try {
       await submitFn();

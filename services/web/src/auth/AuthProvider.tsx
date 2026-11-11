@@ -19,6 +19,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { hasRefreshHint } from './refreshHint';
 import type { User } from '../api/usersApi';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -30,11 +31,14 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthChecking, setIsAuthChecking] = useState(() => hasRefreshHint());
   const navigate = useNavigate();
   const refreshing = useRef<ReturnType<typeof refresh> | null>(null);
+  const queryClient = useQueryClient();
+  const [authCheckError, setAuthCheckError] = useState(false);
 
   const clearAuthState = useCallback((): void => {
     setAccessToken(null);
     setUser(null);
-  }, []);
+    queryClient.clear();
+  }, [queryClient]);
 
   const refreshOnce = useCallback(() => {
     if (!refreshing.current) {
@@ -53,8 +57,18 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         const user = await getCurrentUser(data.access_token);
         setAccessToken(data.access_token);
         setUser(user);
-      } catch {
-        clearAuthState();
+      } catch (error) {
+        const originalError =
+          error instanceof Error ? (error.cause ?? error) : error;
+
+        if (
+          axios.isAxiosError(originalError) &&
+          originalError.response?.status === 401
+        ) {
+          clearAuthState();
+        } else {
+          setAuthCheckError(true);
+        }
       } finally {
         setIsAuthChecking(false);
       }
@@ -79,10 +93,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const signOut = async (): Promise<void> => {
     try {
       await logout();
-    } catch {
-      // Ignore server logout failure.
     } finally {
       clearAuthState();
+      document.cookie = 'session_hint=; Max-Age=0; Path=/';
       navigate('/auth/login', { replace: true });
     }
   };
@@ -119,8 +132,20 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       try {
         data = await refreshOnce();
       } catch (refreshError) {
-        clearAuthState();
-        throw new Error('Session expired', { cause: refreshError });
+        const originalError =
+          refreshError instanceof Error
+            ? (refreshError.cause ?? refreshError)
+            : refreshError;
+        if (
+          axios.isAxiosError(originalError) &&
+          originalError.response?.status === 401
+        ) {
+          clearAuthState();
+          throw new Error('Session expired', { cause: refreshError });
+        }
+        throw new Error('Unable to refresh session. Please try again.', {
+          cause: refreshError,
+        });
       }
       setAccessToken(data.access_token);
       return requestWithToken<T>(data.access_token, url, options);
@@ -139,6 +164,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         isAuthChecking,
         apiFetch,
         setUser,
+        authCheckError,
       }}
     >
       {children}

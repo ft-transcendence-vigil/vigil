@@ -1,3 +1,4 @@
+import SetupCheckError from '../pages/errors/SetupCheckError';
 import { useAuth } from './authContext';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
@@ -6,6 +7,7 @@ export default function PublicOnlyRoute() {
   const location = useLocation();
 
   if (auth.isAuthChecking) return null;
+  if (auth.authCheckError) return <SetupCheckError />;
 
   if (auth.accessToken) {
     if (location.pathname === '/auth/setup') {

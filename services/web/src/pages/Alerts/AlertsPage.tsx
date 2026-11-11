@@ -16,7 +16,9 @@ import {
 import useAlertNotifications from '../../hooks/useAlertNotifications';
 
 export default function AlertsPage() {
-  const [period, setPeriod] = useState<Period>('24h');
+  const [searchParams] = useSearchParams();
+  const targetAlertId = searchParams.get('alert');
+  const [period, setPeriod] = useState<Period>(targetAlertId ? '' : '24h');
   const [service, setService] = useState('');
   const [debouncedService, setDebouncedService] = useState('');
   const [isNearTop, setIsNearTop] = useState(true);
@@ -25,8 +27,6 @@ export default function AlertsPage() {
   const loadMoreRef = useRef<HTMLTableRowElement | null>(null);
   const topRef = useRef<HTMLDivElement | null>(null);
   const { apiFetch, user } = useAuth();
-  const [searchParams] = useSearchParams();
-  const targetAlertId = searchParams.get('alert');
   const {
     alerts,
     isLoading,
@@ -150,14 +150,21 @@ export default function AlertsPage() {
     [updateCachedLlm],
   );
 
+  const matchesServiceFilter = (alert: AlertHistory) =>
+    !debouncedService || alert.service === debouncedService;
+
+  const matchingPendingAlerts = pendingAlerts.filter(matchesServiceFilter);
+
   const allAlerts = Array.from(
     new Map(
       [...alerts, ...liveAlerts].map((alert) => [alert.id, alert]),
     ).values(),
-  ).sort(
-    (a, b) =>
-      new Date(b.triggered_at).getTime() - new Date(a.triggered_at).getTime(),
-  );
+  )
+    .filter(matchesServiceFilter)
+    .sort(
+      (a, b) =>
+        new Date(b.triggered_at).getTime() - new Date(a.triggered_at).getTime(),
+    );
 
   const liveAlertIds = new Set(liveAlerts.map((alert) => alert.id));
   const targetAlertLoaded =
@@ -278,10 +285,10 @@ export default function AlertsPage() {
 
   return (
     <>
-      {pendingAlerts.length > 0 && (
+      {matchingPendingAlerts.length > 0 && (
         <Button
-          value={`▴ ${pendingAlerts.length} new ${
-            pendingAlerts.length === 1 ? 'alert' : 'alerts'
+          value={`▴ ${matchingPendingAlerts.length} new ${
+            matchingPendingAlerts.length === 1 ? 'alert' : 'alerts'
           }`}
           className="fixed left-1/2 z-99 px-8! py-2.5!"
           onClick={handleShowNewAlerts}

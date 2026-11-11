@@ -182,10 +182,10 @@ export default function OverviewPage() {
   const rangeAlerts = useMemo(() => {
     const byId = new Map<string, AlertHistory>();
     for (const a of [...alerts, ...liveAlerts])
-      if (!byId.has(a.id) && inWindow(timeWindow, a.triggered_at))
+      if (!byId.has(a.id) && (range === 'all' || inWindow(timeWindow, a.triggered_at)))
         byId.set(a.id, a);
     return [...byId.values()];
-  }, [alerts, liveAlerts, timeWindow]);
+  }, [alerts, liveAlerts, timeWindow, range]);
 
   const shownAlerts = useMemo(
     () =>
@@ -247,7 +247,13 @@ export default function OverviewPage() {
     const seen = new Set<string>();
     return [...liveLogs, ...logsQuery.logs]
       .filter((log) => {
-        const key = `${log.timestamp}|${log.service}|${log.message}`;
+        const key = JSON.stringify([
+          log.service,
+          log.timestamp,
+          log.severity,
+          log.message,
+          log.attributes,
+        ]);
         if (seen.has(key)) return false;
         seen.add(key);
         return (
