@@ -67,7 +67,6 @@
 :root {
     --color-vigil-bg: #050910;
     --color-vigil-bg-input: #0a0f1e;
-    /* --color-vigil-surface: #0d1320; */
     --color-vigil-surface: #080d1a;
     --color-vigil-card: #0a0f1e;
     --color-vigil-border: #1a2333;
@@ -106,11 +105,6 @@
     }
 }
 
-/* ::selection {
-    color: #000;
-    background-color: var(--color-vigil-blue);
-} */
-
 @theme {
     --color-vigil-bg: var(--color-vigil-bg);
     --color-vigil-bg-input: var(--color-vigil-bg-input);
@@ -139,7 +133,6 @@ html {
 
 
 body {
-    /* font-family: "Inter", sans-serif; */
     font-family: "Ubuntu", sans-serif;
     color: white;
     letter-spacing: 0.015em;
@@ -275,35 +268,6 @@ input[type='submit']:disabled:hover {
 
 /* dashboard */
 
-/* .dashboard-bg {
-    background:
-        repeating-linear-gradient(115deg,
-            transparent 0,
-            transparent 160px,
-            rgba(255, 255, 255, 0.018) 160px,
-            rgba(255, 255, 255, 0.018) 161px,
-            transparent 161px,
-            transparent 310px),
-        #050910;
-} */
-
-/* .dashboard-bg {
-  position: relative;
-  overflow: hidden;
-
-  background:
-    repeating-linear-gradient(
-      115deg,
-      transparent 0,
-      transparent 160px,
-      rgba(255, 255, 255, 0.018) 160px,
-      rgba(255, 255, 255, 0.018) 161px,
-      transparent 161px,
-      transparent 310px
-    ),
-    #050910;
-} */
-
 .dashboard-bg::before {
     content: "VIGIL";
     position: fixed;
@@ -319,11 +283,6 @@ input[type='submit']:disabled:hover {
     user-select: none;
     white-space: nowrap;
 }
-
-/* .dashboard-bg>* {
-    position: relative;
-    z-index: 1;
-} */
 
 /* Overview */
 
