@@ -31,6 +31,7 @@ export function useAlertAsk() {
           alertId,
           question,
           history,
+          signal: controller.signal,
           onToken: (token) => {
             fullAnswer += token;
             setAnswer((prev) => prev + token);
@@ -53,7 +54,9 @@ export function useAlertAsk() {
     abortControllerRef.current?.abort();
   };
 
-  const error = axios.isCancel(mutation.error) ? null : mutation.error;
+  const isCancelled =
+    axios.isCancel(mutation.error) || mutation.error?.name === 'AbortError';
+  const error = isCancelled ? null : mutation.error;
 
   useEffect(() => {
     return () => {
