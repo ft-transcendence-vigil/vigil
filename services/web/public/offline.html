@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#050810" />
+    <meta name="color-scheme" content="dark" />
+    <title>Vigil — Offline</title>
+    <style>
+      :root {
+        --bg: #050810;
+        --fg: #e6ebf5;
+        --muted: #7d8aa5;
+        --accent: #1e90ff;
+        --red: #ff4d4f;
+        --line: rgba(255, 255, 255, 0.06);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      html,
+      body {
+        min-height: 100%;
+      }
+      body {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        overflow: hidden;
+        background-color: var(--bg);
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        background-size: 40px 40px;
+        color: var(--fg);
+        font-family:
+          'Syne',
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+      }
+
+      header {
+        position: relative;
+        z-index: 1;
+        padding: 24px 28px;
+      }
+      .logo {
+        display: inline-block;
+        padding: 8px 26px;
+        background: var(--accent);
+        color: var(--bg);
+        font-weight: 800;
+        font-size: 26px;
+        letter-spacing: -0.02em;
+        transform: rotate(-3deg);
+        clip-path: polygon(0 8%, 100% 0, 96% 92%, 3% 100%);
+      }
+
+      main {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        padding: 24px 24px 12vh;
+        text-align: center;
+      }
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+        font-family:
+          'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--red);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.35;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .dot {
+          animation: none;
+        }
+      }
+      h1 {
+        margin-bottom: 12px;
+        font-weight: 800;
+        font-size: clamp(30px, 6vw, 48px);
+        letter-spacing: -0.02em;
+      }
+      p.msg {
+        max-width: 440px;
+        margin-bottom: 28px;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.5;
+      }
+      button {
+        padding: 12px 26px;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--bg);
+        background: var(--accent);
+        border: 0;
+        border-radius: 0;
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+      button:hover {
+        opacity: 0.85;
+      }
+      button:focus-visible {
+        outline: 2px solid var(--fg);
+        outline-offset: 3px;
+      }
+
+      .mark {
+        position: fixed;
+        left: 50%;
+        bottom: -5vw;
+        z-index: 0;
+        transform: translateX(-50%);
+        font-weight: 800;
+        font-size: 30vw;
+        line-height: 1;
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.05);
+        white-space: nowrap;
+        user-select: none;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header><span class="logo">VIGIL</span></header>
+
+    <main role="alert">
+      <div class="status"><span class="dot"></span>Connection lost</div>
+      <h1>You're offline</h1>
+      <p class="msg">
+        Vigil needs a connection for live logs and alerts. We'll reconnect
+        automatically.
+      </p>
+      <button type="button" id="retry">Retry now</button>
+    </main>
+
+    <div class="mark" aria-hidden="true">VIGIL</div>
+
+    <script>
+      document
+        .getElementById('retry')
+        .addEventListener('click', () => location.reload());
+      window.addEventListener('online', () => location.reload());
+    </script>
+  </body>
+</html>
