@@ -1,5 +1,5 @@
 import './index.css';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom';
 import LoginPage from './pages/Login/LoginPage';
 import SetupPage from './pages/Setup/SetupPage';
 import ProtectedRoute from './auth/ProtectedRoute';
@@ -27,6 +27,9 @@ import AddServicePage from './pages/Services/AddServicePage';
 import NotFoundPage from './pages/errors/NotFoundPage';
 
 function App() {
+  const [searchParams] = useSearchParams();
+  const targetAlertId = searchParams.get('alert');
+
   return (
     <>
       <AppToaster />
@@ -52,7 +55,10 @@ function App() {
           </Route>
           <Route element={<DashboardLayout />}>
             <Route path="/overview" element={<OverviewPage />} />
-            <Route path="/alerts" element={<AlertsPage />} />
+            <Route
+              path="/alerts"
+              element={<AlertsPage key={targetAlertId ?? 'alerts-page'} />}
+            />
             <Route path="/logs" element={<LogsPage />} />
             <Route path="/metrics" element={<MetricsPage />} />
             <Route path="/traces" element={<TracesPage />} />

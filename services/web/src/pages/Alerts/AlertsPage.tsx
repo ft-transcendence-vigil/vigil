@@ -16,7 +16,9 @@ import {
 import useAlertNotifications from '../../hooks/useAlertNotifications';
 
 export default function AlertsPage() {
-  const [period, setPeriod] = useState<Period>('24h');
+  const [searchParams] = useSearchParams();
+  const targetAlertId = searchParams.get('alert');
+  const [period, setPeriod] = useState<Period>(targetAlertId ? '' : '24h');
   const [service, setService] = useState('');
   const [debouncedService, setDebouncedService] = useState('');
   const [isNearTop, setIsNearTop] = useState(true);
@@ -25,8 +27,6 @@ export default function AlertsPage() {
   const loadMoreRef = useRef<HTMLTableRowElement | null>(null);
   const topRef = useRef<HTMLDivElement | null>(null);
   const { apiFetch, user } = useAuth();
-  const [searchParams] = useSearchParams();
-  const targetAlertId = searchParams.get('alert');
   const {
     alerts,
     isLoading,
