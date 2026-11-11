@@ -252,7 +252,6 @@ export default function OverviewPage() {
           log.timestamp,
           log.severity,
           log.message,
-          log.trace_id,
           log.attributes,
         ]);
         if (seen.has(key)) return false;

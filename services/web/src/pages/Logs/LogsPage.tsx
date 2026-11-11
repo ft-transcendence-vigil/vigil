@@ -95,7 +95,6 @@ export default function LogsPage() {
       log.timestamp,
       log.severity,
       log.message,
-      log.trace_id,
       log.attributes,
     ]);
   };

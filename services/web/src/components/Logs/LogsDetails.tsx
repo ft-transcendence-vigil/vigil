@@ -18,31 +18,16 @@ export default function LogsDetails({ attributes, message }: Data) {
         <div className="attribute uppercase mb-2 text-[12px] text-vigil-muted-extra tracking-wider">
           Attributes
         </div>
-        <div className="flex space-x-25">
-          <p className="lowercase text-vigil-muted-extra text-[13px]">
-            request_id:{' '}
-            <span className="text-white ms-1 text-[14px]">
-              {attributes.request_id}
-            </span>
-          </p>
-          <p className="lowercase text-vigil-muted-extra text-[13px]">
-            endpoint:{' '}
-            <span className="text-white ms-1 text-[14px]">
-              {attributes.endpoint}
-            </span>
-          </p>
-          <p className="lowercase text-vigil-muted-extra text-[13px]">
-            status_code:{' '}
-            <span className="text-white ms-1 text-[14px]">
-              {attributes.status_code}
-            </span>
-          </p>
-          <p className="lowercase text-vigil-muted-extra text-[13px]">
-            region:{' '}
-            <span className="text-white ms-1 text-[14px]">
-              {attributes.region}
-            </span>
-          </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {Object.entries(attributes).map(([key, value]) => (
+            <p
+              key={key}
+              className="min-w-0 wrap-break-word text-vigil-muted-extra text-[13px]"
+            >
+              {key}:{' '}
+              <span className="text-white ms-1 text-[14px]">{value}</span>
+            </p>
+          ))}
         </div>
       </div>
     </div>
