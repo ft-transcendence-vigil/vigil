@@ -55,7 +55,7 @@ export default function LogsPreview({
             to="/logs"
             className={`${chip} ${chipIdle} flex items-center justify-center`}
           >
-            all →
+            view →
           </Link>
         </div>
       </div>
