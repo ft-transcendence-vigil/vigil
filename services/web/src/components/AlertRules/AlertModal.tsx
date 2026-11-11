@@ -74,7 +74,10 @@ export default function AlertModal(props: Data) {
           />
           <Dropdown
             title="Metric Name"
-            options={form.metricOptions}
+            options={[
+              { label: 'Select a metric', value: '' },
+              ...form.metricOptions,
+            ]}
             onChange={form.handleMetricNameChange}
             value={form.metricName}
             disabled={
@@ -84,6 +87,11 @@ export default function AlertModal(props: Data) {
                   form.metricOptions.length === 0))
             }
           />
+          {form.metricNameError && (
+            <p className="mb-3.5 text-[12px] text-red-400">
+              {form.metricNameError}
+            </p>
+          )}
           {form.signalType === 'metrics' &&
             form.isLoadingTelemetryAttributes && (
               <p className="mb-3.5 text-[12px] text-vigil-muted-extra">
