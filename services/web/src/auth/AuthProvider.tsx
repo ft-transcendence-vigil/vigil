@@ -19,6 +19,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { hasRefreshHint } from './refreshHint';
 import type { User } from '../api/usersApi';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -30,11 +31,13 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthChecking, setIsAuthChecking] = useState(() => hasRefreshHint());
   const navigate = useNavigate();
   const refreshing = useRef<ReturnType<typeof refresh> | null>(null);
+  const queryClient = useQueryClient();
 
   const clearAuthState = useCallback((): void => {
     setAccessToken(null);
     setUser(null);
-  }, []);
+    queryClient.clear();
+  }, [queryClient]);
 
   const refreshOnce = useCallback(() => {
     if (!refreshing.current) {
