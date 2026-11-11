@@ -11,7 +11,7 @@ export default function useSessions() {
     queryKey: ['sessions', user?.id],
     queryFn: () => getAllSessions(apiFetch),
     staleTime: 60_000,
-    enabled: Boolean(user?.id)
+    enabled: Boolean(user?.id),
   });
 
   const revokeMutation = useMutation({
@@ -34,5 +34,8 @@ export default function useSessions() {
     error: sessionsQuery.error,
     revokeSession: revokeMutation.mutate,
     isRevoking: revokeMutation.isPending,
+    isLoading: sessionsQuery.isLoading,
+    isError: sessionsQuery.isError,
+    refetch: sessionsQuery.refetch,
   };
 }
