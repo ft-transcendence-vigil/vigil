@@ -182,10 +182,10 @@ export default function OverviewPage() {
   const rangeAlerts = useMemo(() => {
     const byId = new Map<string, AlertHistory>();
     for (const a of [...alerts, ...liveAlerts])
-      if (!byId.has(a.id) && inWindow(timeWindow, a.triggered_at))
+      if (!byId.has(a.id) && (range === 'all' || inWindow(timeWindow, a.triggered_at)))
         byId.set(a.id, a);
     return [...byId.values()];
-  }, [alerts, liveAlerts, timeWindow]);
+  }, [alerts, liveAlerts, timeWindow, range]);
 
   const shownAlerts = useMemo(
     () =>
