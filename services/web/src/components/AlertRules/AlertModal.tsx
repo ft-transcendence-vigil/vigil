@@ -37,7 +37,7 @@ export default function AlertModal(props: Data) {
 
   return (
     <div className="bg-[#050810b3] backdrop-blur-sm z-98 fixed inset-0">
-      <div className="flex flex-col bg-vigil-card border border-vigil-border w-[95%] md:w-130 h-fit center-absolute z-99">
+      <div className="flex flex-col bg-vigil-card border border-vigil-border w-[95%] md:w-130 h-fit max-h-[90dvh] overflow-y-auto center-absolute z-99">
         <div className="flex items-center justify-between border-b border-b-vigil-border px-6 py-3.5">
           <h1 className="text-[18px]">
             {isEdit ? 'Edit Rule' : 'Create Rule'}
