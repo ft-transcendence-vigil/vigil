@@ -1,1 +1,1 @@
-GET /api/telemetry/attributes
+add Debounce concept to logs.
