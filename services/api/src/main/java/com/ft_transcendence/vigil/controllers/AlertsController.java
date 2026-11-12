@@ -37,9 +37,9 @@ public class AlertsController {
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('admin', 'viewer')")
-    public ResponseEntity<PaginationResponse<AlertsGetResponseDto>> alertsGetController(@RequestParam(required = false) String period, @RequestParam(required = false) String service, @RequestParam(defaultValue = "20") @Min(1) @Max(100) Integer count, @RequestParam(required = false) String before)
+    public ResponseEntity<AlertsGetResponseDto.Page> alertsGetController(@RequestParam(required = false) String period, @RequestParam(required = false) String service, @RequestParam(defaultValue = "20") @Min(1) @Max(100) Integer count, @RequestParam(required = false) String before)
     {
-        PaginationResponse<AlertsGetResponseDto> response = alertsService.getAlertsService(count,period,service,before);
+        AlertsGetResponseDto.Page response = alertsService.getAlertsService(count,period,service,before);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
