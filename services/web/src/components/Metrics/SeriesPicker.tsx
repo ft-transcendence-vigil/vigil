@@ -5,7 +5,7 @@ interface Data {
   selected: string[];
   onToggle: (name: string) => void;
 }
-
+//draw series buttons
 export default function SeriesPicker({ groups, selected, onToggle }: Data) {
   return (
     <div className="flex flex-wrap gap-2">
@@ -18,6 +18,7 @@ export default function SeriesPicker({ groups, selected, onToggle }: Data) {
             aria-pressed={active}
             onClick={() => onToggle(group.name)}
             className={`mono text-[12px] px-3 py-1.5 border cursor-pointer transition-[color,border-color,background-color] duration-200 ${
+              //if active do the hovered color
               active
                 ? 'border-vigil-blue text-white bg-vigil-blue-100'
                 : 'border-vigil-border text-vigil-muted hover:border-white/60 hover:text-white/60'
