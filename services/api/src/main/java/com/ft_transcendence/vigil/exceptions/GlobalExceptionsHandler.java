@@ -1,6 +1,7 @@
 package com.ft_transcendence.vigil.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionsHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -54,6 +56,7 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler(TelemetryRepositoryException.class)
     public ResponseEntity<Map<String, String>> handleTelemetryQueryFailure(TelemetryRepositoryException ex) {
+        log.error("Failed to query telemetry", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "server error"));
     }
 

@@ -25,8 +25,8 @@ public class NotificationTriggerDto {
     private Instant storedAt;
 
     @NotEmpty
-    private List<@Valid @NotNull ServiceEntry> services;
+    private List<@Valid @NotNull ServiceTimestamp> services;
 
-    public record ServiceEntry(@NotBlank String service, @NotNull Instant latestTimestamp) {
+    public record ServiceTimestamp(@NotBlank String service, @NotNull Instant latestTimestamp) {
     }
 }

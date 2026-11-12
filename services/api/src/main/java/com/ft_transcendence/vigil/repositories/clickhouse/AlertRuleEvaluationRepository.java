@@ -13,16 +13,16 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 @Repository
-public class RuleEvaluationRepository {
+public class AlertRuleEvaluationRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    public RuleEvaluationRepository(@Qualifier("clickHouseJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    public AlertRuleEvaluationRepository(@Qualifier("clickHouseJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Double compute(AlertRules alertRule, Instant windowEnd) {
-        String aggregateExpression = getAggregateExpression(alertRule);
-        if (aggregateExpression == null)
+    public Double findAlertRuleValue(AlertRules alertRule, Instant windowEnd) {
+        String aggregationExpression = getAggregationExpression(alertRule);
+        if (aggregationExpression == null)
             return null;
 
         SignalType signalType = alertRule.getSignalType();
@@ -31,7 +31,7 @@ public class RuleEvaluationRepository {
                 SELECT count() AS row_count, %s AS rule_value
                 FROM %s
                 WHERE service = ? AND timestamp > ? AND timestamp <= ?
-                """.formatted(aggregateExpression, signalType.name());
+                """.formatted(aggregationExpression, signalType.name());
 
         String service = alertRule.getService();
         Timestamp startTimestamp = Timestamp.from(windowStart);
@@ -54,7 +54,7 @@ public class RuleEvaluationRepository {
         }
     }
 
-    private static String getAggregateExpression(AlertRules alertRule) {
+    private static String getAggregationExpression(AlertRules alertRule) {
         SignalType signalType = alertRule.getSignalType();
         String aggregation = alertRule.getAggregation();
         if (signalType == SignalType.metrics && aggregation == null)

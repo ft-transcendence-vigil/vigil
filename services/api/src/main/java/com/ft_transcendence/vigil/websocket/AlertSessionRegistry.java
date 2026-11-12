@@ -47,9 +47,9 @@ public class AlertSessionRegistry {
     }
 
 
-    public void podcastAlert(WebSocketAlertResponse alertResponse)
+    public void podcastAlert(WebSocketAlertResponse webSocketAlertResponse)
     {
-        podcastTo(alertResponse);
+        podcastTo(webSocketAlertResponse);
     }
 
     public void podcastLlmAnalyze(WebSocketLlmResponse llmMessage)

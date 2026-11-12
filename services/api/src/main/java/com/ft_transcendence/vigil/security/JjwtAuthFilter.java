@@ -70,7 +70,7 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
                     }
                     catch (JwtException | UsernameNotFoundException | IllegalArgumentException e)
                     {
-                        log.error(e.getMessage());
+                        log.debug("Rejected SSE access token ({})", e.getClass().getSimpleName());
                         exceptionResolver.resolveException(request, response, null,
                                 new UnauthorizedException("Invalid or expired access token"));
                         return;
@@ -102,6 +102,7 @@ public class JjwtAuthFilter extends OncePerRequestFilter {
                 }
                 catch (UsernameNotFoundException e)
                 {
+                    log.error("API key authentication failed because the backing account is missing");
                     exceptionResolver.resolveException(request, response, null,
                             new UnauthorizedException("make sure that a useradmin with email: " + apiKeyEmail + "exists"));
                     return;
