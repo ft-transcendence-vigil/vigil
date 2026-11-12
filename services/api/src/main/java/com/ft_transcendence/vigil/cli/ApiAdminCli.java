@@ -2,6 +2,7 @@ package com.ft_transcendence.vigil.cli;
 
 import com.ft_transcendence.vigil.security.ApiKeyFile;
 import com.ft_transcendence.vigil.ratelimiter.ApiRateLimitPolicy;
+import lombok.extern.slf4j.Slf4j;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+@Slf4j
 public final class ApiAdminCli {
     private static final String API_EMAIL = "mustbe@api.email";
     private static final String DELETE_CONFIRMATION = "DELETE ALL HUMAN ACCOUNTS";
@@ -154,6 +156,7 @@ public final class ApiAdminCli {
         } catch (Failure | ApiAccountRecovery.Failure e) {
             err.println("Error: " + e.getMessage());
         } catch (Exception e) {
+            log.error("Unexpected API admin CLI failure ({})", e.getClass().getSimpleName());
             err.println("Error: invalid configuration or unexpected client failure; no automatic retry was made.");
         }
         return 1;

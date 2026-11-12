@@ -34,7 +34,7 @@ public class MetricSseRegistry {
                         try {
                             data.emitter.send(ourMetric);
                         } catch (Exception e) {
-                            log.error(e.getMessage());
+                            log.error("Failed to stream a metric for service {}", ourMetric.getService(), e);
                             data.emitter.completeWithError(e);
                         }
                     }

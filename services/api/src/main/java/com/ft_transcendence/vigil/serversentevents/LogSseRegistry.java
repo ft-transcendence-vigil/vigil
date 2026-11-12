@@ -35,7 +35,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
                             try {
                                 data.emitter.send(ourlog);
                             } catch (Exception e) {
-                                log.error(e.getMessage());
+                                log.error("Failed to stream a log for service {}", ourlog.getService(), e);
                                 data.emitter.completeWithError(e);
                             }
                         }

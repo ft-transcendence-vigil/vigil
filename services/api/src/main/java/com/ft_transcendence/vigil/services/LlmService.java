@@ -25,6 +25,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import tools.jackson.core.JacksonException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -47,6 +48,7 @@ public class LlmService {
     private final MetricsRepository metricsRepository;
     private final TraceRepository traceRepository;
     private final AlertSessionRegistry alertSessionRegistry;
+    private final WebhookDeliveryService webhookDeliveryService;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public void analyze(AlertHistory alert, AlertRules rule)
@@ -84,7 +86,7 @@ public class LlmService {
         {
             if (ex instanceof InterruptedException)
                 Thread.currentThread().interrupt();
-            log.warn("LLM analysis failed for alert {}", llmRequestDto.getAlertId(), ex);
+            logLlmFailure("analysis", llmRequestDto.getAlertId(), ex);
             analysis = UNAVAILABLE;
         }
 
@@ -101,6 +103,7 @@ public class LlmService {
                             alertHistory.getId(), alertHistory.getStatus().name(), analysis))
                     .build();
             alertSessionRegistry.podcastLlmAnalyze(response);
+            webhookDeliveryService.sendWebhooksService(alertHistory, analysis);
         }
         catch (RuntimeException ex)
         {
@@ -131,7 +134,7 @@ public class LlmService {
             {
                 if (ex instanceof InterruptedException)
                     Thread.currentThread().interrupt();
-                log.warn("LLM question failed for alert {}", id, ex);
+                logLlmFailure("question", id, ex);
                 try
                 {
                     Map<String, Object> error = Map.of("message", UNAVAILABLE);
@@ -161,6 +164,17 @@ public class LlmService {
         emitter.onError(ex -> task.cancel(true));
         executor.execute(task);
         return emitter;
+    }
+
+    private void logLlmFailure(String operation, UUID alertId, Exception exception)
+    {
+        if (exception instanceof RestClientResponseException responseError)
+            log.error("LLM {} failed for alert {} with HTTP status {}",
+                    operation, alertId, responseError.getStatusCode().value());
+        else if (exception instanceof JacksonException)
+            log.error("LLM {} failed for alert {} ({})", operation, alertId, exception.getClass().getSimpleName());
+        else
+            log.error("LLM {} failed for alert {}", operation, alertId, exception);
     }
 
     private LlmRequestDto createRequestDto(AlertHistory alert, AlertRules rule, String question)

@@ -5,7 +5,9 @@ import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 import com.ft_transcendence.vigil.security.JjwtService;
 import io.github.bucket4j.Bucket;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
@@ -21,6 +23,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class MyHandShake implements HandshakeInterceptor {
     private final JjwtService jjwtService;
     private final UserRepository userRepository;
@@ -54,7 +57,10 @@ public class MyHandShake implements HandshakeInterceptor {
             Bucket bucket = Bucket.builder().addLimit(l->l.capacity(10).refillIntervally(10, Duration.ofSeconds(60))).build();
             attributes.put("bucket",bucket);
             return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return invalidToken(response);
         } catch (Exception e) {
+            log.error("Failed to prepare alert WebSocket handshake ({})", e.getClass().getSimpleName());
             return invalidToken(response);
         }
     }
@@ -66,6 +72,8 @@ public class MyHandShake implements HandshakeInterceptor {
 
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, @Nullable Exception exception) {
-
+        if (exception != null) {
+            log.error("Alert WebSocket handshake failed ({})", exception.getClass().getSimpleName());
+        }
     }
 }

@@ -65,6 +65,15 @@ public class MetricsRepository {
 				.list(jdbcTemplate, this::mapMetric, "metrics");
 	}
 
+	public List<Metric> findByNotificationId(String notificationId) {
+		if (notificationId == null || notificationId.isBlank()) {
+			throw new IllegalArgumentException("notificationId must not be blank");
+		}
+		return ClickHouseQuery.from(SELECT)
+				.eq("attributes['vigil.notification_id']", notificationId)
+				.list(jdbcTemplate, this::mapMetric, "metrics");
+	}
+
 	private ClickHouseQuery filtered(String service, String period, Boolean internalOnly) {
 		ClickHouseQuery query = ClickHouseQuery.from(SELECT)
 				.eq("service", service)

@@ -43,7 +43,7 @@ public class AlertHistory {
 
     private String aggregation;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Double threshold;
 
     @Column(nullable = false)

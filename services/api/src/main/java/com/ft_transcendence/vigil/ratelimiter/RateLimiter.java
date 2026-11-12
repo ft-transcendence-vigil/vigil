@@ -32,7 +32,8 @@ public class RateLimiter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         return path.equals("/internal/ingest")
-                || path.startsWith("/internal/ingest/");
+                || path.startsWith("/internal/ingest/")
+                || (path.equals("/internal/alerts/trigger-evaluation") && "POST".equals(request.getMethod()));
     }
 
     @Override

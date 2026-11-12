@@ -1,5 +1,6 @@
 package com.ft_transcendence.vigil.cli;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.security.SecureRandom;
@@ -15,6 +16,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 /** Database access is deliberately limited to the fixed API-key identity, never CLI user arguments. */
+@Slf4j
 final class ApiAccountRecovery implements ApiAdminCli.Recovery {
     private static final String EMAIL = "mustbe@api.email";
     private static final int TIMEOUT_SECONDS = 10;
@@ -76,7 +78,8 @@ final class ApiAccountRecovery implements ApiAdminCli.Recovery {
                 try {
                     connection.rollback();
                     rolledBack = true;
-                } catch (SQLException ignored) {
+                } catch (SQLException rollbackError) {
+                    log.error("API backing account rollback failed with SQL state {}", rollbackError.getSQLState());
                     // The connection may have failed; never claim a confirmed rollback in that case.
                 }
                 if (e instanceof SQLException sql && "23505".equals(sql.getSQLState()) && rolledBack) {

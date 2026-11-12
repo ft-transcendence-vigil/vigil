@@ -57,6 +57,15 @@ public class TraceRepository {
                 .list(jdbcTemplate, this::mapTrace, "traces");
     }
 
+    public List<Trace> findByNotificationId(String notificationId) {
+        if (notificationId == null || notificationId.isBlank()) {
+            throw new IllegalArgumentException("notificationId must not be blank");
+        }
+        return ClickHouseQuery.from(SELECT)
+                .eq("attributes['vigil.notification_id']", notificationId)
+                .list(jdbcTemplate, this::mapTrace, "traces");
+    }
+
     private ClickHouseQuery filtered(String service, String period) {
         return ClickHouseQuery.from(SELECT)
                 .eq("service", service)
