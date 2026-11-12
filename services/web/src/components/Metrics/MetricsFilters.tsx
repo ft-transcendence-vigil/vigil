@@ -28,6 +28,7 @@ const LIVE_LABELS = {
   failed: { text: 'Disconnected' },
 };
 
+// shared styles for the select and the input: full width, padding, border that turns blue on focus
 const selectClass =
   'capitalize outline-none px-4 py-3 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]';
 const inputClass =
@@ -52,6 +53,7 @@ export default function MetricsFilters({
   };
 
   return (
+    // filter area: row 1 = live switch + export, row 2 = the filters grid
     <div className="mb-9">
       <div className="flex justify-between items-center mb-7">
         <div className="flex items-center space-x-4">
@@ -59,6 +61,8 @@ export default function MetricsFilters({
           <span className="text-2xl text-vigil-muted">{label.text}</span>
         </div>
         <button
+          //label next to switch butten and switch button logix
+          //exporting button disable it when its exporting onclcik export
           type="button"
           onClick={onExport}
           disabled={isExporting}
@@ -70,10 +74,13 @@ export default function MetricsFilters({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-center">
         <select
           value={period}
+          //listen to change and set period change 
           onChange={(e) => onPeriodChange(e.target.value as Period)}
           className={selectClass}
         >
           {PERIODS.map((p) => (
+            //loop around periods and make them an <option> this is how we get the drop down menu
+            // it looks like this   <option value="1h">Last 1h</option>
             <option key={p.value} value={p.value} className="bg-vigil-card">
               {p.label}
             </option>
@@ -89,6 +96,7 @@ export default function MetricsFilters({
           <input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
+            // on blur (click away) apply the typed service enter does the same through the forms onSubmit only calls the setter if it changed
             onBlur={applyService}
             placeholder="Service"
             className={inputClass}

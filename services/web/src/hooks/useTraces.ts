@@ -25,7 +25,7 @@ export default function useTraces({
 //useInfiniteQuery take instructions for loading 
 // one page from api then fetches and caches the data tracks whether it’s loading or failed and loads the next page when you click Load more
   const tracesQuery = useInfiniteQuery({
-    //data saved in query cache to check if any data changed
+    //the cache name: every input that changes the request is in it, so a change means a new fetch
     queryKey: ['traces', period, service, pageSize, before],
     //how do we want to return a page
 //Receives pageParam: undefined for the first page a timestamp for the next ones.
@@ -45,7 +45,7 @@ export default function useTraces({
     getNextPageParam: (lastPage) =>
       //if hasMore is true we take the last span keep its timestamp a and on Load more ask the backend for the spans older than it.
       lastPage.hasMore ? lastPage.data.at(-1)?.timestamp : undefined,
-    //referech when we switch tabs
+    //don't refetch when we come back to the tab
     refetchOnWindowFocus: false,
     //if a request fails stop
     retry: false,
