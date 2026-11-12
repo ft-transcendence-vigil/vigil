@@ -10,6 +10,7 @@ import com.ft_transcendence.vigil.domain.entities.Alerts.AlertRules;
 import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
 import com.ft_transcendence.vigil.exceptions.InvalidRequestException;
 import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
+import com.ft_transcendence.vigil.ingest.WebhookSender;
 import com.ft_transcendence.vigil.repositories.alertsrepository.AlertHistoryRepository;
 import com.ft_transcendence.vigil.repositories.clickhouse.LogRepository;
 import com.ft_transcendence.vigil.repositories.clickhouse.MetricsRepository;
@@ -47,6 +48,7 @@ public class LlmService {
     private final MetricsRepository metricsRepository;
     private final TraceRepository traceRepository;
     private final AlertSessionRegistry alertSessionRegistry;
+    private final WebhookSender webhookSender;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public void analyze(AlertHistory alert, AlertRules rule)
@@ -101,6 +103,7 @@ public class LlmService {
                             alertHistory.getId(), alertHistory.getStatus().name(), analysis))
                     .build();
             alertSessionRegistry.podcastLlmAnalyze(response);
+            webhookSender.send(alertHistory, analysis);
         }
         catch (RuntimeException ex)
         {
