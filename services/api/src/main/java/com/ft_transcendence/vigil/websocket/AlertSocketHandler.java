@@ -102,8 +102,14 @@ public class AlertSocketHandler extends TextWebSocketHandler {
             }
         }
         catch (Exception e) {
+            log.error("Failed to process alert WebSocket message for session {}", session.getId(), e);
             sendError(session, "socket error");
         }
+    }
+
+    @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) {
+        log.error("Alert WebSocket transport failed for session {}", session.getId(), exception);
     }
 
 

@@ -10,6 +10,7 @@ import com.ft_transcendence.vigil.exceptions.ResourcesNotFoundException;
 import com.ft_transcendence.vigil.mappers.AlertRulesGetAndPatchResponseMapper;
 import com.ft_transcendence.vigil.mappers.AlertRulesPostRequestMapper;
 import com.ft_transcendence.vigil.mappers.AlertRulesPostResponseMapper;
+import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 import com.ft_transcendence.vigil.repositories.alertsrepository.AlertHistoryRepository;
 import com.ft_transcendence.vigil.repositories.alertsrepository.AlertNotificationRepository;
 import com.ft_transcendence.vigil.repositories.alertsrepository.AlertRuleRepository;
@@ -36,6 +37,30 @@ public class AlertsService {
     final private AlertRulesPostResponseMapper alertRulesPostResponseMapper;
     final private AlertRulesPostRequestMapper alertRulesPostRequestMapper;
     final private AlertRulesGetAndPatchResponseMapper alertRulesGetAndPatchResponseMapper;
+    private final UserRepository userRepository;
+
+    public AlertSaveResult saveAlertService(AlertHistory alertHistory) {
+        AlertHistory savedAlertHistory = alertHistoryRepository.save(alertHistory);
+        List<AlertNotification> alertNotifications = new ArrayList<>();
+        for (User user : userRepository.findAll()) {
+            AlertNotification alertNotification = new AlertNotification();
+            alertNotification.setAlertNotificationId(new AlertNotificationId(user.getId(), savedAlertHistory.getId()));
+            alertNotification.setUser(user);
+            alertNotification.setAlertHistory(savedAlertHistory);
+            alertNotifications.add(alertNotification);
+        }
+        return new AlertSaveResult(savedAlertHistory, alertNotificationRepository.saveAll(alertNotifications));
+    }
+
+    public List<AlertSaveResult> saveAlertsService(List<AlertHistory> alertHistories) {
+        List<AlertSaveResult> savedAlerts = new ArrayList<>();
+        for (AlertHistory alertHistory : alertHistories) {
+            savedAlerts.add(saveAlertService(alertHistory));
+        }
+        return savedAlerts;
+    }
+
+    record AlertSaveResult(AlertHistory alertHistory, List<AlertNotification> alertNotifications) {}
 
     private class CheckAlertParsingRules {
         public static final Set<String> allowedLogsForMetric = Set.of("error_count", "warning_count", "critical_count", "total_count");

@@ -19,32 +19,32 @@ import java.util.concurrent.TimeUnit;
 public class SilenceWatchdog {
     private final VigilProperties vigilProperties;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private final Map<String, Instant> lastSeen = new HashMap<>();
-    private final Map<String, ScheduledFuture<?>> timers = new HashMap<>();
+    private final Map<String, Instant> lastStoredAtByService = new HashMap<>();
+    private final Map<String, ScheduledFuture<?>> silenceTimers = new HashMap<>();
 
-    public synchronized void seen(String service, Instant storedAt, Runnable onSilent) {
-        Instant previous = lastSeen.get(service);
-        if (previous != null && !storedAt.isAfter(previous))
+    public synchronized void updateSilenceTimer(String service, Instant storedAt, Runnable onServiceSilent) {
+        Instant lastStoredAt = lastStoredAtByService.get(service);
+        if (lastStoredAt != null && !storedAt.isAfter(lastStoredAt))
             return;
 
-        Instant deadline = storedAt.plusSeconds(vigilProperties.getSilenceTimeoutSeconds());
-        long delay = Math.max(0, Duration.between(Instant.now(), deadline).toMillis());
-        ScheduledFuture<?> timer = scheduler.schedule(
-                () -> fireIfCurrent(service, storedAt, onSilent), delay, TimeUnit.MILLISECONDS);
+        Instant silenceDeadline = storedAt.plusSeconds(vigilProperties.getSilenceTimeoutSeconds());
+        long delayMillis = Math.max(0, Duration.between(Instant.now(), silenceDeadline).toMillis());
+        ScheduledFuture<?> silenceTimer = scheduler.schedule(
+                () -> checkServiceSilence(service, storedAt, onServiceSilent), delayMillis, TimeUnit.MILLISECONDS);
 
-        lastSeen.put(service, storedAt);
-        ScheduledFuture<?> previousTimer = timers.put(service, timer);
+        lastStoredAtByService.put(service, storedAt);
+        ScheduledFuture<?> previousTimer = silenceTimers.put(service, silenceTimer);
         if (previousTimer != null)
             previousTimer.cancel(false);
     }
 
-    private void fireIfCurrent(String service, Instant storedAt, Runnable onSilent) {
+    private void checkServiceSilence(String service, Instant storedAt, Runnable onServiceSilent) {
         synchronized (this) {
-            if (!storedAt.equals(lastSeen.get(service)))
+            if (!storedAt.equals(lastStoredAtByService.get(service)))
                 return;
-            timers.remove(service);
+            silenceTimers.remove(service);
         }
-        onSilent.run();
+        onServiceSilent.run();
     }
 
     @PreDestroy

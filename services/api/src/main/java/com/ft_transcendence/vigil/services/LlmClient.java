@@ -3,6 +3,7 @@ package com.ft_transcendence.vigil.services;
 import com.ft_transcendence.vigil.configuration.VigilProperties;
 import com.ft_transcendence.vigil.domain.dtos.llm.LlmRequestDto;
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Component
+@Slf4j
 public class LlmClient {
     private final ObjectMapper objectMapper;
     private final VigilProperties vigilProperties;
@@ -58,7 +60,7 @@ public class LlmClient {
         {
             try (InputStream input = response.getBody())
             {
-                ScheduledFuture<?> cancellation = timeouts.schedule(() -> close(input),
+                ScheduledFuture<?> cancellation = timeouts.schedule(() -> close(input, llmRequestDto.getAlertId()),
                         Math.max(0, deadline - System.nanoTime()), TimeUnit.NANOSECONDS);
                 try
                 {
@@ -155,14 +157,15 @@ public class LlmClient {
         throw new IOException("LLM stream ended before done");
     }
 
-    private void close(InputStream input)
+    private void close(InputStream input, UUID alertId)
     {
         try
         {
             input.close();
         }
-        catch (IOException ignored)
+        catch (IOException e)
         {
+            log.error("Failed to close timed out LLM stream for alert {}", alertId, e);
         }
     }
 

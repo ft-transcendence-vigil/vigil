@@ -1,10 +1,12 @@
 package com.ft_transcendence.vigil.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,6 +17,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionsHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -54,6 +57,7 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler(TelemetryRepositoryException.class)
     public ResponseEntity<Map<String, String>> handleTelemetryQueryFailure(TelemetryRepositoryException ex) {
+        log.error("Failed to query telemetry", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "server error"));
     }
 
@@ -82,8 +86,8 @@ public class GlobalExceptionsHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Invalid value for parameter: " + ex.getName()));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleBodyValidation(MethodArgumentNotValidException ex) {
+    @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<Map<String, String>> handleInvalidBody() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "invalid request"));
     }
 }

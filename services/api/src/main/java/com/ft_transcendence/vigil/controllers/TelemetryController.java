@@ -54,7 +54,7 @@ public class TelemetryController {
     }
 
     @GetMapping(value = "/logs", params = "format=csv")
-    public ResponseEntity<byte[]> exportLogs(
+    public ResponseEntity<byte[]> exportLogsCsvController(
             @RequestParam(required = false) String period,
             @RequestParam(required = false) String service,
             @RequestParam(required = false) String severity,
@@ -62,10 +62,7 @@ public class TelemetryController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Integer count,
             @RequestParam(required = false) String before,
-            @RequestParam(required = false) Integer offset,
-            @RequestParam String format) {
-
-        telemetryService.isCsv(format);
+            @RequestParam(required = false) Integer offset) {
         return CsvResponse.of(telemetryService.exportLogsCsv(period, service, severity, search), Log.class);
     }
 
@@ -84,15 +81,12 @@ public class TelemetryController {
     }
 
     @GetMapping(value = "/metrics", params = "format=csv")
-    public ResponseEntity<byte[]> exportMetrics(
+    public ResponseEntity<byte[]> exportMetricsCsvController(
             @RequestParam(required = false) String service,
             @RequestParam(required = false) String period,
             @RequestParam(required = false) Integer count,
             @RequestParam(required = false) String before,
-            @RequestParam(name = "vigil.internal", required = false) Boolean internalOnly,
-            @RequestParam String format) {
-
-        telemetryService.isCsv(format);
+            @RequestParam(name = "vigil.internal", required = false) Boolean internalOnly) {
         return CsvResponse.of(telemetryService.exportMetricsCsv(service, period, internalOnly), Metric.class);
     }
 
@@ -112,16 +106,13 @@ public class TelemetryController {
     }
 
     @GetMapping(value = "/traces", params = "format=csv")
-    public ResponseEntity<byte[]> exportTraces(
+    public ResponseEntity<byte[]> exportTracesCsvController(
             @RequestParam(required = false) String service,
             @RequestParam(required = false) String period,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Integer count,
             @RequestParam(required = false) String before,
-            @RequestParam(required = false) Integer offset,
-            @RequestParam String format) {
-
-        telemetryService.isCsv(format);
+            @RequestParam(required = false) Integer offset) {
         return CsvResponse.of(telemetryService.exportTracesCsv(service, period), Trace.class);
     }
 
