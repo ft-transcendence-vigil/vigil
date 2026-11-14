@@ -27,6 +27,12 @@ public class LlmRequestDto {
     private String question;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String previousAnalysis;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<HistoryItem> history;
+
+    public record HistoryItem(String question, String answer)
+    {
+    }
 
     public record Rule(
             SignalType signalType,

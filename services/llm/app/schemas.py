@@ -58,7 +58,13 @@ class ForwardRequest(TelemetryRow):
     rule: AlertRule | None =None
     context: AlertsContext = Field(default_factory=AlertsContext)
 
+class HistoryItem(BaseModel):
+    question: str
+    answer: str | None = None
+
+
 class AskRequest(ForwardRequest):
     model_config = ConfigDict(extra = "forbid", str_strip_whitespace = True)
     question: str = Field(min_length = 1, max_length = 500)
     previous_analysis: str | None = Field(default = None, max_length = 5000)
+    history: list[HistoryItem] = Field(default_factory=list)
