@@ -2,6 +2,7 @@
   "id": "/",
   "name": "Vigil",
   "short_name": "Vigil",
+  "description": "Observability dashboard for logs, alerts and services",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
