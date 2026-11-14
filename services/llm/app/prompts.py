@@ -59,10 +59,14 @@ def alert_prompt(req: ForwardRequest) -> list[dict[str, str]]:
     ]
 def ask_prompt(req: AskRequest) -> list[dict[str, str]]:
     analysis = f"Earlier analysis: {req.previous_analysis}\n\n" if req.previous_analysis else ""
+    history = ""
+    if req.history:
+        turns = "\n\n".join(f"Question: {item.question}\nAnswer: {item.answer or ''}" for item in req.history)
+        history = f"Previous questions and answers:\n{turns}\n\n"
     return [
         {"role": "system", "content": ASK_MESSAGE},
         {
             "role": "user",
-            "content": f"Question: {req.question}\n\nservice: {req.service}\n{_rule_line(req.rule)}\n\n{final_str(req.context, req.triggered_at)}\n\n{analysis}Question again: {req.question}",
+            "content": f"Question: {req.question}\n\nservice: {req.service}\n{_rule_line(req.rule)}\n\n{final_str(req.context, req.triggered_at)}\n\n{analysis}{history}Question again: {req.question}",
         },
     ]

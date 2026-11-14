@@ -30,6 +30,7 @@ import tools.jackson.core.JacksonException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -119,6 +120,10 @@ public class LlmService {
         AlertHistory alert = alertHistoryRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException("No alert history with id: " + id));
         LlmRequestDto llmRequestDto = createRequestDto(alert, null, dto.getQuestion().strip());
+        List<AlertAskRequestDto.HistoryItem> history = dto.getHistory() == null ? List.of() : dto.getHistory();
+        llmRequestDto.setHistory(history.subList(Math.max(0, history.size() - 2), history.size()).stream()
+                .map(item -> new LlmRequestDto.HistoryItem(item.question(), item.answer()))
+                .toList());
         SseEmitter emitter = new SseEmitter(0L);
         FutureTask<Void> task = new FutureTask<>(() ->
         {
