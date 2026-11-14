@@ -31,7 +31,7 @@ export default function SetupPage() {
                 to="/legal#terms"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:underline hover:text-vigil-blue"
+                className="hover:underline hover:text-vigil-accent"
               >
                 Terms of Service
               </Link>
@@ -39,7 +39,7 @@ export default function SetupPage() {
                 to="/legal#privacy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:underline hover:text-vigil-blue ms-10"
+                className="hover:underline hover:text-vigil-accent ms-10"
               >
                 Privacy Policy
               </Link>

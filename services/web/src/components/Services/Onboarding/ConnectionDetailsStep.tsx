@@ -43,7 +43,7 @@ export default function ConnectionDetailsStep({
           Run this command from the process or container that will send
           telemetry.
         </p>
-        <div className="border border-vigil-border bg-[#070b14] mt-4">
+        <div className="border border-vigil-border bg-vigil-surface-code mt-4">
           <div className="flex justify-between items-center px-3 py-3 border-b border-vigil-border">
             <span className="text-[12px] text-vigil-muted uppercase">
               Shell

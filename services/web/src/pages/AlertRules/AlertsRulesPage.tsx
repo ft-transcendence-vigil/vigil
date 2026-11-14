@@ -79,7 +79,7 @@ export default function AlertsRulesPage() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-250 border-collapse border border-vigil-border">
           <thead>
-            <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px] bg-[#0D1425] tracking-wide">
+            <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px] bg-vigil-panel tracking-wide">
               <th className="py-2 md:py-4 px-2 md:px-3">Service</th>
               <th className="py-2 md:py-4 px-2 md:px-3">Signal Type</th>
               <th className="py-2 md:py-4 px-2 md:px-3">Metric Name</th>
@@ -102,7 +102,7 @@ export default function AlertsRulesPage() {
             )}
             {alertRulesQuery.isError && (
               <tr>
-                <td colSpan={10} className="py-6 text-center text-red-400">
+                <td colSpan={10} className="py-6 text-center text-vigil-state-danger-text">
                   {errorMessage(alertRulesQuery.error)}
                 </td>
               </tr>
@@ -144,7 +144,7 @@ export default function AlertsRulesPage() {
                       }
                       disabled={offset === 0 || alertRulesQuery.isFetching}
                       type="button"
-                      className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border w-19 h-9 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-200"
+                      className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border w-19 h-9 text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60 transition-[color,border-color] duration-200"
                     >
                       <span className="me-2">‹</span> Prev
                     </button>
@@ -154,7 +154,7 @@ export default function AlertsRulesPage() {
                       }
                       disabled={!hasMore || alertRulesQuery.isFetching}
                       type="button"
-                      className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border w-19 h-9 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-200"
+                      className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border w-19 h-9 text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60 transition-[color,border-color] duration-200"
                     >
                       Next <span className="ms-2">›</span>
                     </button>

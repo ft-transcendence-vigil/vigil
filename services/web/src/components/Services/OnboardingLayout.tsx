@@ -13,7 +13,7 @@ export default function OnboardingLayout() {
           <h1 className="text-vigil-muted uppercase text-[10px] md:text-[13px] tracking-wider">
             {user?.email ?? ''}
           </h1>
-          <h6 className="tracking-wider flex justify-center items-center font-bold client-role text-[7px] md:text-[9px] bg-[#2195f310] uppercase px-1 py-0.5 text-vigil-blue border">
+          <h6 className="tracking-wider flex justify-center items-center font-bold client-role text-[7px] md:text-[9px] bg-vigil-accent-badge uppercase px-1 py-0.5 text-vigil-accent border">
             {user?.role ?? ''}
           </h6>
         </div>

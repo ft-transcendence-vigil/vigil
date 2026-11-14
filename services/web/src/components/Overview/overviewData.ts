@@ -25,10 +25,10 @@ export interface ServiceSummary {
 
 // badge colors for alert and log severities (error and critical share red)
 export const SEVERITY_CLASS: Record<string, string> = {
-  critical: 'border border-red-500/30 bg-red-400/10 text-red-500/80',
-  error: 'border border-red-500/30 bg-red-400/10 text-red-500/80',
-  warning: 'border border-yellow-500/30 bg-yellow-400/10 text-yellow-500/80',
-  info: 'border border-blue-500/30 bg-blue-400/10 text-blue-500/80',
+  critical: 'border border-vigil-state-danger/30 bg-vigil-state-danger-text/10 text-vigil-state-danger/80',
+  error: 'border border-vigil-state-danger/30 bg-vigil-state-danger-text/10 text-vigil-state-danger/80',
+  warning: 'border border-vigil-state-warning/30 bg-vigil-state-warning-soft/10 text-vigil-state-warning/80',
+  info: 'border border-vigil-status-muted-border bg-vigil-status-muted-bg text-vigil-muted-extra',
 };
 export const OTHER_CLASS = 'border border-vigil-border text-vigil-muted';
 
@@ -36,10 +36,10 @@ export const STATE_COLOR: Record<
   ServiceState,
   { bgColor: string; textColor: string }
 > = {
-  alerting: { bgColor: 'bg-red-500/80', textColor: 'text-red-500/80' },
-  silent: { bgColor: 'bg-blue-500/80', textColor: 'text-blue-500/80' },
-  degraded: { bgColor: 'bg-yellow-500/80', textColor: 'text-yellow-500/80' },
-  healthy: { bgColor: 'bg-green-500/80', textColor: 'text-green-500/80' },
+  alerting: { bgColor: 'bg-vigil-state-danger/80', textColor: 'text-vigil-state-danger/80' },
+  silent: { bgColor: 'bg-vigil-state-info/80', textColor: 'text-vigil-state-info/80' },
+  degraded: { bgColor: 'bg-vigil-state-warning/80', textColor: 'text-vigil-state-warning/80' },
+  healthy: { bgColor: 'bg-vigil-state-success/80', textColor: 'text-vigil-state-success/80' },
 };
 
 const HOUR = 3_600_000;

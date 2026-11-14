@@ -31,14 +31,14 @@ export default function PasswordInput({
           name="password"
           id={id}
           placeholder="••••••••••"
-          className={`placeholder:text-vigil-muted ${error ? 'border! border-red-400! focus:outline-0!' : ''} ${className}`}
+          className={`placeholder:text-vigil-muted ${error ? 'border! border-vigil-state-danger-text! focus:outline-0!' : ''} ${className}`}
           onChange={onChange}
         />
         <span className="show-btn" onClick={handleShowPassword}>
           {showPassword ? 'hide' : 'show'}
         </span>
       </div>
-      {error && <div className="text-xs text-red-400 mt-2">{error}</div>}
+      {error && <div className="text-xs text-vigil-state-danger-text mt-2">{error}</div>}
     </div>
   );
 }

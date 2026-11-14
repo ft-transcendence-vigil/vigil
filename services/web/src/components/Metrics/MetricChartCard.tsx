@@ -24,7 +24,7 @@ interface Data {
   period: Period;
 }
 
-const tick = { fill: '#4a5d7e', fontSize: 10 };
+const tick = { fill: 'var(--vigil-chart-tick)', fontSize: 10 };
 
 export default function MetricChartCard({ group, services, period }: Data) {
   const rows = chartRows(group);
@@ -41,7 +41,7 @@ export default function MetricChartCard({ group, services, period }: Data) {
             data={rows}
             margin={{ top: 10, right: 0, bottom: 0, left: 0 }}
           >
-            <CartesianGrid vertical={false} stroke="rgba(99,179,237,.08)" />
+            <CartesianGrid vertical={false} stroke="var(--vigil-chart-grid)" />
             <XAxis
               dataKey="time"
               type="number"
@@ -65,14 +65,14 @@ export default function MetricChartCard({ group, services, period }: Data) {
             />
             <Tooltip
               contentStyle={{
-                background: '#080d1a',
-                border: '1px solid rgba(99,179,237,.2)',
+                background: 'var(--vigil-surface)',
+                border: '1px solid var(--vigil-chart-border)',
                 borderRadius: 0,
                 fontSize: 12,
               }}
-              labelStyle={{ color: '#e8f0ff' }}
+              labelStyle={{ color: 'var(--vigil-text-code)' }}
               itemStyle={{ padding: 0 }}
-              cursor={{ stroke: '#6b7da8', strokeDasharray: '3' }}
+              cursor={{ stroke: 'var(--vigil-muted)', strokeDasharray: '3' }}
               labelFormatter={(time) => new Date(Number(time)).toLocaleString()}
               formatter={(value, name) => [
                 formatMetricValue(Number(value), group.unit, group.kind),
@@ -82,7 +82,7 @@ export default function MetricChartCard({ group, services, period }: Data) {
             <Legend
               iconType="circle"
               iconSize={7}
-              wrapperStyle={{ fontSize: 11, color: '#6b7da8' }}
+              wrapperStyle={{ fontSize: 11, color: 'var(--vigil-muted)' }}
             />
             {group.series.map((s) => (
               <Line

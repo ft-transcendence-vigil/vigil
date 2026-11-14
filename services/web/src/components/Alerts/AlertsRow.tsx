@@ -116,10 +116,10 @@ export default function AlertsRow(props: Data) {
     <>
       <tr
         id={`alert-${alert.id}`}
-        className={`border-b border-vigil-border hover:bg-[#0C1424] transition-colors duration-200 cursor-pointer relative after:absolute after:right-5 after:top-1/2 after:-translate-y-1/2 ${
+        className={`border-b border-vigil-border hover:bg-vigil-row-hover transition-colors duration-200 cursor-pointer relative after:absolute after:right-2 after:top-1/2 after:-translate-y-1/2 ${
           isOpen ? "after:content-['▴']" : "after:content-['▾']"
         } text-[12px] text-vigil-muted ${isLive ? 'animate-log-flash' : ''}
-        ${isTarget ? 'bg-vigil-blue/10 outline outline-vigil-blue/40' : ''}`}
+        ${isTarget ? 'bg-vigil-accent/10 outline outline-vigil-accent/40' : ''}`}
         onClick={() => {
           markSeenIfNeeded();
           setIsOpen((prev) => !prev);
@@ -128,21 +128,21 @@ export default function AlertsRow(props: Data) {
         <td className="text-[12px] py-1 md:py-3 px-2 md:px-3 uppercase tracking-wider">
           <span className={`px-2 py-1.5 mono ${levelColor}`}>{severity}</span>
         </td>
-        <td className="relative text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3 text-white">
+        <td className="relative text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3 text-vigil-text">
           {isUnseen && (
-            <span className="absolute top-1/2 -translate-y-1/2 -left-2 w-1 h-1 rounded-full bg-vigil-blue"></span>
+            <span className="absolute top-1/2 -translate-y-1/2 -left-2 w-1 h-1 rounded-full bg-vigil-accent"></span>
           )}
           {service}
         </td>
         <td
           className={`text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3 ${
-            metric_name === 'service_silent' ? 'text-[#f59e0b] italic' : ''
+            metric_name === 'service_silent' ? 'text-vigil-warning italic' : ''
           }`}
         >
           {metric}
         </td>
         <td
-          className="text-[#6b7da895] text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3"
+          className="text-vigil-muted-timestamp text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3"
           title={triggeredDate.toLocaleString()}
         >
           {lastActive}
@@ -168,8 +168,8 @@ export default function AlertsRow(props: Data) {
               disabled={isUpdatingStatus}
               className={`mx-1 border border-vigil-border capitalize tracking-wider px-2.5 py-1.5 cursor-pointer text-vigil-muted ${
                 action === 'resolve'
-                  ? 'hover:text-[#00d68f] hover:border-[#00d68f]'
-                  : 'hover:text-vigil-blue hover:border-vigil-blue'
+                  ? 'hover:text-vigil-success hover:border-vigil-success'
+                  : 'hover:text-vigil-accent hover:border-vigil-accent'
               } transition-[color,border-color] duration-300`}
             >
               {action}

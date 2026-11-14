@@ -9,10 +9,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { KpiState } from './KpiCardData';
 
 const ICONS: Record<KpiState, { icon: IconDefinition; color: string }> = {
-  critical: { icon: faFire, color: 'bg-red-500/15 text-red-400' },
-  warning: { icon: faArrowTrendUp, color: 'bg-amber-500/15 text-amber-400' },
-  unack: { icon: faUserClock, color: 'bg-blue-500/15 text-blue-400' },
-  healthy: { icon: faServer, color: 'bg-green-500/15 text-green-400' },
+  critical: { icon: faFire, color: 'bg-vigil-state-danger/15 text-vigil-state-danger-text' },
+  warning: { icon: faArrowTrendUp, color: 'bg-vigil-state-attention/15 text-vigil-state-attention-text' },
+  unack: { icon: faUserClock, color: 'bg-vigil-state-info/15 text-vigil-state-info-text' },
+  healthy: { icon: faServer, color: 'bg-vigil-state-success/15 text-vigil-state-success-text' },
 };
 
 interface Data {

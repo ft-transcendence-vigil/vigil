@@ -74,7 +74,7 @@ export default function SecureConnectionStep({
       <h3 className="mb-3 text-[15px] font-semibold">
         Or use another VIGIL address
       </h3>
-      <div className="flex border border-vigil-border bg-vigil-card focus-within:border-vigil-blue">
+      <div className="flex border border-vigil-border bg-vigil-card focus-within:border-vigil-accent">
         <span className="grid place-items-center border-r border-vigil-border px-3 text-[15px] text-vigil-muted">
           https://
         </span>
@@ -118,14 +118,14 @@ export default function SecureConnectionStep({
             </p>
           )}
           {verifyAddressError && (
-            <p className="text-[13px] text-red-400">
+            <p className="text-[13px] text-vigil-state-danger-text">
               {verifyAddressError.message}
             </p>
           )}
         </div>
       )}
       {verified && (
-        <p className="mt-3 text-[11px] text-emerald-400">
+        <p className="mt-3 text-[11px] text-vigil-state-verified-text">
           {tlsMode === 'local'
             ? 'Address verified with VIGIL local CA.'
             : 'Address verified with a publicly trusted certificate.'}
@@ -133,7 +133,7 @@ export default function SecureConnectionStep({
       )}
       {verified && tlsMode === 'local' && (
         <div className="mt-3 border-t border-vigil-border pt-3">
-          <p className="mb-2 text-[11px] uppercase tracking-wider text-vigil-blue">
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-vigil-accent">
             VIGIL installation · Shared CA
           </p>
           <h3 className="mb-2 text-[14px] font-semibold">
@@ -151,7 +151,7 @@ export default function SecureConnectionStep({
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               onCaPathChange(e.target.value)
             }
-            className="mono w-full border border-vigil-border bg-vigil-card px-3 py-4 text-[14px] outline-none focus:border-[#2196f3]"
+            className="mono w-full border border-vigil-border bg-vigil-card px-3 py-4 text-[14px] outline-none focus:border-vigil-accent"
           />
         </div>
       )}

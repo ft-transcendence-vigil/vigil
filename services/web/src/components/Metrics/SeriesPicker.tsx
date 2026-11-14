@@ -19,8 +19,8 @@ export default function SeriesPicker({ groups, selected, onToggle }: Data) {
             onClick={() => onToggle(group.name)}
             className={`mono text-[12px] px-3 py-1.5 border cursor-pointer transition-[color,border-color,background-color] duration-200 ${
               active
-                ? 'border-vigil-blue text-white bg-vigil-blue-100'
-                : 'border-vigil-border text-vigil-muted hover:border-white/60 hover:text-white/60'
+                ? 'border-vigil-accent text-vigil-text bg-vigil-accent-soft'
+                : 'border-vigil-border text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60'
             }`}
           >
             {group.name}

@@ -11,7 +11,7 @@ export default function SetupCheckError() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="mt-5 h-9 cursor-pointer bg-vigil-blue px-4 text-sm font-semibold uppercase tracking-wider text-vigil-bg hover:opacity-85"
+            className="mt-5 h-9 cursor-pointer bg-vigil-accent px-4 text-sm font-semibold uppercase tracking-wider text-vigil-bg hover:opacity-85"
           >
             Retry
           </button>

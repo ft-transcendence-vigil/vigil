@@ -17,11 +17,11 @@ export default function UserRow({
   onDelete,
 }: Data) {
   return (
-    <tr className="border-b border-vigil-border hover:bg-[#0C1424] transition-colors duration-200">
+    <tr className="border-b border-vigil-border hover:bg-vigil-row-hover transition-colors duration-200">
       <td className="text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3">
         {email}
         {isCurrent && (
-          <span className="ms-3 uppercase text-[10px] tracking-wider text-[#f59e0b] border border-[#f59e0b59] bg-[#f59e0b14] px-2 py-1">
+          <span className="ms-3 uppercase text-[10px] tracking-wider text-vigil-warning border border-vigil-warning-badge-border bg-vigil-warning-badge-bg px-2 py-1">
             you
           </span>
         )}
@@ -30,8 +30,8 @@ export default function UserRow({
         <span
           className={`uppercase text-[10px] md:text-[11px] tracking-wider block w-15 md:w-18 text-center py-1 md:py-1.5 ${
             role === 'admin'
-              ? 'text-vigil-blue bg-vigil-blue-100 border border-blue-400/20'
-              : 'text-vigil-muted bg-[rgba(107,125,168,0.08)] border border-white/10'
+              ? 'text-vigil-accent bg-vigil-accent-soft border border-vigil-state-info-text/20'
+              : 'text-vigil-muted bg-vigil-muted-badge border border-vigil-text/10'
           }`}
         >
           {role}
@@ -42,13 +42,13 @@ export default function UserRow({
           <>
             <button
               onClick={onEdit}
-              className="text-[11px] md:text-[13px] cursor-pointer border border-vigil-border w-8 h-8 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-200"
+              className="text-[11px] md:text-[13px] cursor-pointer border border-vigil-border w-8 h-8 text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60 transition-[color,border-color] duration-200"
             >
               <FontAwesomeIcon icon={faPenToSquare} />
             </button>
             <button
               onClick={onDelete}
-              className="text-[11px] md:text-[13px] cursor-pointer border border-red-500/40 w-8 h-8 text-red-500/70 hover:border-red-500/80 hover:text-red-500/80 transition-[color,border-color] duration-200"
+              className="text-[11px] md:text-[13px] cursor-pointer border border-vigil-state-danger/40 w-8 h-8 text-vigil-state-danger/70 hover:border-vigil-state-danger/80 hover:text-vigil-state-danger/80 transition-[color,border-color] duration-200"
             >
               <FontAwesomeIcon icon={faTrashCan} />
             </button>

@@ -30,7 +30,7 @@ export default function ServiceLanguageStep({
         onChange={(e: ChangeEvent<HTMLSelectElement>) =>
           onLanguageChange(e.target.value as ServiceLanguage)
         }
-        className="w-full bg-vigil-card border border-vigil-border px-3 py-4 text-[15px] outline-none focus:border-vigil-blue"
+        className="w-full bg-vigil-card border border-vigil-border px-3 py-4 text-[15px] outline-none focus:border-vigil-accent"
       >
         <option value="">Choose a language</option>
         <option value="java">Java</option>

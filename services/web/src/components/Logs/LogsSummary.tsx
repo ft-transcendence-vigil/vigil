@@ -10,10 +10,10 @@ export default function LogsSummary({ loaded, errors, warnings }: Data) {
       <span className="inline-block mono text-[14px] my-4.5 mx-2 text-vigil-muted">
         {loaded} loaded
       </span>
-      <span className="inline-block mono text-[14px] my-4.5 mx-2 text-[#ff6b81]">
+      <span className="inline-block mono text-[14px] my-4.5 mx-2 text-vigil-log-error">
         {errors} errors
       </span>
-      <span className="inline-block mono text-[14px] my-4.5 mx-2 text-[#f59e0b]">
+      <span className="inline-block mono text-[14px] my-4.5 mx-2 text-vigil-warning">
         {warnings} warnings
       </span>
     </div>

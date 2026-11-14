@@ -44,8 +44,8 @@ export default function MetricsChart<T extends Record<string, unknown>>({
   rightDomain = [0, 'auto'],
   yTicks = 5,
   axisWidth = 36,
-  grid = 'rgba(99,179,237,.08)',
-  tickColor = '#4a5d7e',
+  grid = 'var(--vigil-chart-grid)',
+  tickColor = 'var(--vigil-chart-tick)',
 }: Props<T>) {
   const uid = useId().replace(/:/g, '');
   const hasRight = series.some((s) => s.axis === 'right');
@@ -109,14 +109,14 @@ export default function MetricsChart<T extends Record<string, unknown>>({
         <Tooltip
           itemSorter={(item) => series.findIndex((s) => s.name === item.name)}
           contentStyle={{
-            background: '#080d1a',
-            border: '1px solid rgba(99,179,237,.2)',
+            background: 'var(--vigil-surface)',
+            border: '1px solid var(--vigil-chart-border)',
             borderRadius: 0,
             fontSize: 12,
           }}
-          labelStyle={{ color: '#e8f0ff' }}
+          labelStyle={{ color: 'var(--vigil-text-code)' }}
           itemStyle={{ padding: 0 }}
-          cursor={{ stroke: '#6b7da8', strokeDasharray: '3' }}
+          cursor={{ stroke: 'var(--vigil-muted)', strokeDasharray: '3' }}
           labelFormatter={
             xFormatter ? (label) => xFormatter(label, -1) : undefined
           }

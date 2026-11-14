@@ -1,0 +1,122 @@
+:root {
+    /* Brand and interaction accents */
+    --vigil-accent: #2196f3;
+    --vigil-accent-soft: #2195f309;
+    --vigil-accent-badge: #2195f310;
+    --vigil-accent-selected: #2195f317;
+    --vigil-accent-border-hover: #2195f369;
+    --vigil-accent-border-selected: #2195f38c;
+
+    /* Surfaces and borders */
+    --vigil-bg: #050910;
+    --vigil-bg-input: #0a0f1e;
+    --vigil-surface: #080d1a;
+    --vigil-border: #1a2333;
+    --vigil-border-muted: rgba(26, 35, 51, 0.6);
+    --vigil-panel: #0d1425;
+    --vigil-row-hover: #0c1424;
+    --vigil-surface-code: #070b14;
+    --vigil-surface-ai: #0d1320;
+    --vigil-surface-inset: #0d1426;
+    --vigil-surface-legal: #0d111a;
+    --vigil-border-legal: #1b2236;
+    --vigil-overlay: #050810b3;
+    --vigil-card: var(--vigil-bg-input);
+
+    /* Text and neutral details */
+    --vigil-text: #ffffff;
+    --vigil-on-accent: #000000;
+    --vigil-muted: #6b7da8;
+    --vigil-muted-extra: #6b7da892;
+    --vigil-muted-timestamp: #6b7da895;
+    --vigil-muted-divider: #6b7da84e;
+    --vigil-muted-badge: rgba(107,125,168,0.08);
+    --vigil-text-code: #e8f0ff;
+    --vigil-text-legal: #c3cae0;
+    --vigil-text-secondary: #9ca3af;
+    --vigil-text-dim: #6b7280;
+    --vigil-text-hover: #ffffffc2;
+    --vigil-text-subtle: #ffffffd0;
+    --vigil-border-hover: #ffffff80;
+    --vigil-text-cancel-hover: #cacfd7;
+    --vigil-border-cancel-hover: #727d8c;
+    --vigil-watermark: rgba(255, 255, 255, 0.025);
+
+    /* Telemetry statuses and severities */
+    --vigil-success: #00d68f;
+    --vigil-success-bg: #00d68f1a;
+    --vigil-success-border: #00d68f33;
+    --vigil-success-outline: #00d68f60;
+    --vigil-success-switch: #00d68f26;
+    --vigil-success-resolved: #072529;
+    --vigil-success-glow: rgba(0, 214, 143, 0.2);
+    --vigil-warning: #f59e0b;
+    --vigil-warning-bg: #f59e0b1a;
+    --vigil-warning-active: #f59e0b40;
+    --vigil-warning-border: #cf830236;
+    --vigil-warning-trace-border: #cf83024d;
+    --vigil-warning-badge-bg: #f59e0b14;
+    --vigil-warning-badge-border: #f59e0b59;
+    --vigil-critical: #ff4757;
+    --vigil-critical-bg: #ff47571a;
+    --vigil-critical-border: #ff475632;
+    --vigil-critical-active: #ff475740;
+    --vigil-log-error: #ff6b81;
+    --vigil-log-error-bg: #ff6b811a;
+    --vigil-log-error-border: #ff6b814d;
+    --vigil-status-muted-bg: #6b7da81a;
+    --vigil-status-muted-active: #6b7da840;
+    --vigil-status-muted-outline: #6b7da860;
+    --vigil-status-muted-border: #323b4b8a;
+    --vigil-status-sent-bg: #141b2c;
+
+    /* Signal tags and notifications */
+    --vigil-signal-logs-bg: #7c3aed1f;
+    --vigil-signal-logs-text: #b39bf0;
+    --vigil-signal-logs-border: #50466a;
+    --vigil-notification-unread: #00e5ff0a;
+    --vigil-notification-hover: #63b3ed0d;
+
+    /* Charts, scrollbars, and live updates */
+    --vigil-chart-tick: #4a5d7e;
+    --vigil-chart-grid: rgba(99,179,237,.08);
+    --vigil-chart-border: rgba(99,179,237,.2);
+    --vigil-chart-error: #ef4444;
+    --vigil-chart-purple: #a855f7;
+    --vigil-chart-cyan: #06b6d4;
+    --vigil-chart-pink: #ec4899;
+    --vigil-chart-lime: #84cc16;
+    --vigil-preview-hover: rgba(99,179,237,.03);
+    --vigil-scrollbar: rgba(99, 179, 237, 0.25);
+    --vigil-scrollbar-hover: rgba(99, 179, 237, 0.276);
+    --vigil-live-flash: rgba(47, 150, 255, 0.3);
+
+    /* Toasts and confirmation dialogs */
+    --vigil-toast-bg: #111827;
+    --vigil-toast-border: #1f2937;
+    --vigil-toast-text: #e5e7eb;
+    --vigil-toast-on-action: #0a0e17;
+    --vigil-toast-success: #10b981;
+    --vigil-dialog-bg: #0a0e1e;
+    --vigil-dialog-danger: #ef4444ce;
+    --vigil-logout: #fb2c36e2;
+    --vigil-shadow: rgba(0, 0, 0, 0.5);
+
+    /* UI state shades (preserved from the existing Tailwind palette) */
+    --vigil-state-danger-soft: oklch(80.8% 0.114 19.571);
+    --vigil-state-danger-text: oklch(70.4% 0.191 22.216);
+    --vigil-state-danger: oklch(63.7% 0.237 25.331);
+    --vigil-state-info-text: oklch(70.7% 0.165 254.624);
+    --vigil-state-info: oklch(62.3% 0.214 259.815);
+    --vigil-signal-metrics: oklch(54.6% 0.245 262.881);
+    --vigil-state-warning-soft: oklch(85.2% 0.199 91.936);
+    --vigil-state-warning: oklch(79.5% 0.184 86.047);
+    --vigil-state-success-text: oklch(79.2% 0.209 151.711);
+    --vigil-state-success: oklch(72.3% 0.219 149.579);
+    --vigil-state-verified-text: oklch(76.5% 0.177 163.223);
+    --vigil-state-verified: oklch(69.6% 0.17 162.48);
+    --vigil-state-attention-text: oklch(82.8% 0.189 84.429);
+    --vigil-state-attention: oklch(76.9% 0.188 70.08);
+    --vigil-state-muted-text: oklch(87.2% 0.01 258.338);
+
+}
