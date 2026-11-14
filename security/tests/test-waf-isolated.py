@@ -162,6 +162,19 @@ def client_tests():
             "reverse-proxy", p, 403, method="POST", body=json.dumps(b),
             headers={"Content-Type": "application/json"}))
 
+    tls_path = "/api/config/tls/addresses"
+    for address in ("https://localhost:8443", "https://vigil.example.org"):
+        check("TLS origin field permits " + address, lambda a=address: status(
+            "reverse-proxy", tls_path, 200, method="POST", body=json.dumps({"address": a}),
+            headers={"Content-Type": "application/json"}))
+    for path, body in (("/api/config/tls/addresses/other", {"address": "https://vigil.example.org"}),
+                       (tls_path, {"other": "https://vigil.example.org"}),
+                       (tls_path + "?address=https%3A%2F%2Fvigil.example.org", {"address": "https://localhost"}),
+                       (tls_path, {"address": "<script>alert(1)</script>"})):
+        check("TLS origin exclusion stays scoped " + path, lambda p=path, b=body: status(
+            "reverse-proxy", p, 403, method="POST", body=json.dumps(b),
+            headers={"Content-Type": "application/json"}))
+
     def forwarded():
         own_ip = socket.gethostbyname(socket.gethostname())
         actual, body = request("reverse-proxy", "/api/echo?limit=10", headers={
