@@ -1,0 +1,47 @@
+{{ with secret "secret/data/ft_transcendence/collector" }}
+extensions:
+  bearertokenauth:
+    scheme: Bearer
+    filename: /run/secrets/VIGIL_INGESTION_KEY
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+        auth:
+          authenticator: bearertokenauth
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: ${env:COLLECTOR_MEMORY_LIMIT_MIB}
+    spike_limit_mib: ${env:COLLECTOR_MEMORY_SPIKE_LIMIT_MIB}
+  batch:
+    timeout: 5s
+    send_batch_size: 1000
+    send_batch_max_size: 5000
+exporters:
+  vigilclickhouse:
+    clickhouse_endpoint: ${env:CLICKHOUSE_ENDPOINT}
+    clickhouse_database: ${env:CLICKHOUSE_DATABASE}
+    clickhouse_username: ${env:CLICKHOUSE_USERNAME}
+    # JSON quoting is YAML-safe; doubling dollars prevents confmap env expansion.
+    clickhouse_password: {{ .Data.data.CLICKHOUSE_PASSWORD | replaceAll "$" "$$" | toJSON }}
+    backend_callback_url: ${env:BACKEND_CALLBACK_URL}
+    max_serialized_batch_bytes: ${env:MAX_SERIALIZED_BATCH_BYTES}
+    dedup_window: 10m
+service:
+  extensions: [bearertokenauth]
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [vigilclickhouse]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [vigilclickhouse]
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [vigilclickhouse]
+{{ end }}
