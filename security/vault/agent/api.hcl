@@ -11,6 +11,15 @@ auto_auth {
   }
 }
 template_config { static_secret_render_interval = "5m" }
+# These filenames match the exact uppercase placeholders in application.properties.
+template {
+  contents = <<EOT
+{{ with secret "secret/data/ft_transcendence/api" }}{{ .Data.data.VIGIL_INGESTION_KEY }}{{ end }}
+EOT
+  destination = "/run/secrets/VIGIL_INGESTION_KEY"
+  perms = "0444"
+  error_on_missing_key = true
+}
 template {
   contents = <<EOT
 {{ with secret "secret/data/ft_transcendence/api" }}{{ .Data.data.JWT_SECRET }}{{ end }}

@@ -1,6 +1,6 @@
 ui = false
 
-# Official Vault 2.x containers run without IPC_LOCK by default, so mlock is disabled.
+# Demonstration only: mlock is disabled. Production must prevent swapping secret memory.
 disable_mlock = true
 
 # Single-node project storage. Vault encrypts data before it reaches this backend.

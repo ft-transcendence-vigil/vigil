@@ -1,5 +1,5 @@
-# Current stable CRS 4.29.0 / Nginx Alpine image, pinned to a dated build.
-FROM owasp/modsecurity-crs:4.29.0-nginx-alpine-202609180209
+# CRS 4.29.0 / Nginx Alpine: pin the tested dated build and manifest digest.
+FROM owasp/modsecurity-crs:4.29.0-nginx-alpine-202609180209@sha256:de981bb077bb61e101d629773e65dd300be93bebefdebc9459c26d8cdea5dcfc
 
 # Keep the image's supported templating/entrypoint mechanism.
 COPY nginx/default.conf.template /etc/nginx/templates/conf.d/default.conf.template

@@ -1,21 +1,24 @@
 {
-	admin 0.0.0.0:2019
+	admin localhost:2019
 	default_sni localhost
 }
 
 (vigil-routes) {
 	route {
-		@sensitive {
-			path /.env /.env.* */.env */.env.* /.git /.git/* */.git/*
-		}
+		@sensitive path_regexp sensitive `(?i)(^|/)(\.env([./]|$)|\.(git|svn|hg)(/|$)|\.(htaccess|htpasswd|DS_Store)(/|$))`
 		respond @sensitive 403
 
-		handle /internal/* {
+		@internal path /internal /internal/*
+		handle @internal {
 			respond 404
 		}
 
 		handle /api/* {
-			reverse_proxy waf:8080
+			reverse_proxy waf:8080 {
+				# Caddy is the public trust boundary; never accept a client-chosen IP.
+				header_up X-Forwarded-For {remote_host}
+				header_up -Forwarded
+			}
 		}
 
 		handle_path /otlp/* {

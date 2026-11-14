@@ -2,7 +2,7 @@
 extensions:
   bearertokenauth:
     scheme: Bearer
-    token: {{ .Data.data.VIGIL_INGESTION_KEY }}
+    filename: /run/secrets/VIGIL_INGESTION_KEY
 receivers:
   otlp:
     protocols:
@@ -24,7 +24,8 @@ exporters:
     clickhouse_endpoint: ${env:CLICKHOUSE_ENDPOINT}
     clickhouse_database: ${env:CLICKHOUSE_DATABASE}
     clickhouse_username: ${env:CLICKHOUSE_USERNAME}
-    clickhouse_password: {{ .Data.data.CLICKHOUSE_PASSWORD }}
+    # JSON quoting is YAML-safe; doubling dollars prevents confmap env expansion.
+    clickhouse_password: {{ .Data.data.CLICKHOUSE_PASSWORD | replaceAll "$" "$$" | toJSON }}
     backend_callback_url: ${env:BACKEND_CALLBACK_URL}
     max_serialized_batch_bytes: ${env:MAX_SERIALIZED_BATCH_BYTES}
     dedup_window: 10m
