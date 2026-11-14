@@ -15,9 +15,9 @@ export default function LoginPage() {
             caption="Alerts, logs, metrics, and traces, correlated and explained, so
               you find root cause before your users do."
             features={{
-              one: 'api reachable',
-              two: 'db connected',
-              three: 'all system live',
+              one: 'centralized telemetry',
+              two: 'custom alert rules',
+              three: 'role-based access',
             }}
           />
           <div className="flex items-center justify-between">

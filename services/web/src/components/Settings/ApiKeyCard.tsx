@@ -6,6 +6,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface Data {
   title: string;
@@ -18,19 +19,28 @@ export default function ApiKeyCard({ title, apiKey, info }: Data) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(apiKey);
+    try {
+      await navigator.clipboard.writeText(apiKey);
 
-    setCopied(true);
-    setTimeout(() => {
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 1000);
+    } catch {
       setCopied(false);
-    }, 1000);
+      toast.error('Unable to copy the API key');
+    }
   };
 
   return (
     <div>
-      <h1 className="text-vigil-muted text-[12px] md:text-[14px] uppercase">{title}</h1>
+      <h1 className="text-vigil-muted text-[12px] md:text-[14px] uppercase">
+        {title}
+      </h1>
       <div className="bg-[#0d1426] flex justify-between items-center border border-vigil-border px-2 md:px-4 py-2.5 md:py-3.5 mt-2 mb-1">
-        <p className={`mono text-[12px] md:text-[15px] ${!showed && 'blur-sm select-none'}`}>
+        <p
+          className={`mono text-[12px] md:text-[15px] ${!showed && 'blur-sm select-none'}`}
+        >
           {apiKey}
         </p>
         <div className="flex items-center space-x-1 md:space-x-2">

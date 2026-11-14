@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { LogsParams, Period } from '../api/logsApi';
+import { useSearchParams } from 'react-router-dom';
 
 export default function useLogsFilter() {
+  const [searchParams] = useSearchParams();
+  const initialService = searchParams.get('service') ?? '';
   const [period, setPeriod] = useState<Period | ''>('24h');
-  const [service, setService] = useState('');
+  const [service, setService] = useState(initialService);
+  const [debouncedService, setDebouncedService] = useState(initialService);
   const [severity, setSeverity] = useState('');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -16,6 +20,14 @@ export default function useLogsFilter() {
 
     return () => clearTimeout(timeout);
   }, [search]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedService(service.trim());
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [service]);
 
   const handlePeriodOnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setPeriod(e.target.value as Period);
@@ -39,7 +51,7 @@ export default function useLogsFilter() {
 
   const params: LogsParams = {
     period: period || undefined,
-    service: service || undefined,
+    service: debouncedService || undefined,
     severity: severity || undefined,
     search: debouncedSearch || undefined,
     sort: sort || undefined,

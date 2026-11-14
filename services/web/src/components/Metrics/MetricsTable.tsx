@@ -28,6 +28,10 @@ export default function MetricsTable({
   onSelect,
 }: Data) {
   return (
+    // lets the table scroll horizontally on small screens
+    //table scroll sideways on mobile and make table tke full box
+    //thead headof the table 
+    //tr rows one line border loop over column it has all the headers and show them add paddings it draws the headers the 4 headers not the metrics
     <div className="overflow-x-auto">
       <table className="w-full min-w-180 border-collapse border border-vigil-border">
         <thead>
@@ -40,6 +44,7 @@ export default function MetricsTable({
           </tr>
         </thead>
         <tbody className="bg-vigil-card">
+          {/* if its loading collapse the 4 collumns into one and write loading */}
           {isLoading && (
             <tr>
               <td colSpan={4} className="py-6 text-center text-vigil-muted">
@@ -47,6 +52,7 @@ export default function MetricsTable({
               </td>
             </tr>
           )}
+          {/* same as isloading but for error */}
           {error && (
             <tr>
               <td colSpan={4} className="py-6 text-center text-red-400">
@@ -54,6 +60,7 @@ export default function MetricsTable({
               </td>
             </tr>
           )}
+          {/* if not loading and no errror and no metrics  */}
           {!isLoading && !error && metrics.length === 0 && (
             <tr>
               <td colSpan={4} className="py-6 text-center text-vigil-muted">
@@ -62,6 +69,7 @@ export default function MetricsTable({
               </td>
             </tr>
           )}
+          {/* we draw the actual metrics  MetricsRow component that take these props key is tell react to compare it between renders in stead of comparing the position of the rows because they dont change*/}
           {metrics.map((metric) => {
             const key = metricKey(metric);
             return (
@@ -77,6 +85,7 @@ export default function MetricsTable({
           })}
           {metrics.length > 0 && (
             <tr>
+              {/* the footer collapes the rows print how much points are shown if there is  next page  type load more if not show end result */}
               <td colSpan={4}>
                 <div className="flex justify-between items-center p-3">
                   <span className="text-vigil-muted text-[15px]">
@@ -86,6 +95,7 @@ export default function MetricsTable({
                     <button
                       type="button"
                       onClick={onLoadMore}
+                      //disable button when its fetching points
                       disabled={isFetchingNextPage}
                       className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border px-4 h-9 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-200"
                     >

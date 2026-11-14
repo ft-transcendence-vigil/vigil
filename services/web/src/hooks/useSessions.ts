@@ -4,13 +4,14 @@ import { getAllSessions, revokeSession } from '../api/sessionsApi';
 import { toast } from 'sonner';
 
 export default function useSessions() {
-  const { apiFetch } = useAuth();
+  const { apiFetch, user } = useAuth();
   const queryClient = useQueryClient();
 
   const sessionsQuery = useQuery({
-    queryKey: ['sessions'],
+    queryKey: ['sessions', user?.id],
     queryFn: () => getAllSessions(apiFetch),
     staleTime: 60_000,
+    enabled: Boolean(user?.id),
   });
 
   const revokeMutation = useMutation({
@@ -33,5 +34,8 @@ export default function useSessions() {
     error: sessionsQuery.error,
     revokeSession: revokeMutation.mutate,
     isRevoking: revokeMutation.isPending,
+    isLoading: sessionsQuery.isLoading,
+    isError: sessionsQuery.isError,
+    refetch: sessionsQuery.refetch,
   };
 }

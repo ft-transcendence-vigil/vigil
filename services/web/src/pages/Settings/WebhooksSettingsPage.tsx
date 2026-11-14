@@ -7,6 +7,8 @@ import { useAuth } from '../../auth/authContext';
 import WebhookRow from '../../components/Settings/WebhookRow';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
+import StateMessage from '../../components/shared/StateMessage';
+import Button from '../../components/shared/Button';
 
 export default function WebhooksSettingsPage() {
   const [modal, setModal] = useState(false);
@@ -47,7 +49,17 @@ export default function WebhooksSettingsPage() {
         btnValue="+ add webhook"
         onClick={() => setModal(true)}
       >
-        {webhooks.length === 0 ? (
+        {webhooksQuery.isLoading ? (
+          <StateMessage text="Loading webhooks..." />
+        ) : webhooksQuery.isError ? (
+          <div className="my-4 flex flex-col items-center gap-3">
+            <StateMessage
+              text="Unable to load webhooks. Please try again."
+              isError
+            />
+            <Button value="Retry" onClick={() => webhooksQuery.refetch()} />
+          </div>
+        ) : webhooks.length === 0 ? (
           <div className="text-vigil-muted flex items-center justify-center py-7 text-[17px]">
             No webhooks configured yet. Add one to start receiving alert
             notifications.
@@ -87,7 +99,7 @@ export default function WebhooksSettingsPage() {
           open={webhookToDelete != null}
           onOpenChange={(o) => !o && setWebhookToDelete(null)}
           title="Delete webhook?"
-          description='It will stop receiving alerts. This cannot be undone.'
+          description="It will stop receiving alerts. This cannot be undone."
           confirmLabel="Delete"
           onConfirm={() => {
             if (webhookToDelete) webhookMutation.mutate(webhookToDelete);

@@ -8,6 +8,8 @@ import { useAuth } from '../../auth/authContext';
 import { toast } from 'sonner';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
+import StateMessage from '../../components/shared/StateMessage';
+import Button from '../../components/shared/Button';
 
 type ModalState =
   | {
@@ -60,6 +62,19 @@ export default function UsersSettingsPage() {
         btnValue="+ Add user"
         onClick={() => setModal({ mode: 'create' })}
       >
+        {usersQuery.isLoading && <StateMessage text="Loading users..." />}
+        {usersQuery.isError && (
+          <div className="my-4 flex flex-col items-center gap-3">
+            <StateMessage
+              text="Unable to load users. Please try again."
+              isError
+            />
+            <Button value="Retry" onClick={() => usersQuery.refetch()} />
+          </div>
+        )}
+        {!usersQuery.isLoading && !usersQuery.isError && users.length === 0 && (
+          <StateMessage text="No users found." />
+        )}
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px]">

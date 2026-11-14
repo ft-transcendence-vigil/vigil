@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import CardLayout from '../../components/Settings/CardLayout';
 import SessionCard from '../../components/Settings/SessionCard';
 import useSessions from '../../hooks/useSessions';
+import StateMessage from '../../components/shared/StateMessage';
+import Button from '../../components/shared/Button';
 
 export default function SessionsSettingsPage() {
   const [now, setNow] = useState(() => Date.now());
-  const { sessions, revokeSession } = useSessions();
+  const { sessions, revokeSession, isLoading, isError, refetch } =
+    useSessions();
   const sortedSessions = [...sessions].sort(
     (a, b) => Number(b.current) - Number(a.current),
   );
@@ -24,6 +27,19 @@ export default function SessionsSettingsPage() {
     <div className="sessions-settings flex flex-col space-y-5">
       <CardLayout title="Sessions" description="Manage where you're logged in.">
         <div className="flex flex-col space-y-5">
+          {isLoading && <StateMessage text="Loading sessions..." />}
+          {isError && (
+            <div className="flex flex-col items-center gap-3">
+              <StateMessage
+                text="Unable to load sessions. Please try again."
+                isError
+              />
+              <Button value="Retry" onClick={() => refetch()} />
+            </div>
+          )}
+          {!isLoading && !isError && sessions.length === 0 && (
+            <StateMessage text="No sessions found." />
+          )}
           {sortedSessions.map((session) => (
             <SessionCard
               key={session.id}

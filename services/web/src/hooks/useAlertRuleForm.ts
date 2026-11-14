@@ -8,6 +8,7 @@ import {
   type AlertRules,
   type UpdateAlertRules,
 } from '../api/alertRulesApi';
+import useTelemetryAttributes from './useTelemetryAttributes';
 
 type AlertRuleFormOptions =
   | {
@@ -78,6 +79,24 @@ export default function useAlertRuleForm({
   );
   const [enabled, setEnabled] = useState(isEdit ? rule.enabled : true);
   const [formError, setFormError] = useState('');
+
+  const {
+    data: telemetryAttributes = [],
+    isLoading: isLoadingTelemetryAttributes,
+    isError: isTelemetryAttributesError,
+    error: telemetryAttributesError,
+  } = useTelemetryAttributes(signalType === 'metrics' && !isDefault);
+
+  const telemetryMetricOptions = telemetryAttributes.map(
+    (attribute) => attribute.key,
+  );
+
+  const metricOptions =
+    signalType === 'metrics'
+      ? isEdit && metricName && !telemetryMetricOptions.includes(metricName)
+        ? [metricName, ...telemetryMetricOptions]
+        : telemetryMetricOptions
+      : METRIC_NAMES[signalType as 'logs' | 'traces'];
 
   const addMutation = useMutation({
     mutationFn: (newRule: CreateAlertRule) => addAlertRule(apiFetch, newRule),
@@ -199,16 +218,24 @@ export default function useAlertRuleForm({
       isValid = false;
     }
 
+    if (
+      signalType === 'metrics' &&
+      (isLoadingTelemetryAttributes || isTelemetryAttributesError)
+    ) {
+      setFormError('Telemetry attributes are not available.');
+      isValid = false;
+    }
+
+    if (signalType === 'metrics' && metricOptions.length === 0) {
+      setFormError('No telemetry attributes found in the last 7 days.');
+      isValid = false;
+    }
     const name = metricName.trim();
 
     if (name.length === 0) {
       setMetricNameError('Metric name is required');
-
       isValid = false;
-    } else if (
-      signalType !== 'metrics' &&
-      !METRIC_NAMES[signalType as 'logs' | 'traces'].includes(name)
-    ) {
+    } else if (!metricOptions.includes(name)) {
       setMetricNameError('Invalid metric for this signal type');
       isValid = false;
     }
@@ -309,10 +336,10 @@ export default function useAlertRuleForm({
     formError,
     isFormSubmitting,
     isDefault,
-    metricOptions:
-      signalType === 'metrics'
-        ? null
-        : METRIC_NAMES[signalType as 'logs' | 'traces'],
+    metricOptions,
+    isLoadingTelemetryAttributes,
+    isTelemetryAttributesError,
+    telemetryAttributesError,
     showAggregation: signalType === 'metrics',
     handleAddAlertRuleSubmit,
     handleEditAlertRuleSubmit,

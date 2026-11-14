@@ -4,6 +4,8 @@ import Button from '../shared/Button';
 import { useNavigate } from 'react-router-dom';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import AlertNotificationsPage from '../../pages/AlertNotifications/AlertNotificationsPage';
+import { useAuth } from '../../auth/authContext';
+import { isAdmin } from '../../auth/permissions';
 
 interface Data {
   title: string | undefined;
@@ -11,6 +13,7 @@ interface Data {
 }
 
 export default function Header({ title, onMenuClick }: Data) {
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -28,11 +31,13 @@ export default function Header({ title, onMenuClick }: Data) {
       </div>
       <div className="left-section flex items-center gap-4">
         <AlertNotificationsPage />
-        <Button
-          onClick={() => navigate('/add-service')}
-          value="add service"
-          className="tracking-wide! font-medium! uppercase! text-[10px]! md:text-[11px]! lg:text-[12.5px]! py-1.75! px-4.25!"
-        />
+        {user && isAdmin(user.role) && (
+          <Button
+            onClick={() => navigate('/add-service')}
+            value="add service"
+            className="tracking-wide! font-medium! uppercase! text-[10px]! md:text-[11px]! lg:text-[12.5px]! py-1.75! px-4.25!"
+          />
+        )}
         <LogoutButton />
       </div>
     </div>

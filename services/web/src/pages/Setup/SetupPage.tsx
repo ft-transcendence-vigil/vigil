@@ -17,9 +17,9 @@ export default function SetupPage() {
             }}
             caption="Create the first account to take ownership of this deployment. It will have full admin access to alerts, logs, metrics, and traces."
             features={{
-              one: 'api reachable',
-              two: 'db connected',
-              three: 'all system live',
+              one: 'centralized telemetry',
+              two: 'custom alert rules',
+              three: 'role-based access',
             }}
           />
           <div className="flex items-center justify-between">

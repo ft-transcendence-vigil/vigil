@@ -5,7 +5,6 @@ import type { Attributes } from '../components/Logs/LogsRow';
 export interface Log {
   service: string;
   timestamp: string;
-  trace_id: string;
   severity: string;
   message: string;
   attributes: Attributes;

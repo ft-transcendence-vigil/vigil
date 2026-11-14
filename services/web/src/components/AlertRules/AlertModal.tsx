@@ -29,10 +29,15 @@ export default function AlertModal(props: Data) {
   const form = useAlertRuleForm(props);
   const { mode, onClose } = props;
   const isEdit = mode === 'edit';
+  const metricsUnavailable =
+    form.signalType === 'metrics' &&
+    (form.isLoadingTelemetryAttributes ||
+      form.isTelemetryAttributesError ||
+      form.metricOptions.length === 0);
 
   return (
     <div className="bg-[#050810b3] backdrop-blur-sm z-98 fixed inset-0">
-      <div className="flex flex-col bg-vigil-card border border-vigil-border w-[95%] md:w-130 h-fit center-absolute z-99">
+      <div className="flex flex-col bg-vigil-card border border-vigil-border w-[95%] md:w-130 h-fit max-h-[90dvh] overflow-y-auto center-absolute z-99">
         <div className="flex items-center justify-between border-b border-b-vigil-border px-6 py-3.5">
           <h1 className="text-[18px]">
             {isEdit ? 'Edit Rule' : 'Create Rule'}
@@ -67,25 +72,47 @@ export default function AlertModal(props: Data) {
             value={form.signalType}
             disabled={isEdit}
           />
-          {form.metricOptions ? (
-            <Dropdown
-              title="Metric Name"
-              options={form.metricOptions}
-              onChange={form.handleMetricNameChange}
-              value={form.metricName}
-            />
-          ) : (
-            <FormInput
-              mb="mb-3.5"
-              title="Metric Name"
-              type="text"
-              error={form.metricNameError}
-              onChange={form.handleMetricNameChange}
-              value={form.metricName}
-              placeholder="e.g. http.server.duration"
-              className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-blue"
-            />
+          <Dropdown
+            title="Metric Name"
+            options={[
+              { label: 'Select a metric', value: '' },
+              ...form.metricOptions,
+            ]}
+            onChange={form.handleMetricNameChange}
+            value={form.metricName}
+            disabled={
+              form.isDefault ||
+              (form.signalType === 'metrics' &&
+                (form.isLoadingTelemetryAttributes ||
+                  form.metricOptions.length === 0))
+            }
+          />
+          {form.metricNameError && (
+            <p className="mb-3.5 text-[12px] text-red-400">
+              {form.metricNameError}
+            </p>
           )}
+          {form.signalType === 'metrics' &&
+            form.isLoadingTelemetryAttributes && (
+              <p className="mb-3.5 text-[12px] text-vigil-muted-extra">
+                Loading available metrics...
+              </p>
+            )}
+          {form.signalType === 'metrics' && form.isTelemetryAttributesError && (
+            <p className="mb-3.5 text-[12px] text-red-400">
+              {form.telemetryAttributesError instanceof Error
+                ? form.telemetryAttributesError.message
+                : 'Unable to load telemetry attributes.'}
+            </p>
+          )}
+          {form.signalType === 'metrics' &&
+            !form.isLoadingTelemetryAttributes &&
+            !form.isTelemetryAttributesError &&
+            form.metricOptions.length === 0 && (
+              <p className="mb-3.5 text-[12px] text-vigil-muted-extra">
+                No telemetry attributes found in the last 7 days.
+              </p>
+            )}
           {form.showAggregation && (
             <Dropdown
               title="Aggregation"
@@ -160,7 +187,7 @@ export default function AlertModal(props: Data) {
                 ? form.handleEditAlertRuleSubmit
                 : form.handleAddAlertRuleSubmit
             }
-            disabled={form.isFormSubmitting}
+            disabled={form.isFormSubmitting || metricsUnavailable}
           />
         </div>
       </div>

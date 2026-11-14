@@ -66,6 +66,15 @@ public class LogRepository {
                 .list(jdbcTemplate, this::mapLog, "logs");
     }
 
+    public List<Log> findByNotificationId(String notificationId) {
+        if (notificationId == null || notificationId.isBlank()) {
+            throw new IllegalArgumentException("notificationId must not be blank");
+        }
+        return ClickHouseQuery.from(SELECT)
+                .eq("attributes['vigil.notification_id']", notificationId)
+                .list(jdbcTemplate, this::mapLog, "logs");
+    }
+
     private ClickHouseQuery filtered(String period, String service, String severity, String search) {
         return ClickHouseQuery.from(SELECT)
                 .since(period)

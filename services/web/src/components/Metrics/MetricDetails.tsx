@@ -30,6 +30,7 @@ function isHidden(key: string) {
   );
 }
 
+//helper instead of each time rightting the two lines
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <p className="text-vigil-muted-extra text-[13px] break-all">

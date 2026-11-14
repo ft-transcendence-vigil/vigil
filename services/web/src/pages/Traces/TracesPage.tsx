@@ -14,13 +14,15 @@ export default function TracesPage() {
   //setPeriod function that changes the value period this use state takes only Period as value . inital value is 1h
   //the hook usestate remembers values during react re-render only changes when u call the setter
   //setters like setPeriod save the new value and re render the page
-  const [period, setPeriod] = useState<Period>('1h');
-  const [service, setService] = useState('');
-  const [live, setLive] = useState(false);
   //a hook from React Router. It reads the query string of the current url, and re renders the page when it changes
   //searchParams object have  query string. read it with .get('key')
   //setSearchParams	func writes a new query string into url<
+  //its above the usestates because service starts from the url
   const [searchParams, setSearchParams] = useSearchParams();
+  const [period, setPeriod] = useState<Period>('1h');
+  //links like /traces?service=api open already filtered, only read once on the first render
+  const [service, setService] = useState(searchParams.get('service') ?? '');
+  const [live, setLive] = useState(false);
   //we get the trace id and span id
   const selectedTraceId = searchParams.get('trace_id');
   const selectedSpanId = searchParams.get('span_id');
@@ -60,15 +62,30 @@ export default function TracesPage() {
     trace.span_id === selectedSpan?.span_id
       ? closeDrawer()
       : setSearchParams(
-      { trace_id: trace.trace_id, span_id: trace.span_id },
-      //replace these in the url instead of adding them
-      { replace: true },
-    );
-    //when closing the drawer write an empty query string so we go back to /traces
+          //prev is the current query string, we copy it and only set our two keys so ?service= stays
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.set('trace_id', trace.trace_id);
+            next.set('span_id', trace.span_id);
+            return next;
+          },
+          //replace the current history entry instead of adding a new one
+          { replace: true },
+        );
+    //when closing the open row remove only trace_id and span_id, other params like service stay in the url
     //useCallback gives u the same func on every render because nothing changes here we dont want to give a new func each time
     //it takes the function to keep and a dependcies if it changes we give a new function
   const closeDrawer = useCallback(
-    () => setSearchParams({}, { replace: true }),
+    () =>
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('trace_id');
+          next.delete('span_id');
+          return next;
+        },
+        { replace: true },
+      ),
     [setSearchParams],
   );
 //simple check of the live state

@@ -13,6 +13,7 @@ def _Options() -> dict:
         "num_ctx": settings.ollama_num_ctx,
         "num_predict": settings.ollama_num_predict,
         "temperature": settings.ollama_temperature,
+        "num_thread": settings.ollama_num_thread,
     }
 # AsyncIterator: this produces strings, one at a time, asynchronously."
 async def stream_chat(messages: list[dict[str]]) -> AsyncIterator[str]:

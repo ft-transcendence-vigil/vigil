@@ -34,7 +34,7 @@ public class TraceSseRegistry {
                         try {
                             data.emitter.send(ourTrace);
                         } catch (Exception e) {
-                            log.error(e.getMessage());
+                            log.error("Failed to stream a trace for service {}", ourTrace.getService(), e);
                             data.emitter.completeWithError(e);
                         }
                     }

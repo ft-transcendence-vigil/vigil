@@ -1,6 +1,7 @@
 package com.ft_transcendence.vigil.repositories.alertsrepository;
 
 import com.ft_transcendence.vigil.domain.entities.Alerts.AlertHistory;
+import com.ft_transcendence.vigil.domain.entities.Alerts.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface AlertHistoryRepository extends JpaRepository<AlertHistory, UUID> {
+    boolean existsByRule_IdAndStatusIn(UUID ruleId, List<Status> statuses);
+
     @Transactional
     @Modifying
     @Query("update AlertHistory a set a.llmAnalysis = :analysis, a.version = a.version + 1 where a.id = :id")

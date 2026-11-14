@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     ollama_num_ctx: int = 4096
     ollama_num_predict: int = 200
     ollama_temperature: float = 0.3
+    #ollama picks its thread count itself and it drops a lot when the cpu is busy, 4 keeps it fast and stable
+    ollama_num_thread: int = 4
     llm_timeout_seconds: int = 25
     max_context_logs: int = 20
     max_context_metrics: int = 10
