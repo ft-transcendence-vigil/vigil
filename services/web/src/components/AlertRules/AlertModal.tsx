@@ -36,7 +36,7 @@ export default function AlertModal(props: Data) {
       form.metricOptions.length === 0);
 
   return (
-    <div className="bg-[#050810b3] backdrop-blur-sm z-98 fixed inset-0">
+    <div className="bg-vigil-overlay backdrop-blur-sm z-98 fixed inset-0">
       <div className="flex flex-col bg-vigil-card border border-vigil-border w-[95%] md:w-130 h-fit max-h-[90dvh] overflow-y-auto center-absolute z-99">
         <div className="flex items-center justify-between border-b border-b-vigil-border px-6 py-3.5">
           <h1 className="text-[18px]">
@@ -44,7 +44,7 @@ export default function AlertModal(props: Data) {
           </h1>
           <button
             onClick={onClose}
-            className="text-[11px] p-2.5 outline-none border border-vigil-border cursor-pointer text-vigil-muted hover:border-white/20 hover:text-white/70 transition[border-color, color] duration-200"
+            className="text-[11px] p-2.5 outline-none border border-vigil-border cursor-pointer text-vigil-muted hover:border-vigil-text/20 hover:text-vigil-text/70 transition[border-color, color] duration-200"
           >
             <FontAwesomeIcon icon={faXmark} />
           </button>
@@ -63,7 +63,7 @@ export default function AlertModal(props: Data) {
             onChange={form.handleServiceChange}
             value={form.service}
             placeholder="e.g. payments-api"
-            className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-blue"
+            className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-accent"
           />
           <Dropdown
             title="Signal Type"
@@ -88,7 +88,7 @@ export default function AlertModal(props: Data) {
             }
           />
           {form.metricNameError && (
-            <p className="mb-3.5 text-[12px] text-red-400">
+            <p className="mb-3.5 text-[12px] text-vigil-state-danger-text">
               {form.metricNameError}
             </p>
           )}
@@ -99,7 +99,7 @@ export default function AlertModal(props: Data) {
               </p>
             )}
           {form.signalType === 'metrics' && form.isTelemetryAttributesError && (
-            <p className="mb-3.5 text-[12px] text-red-400">
+            <p className="mb-3.5 text-[12px] text-vigil-state-danger-text">
               {form.telemetryAttributesError instanceof Error
                 ? form.telemetryAttributesError.message
                 : 'Unable to load telemetry attributes.'}
@@ -139,7 +139,7 @@ export default function AlertModal(props: Data) {
               error={form.windowSecondsError}
               onChange={form.handleWindowSecondsChange}
               value={form.windowSeconds}
-              className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-blue"
+              className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-accent"
             />
             <FormInput
               mb="mb-3.5"
@@ -148,7 +148,7 @@ export default function AlertModal(props: Data) {
               error={form.thresholdError}
               onChange={form.handleThresholdChange}
               value={form.threshold}
-              className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-blue"
+              className="outline-none px-4 py-2.5 w-full border border-vigil-border focus:border-vigil-accent"
             />
           </div>
           <div className="text-vigil-muted-extra text-[13px] -mt-2.5 mb-2.5 tracking-wide">
@@ -170,14 +170,14 @@ export default function AlertModal(props: Data) {
             </span>
           </div>
           {form.formError && (
-            <p className="mt-3 text-sm text-red-400">{form.formError}</p>
+            <p className="mt-3 text-sm text-vigil-state-danger-text">{form.formError}</p>
           )}
         </div>
         <div className="border-t border-t-vigil-border px-6 py-3.5 text-right space-x-3">
           <Button
             onClick={onClose}
             value="cancel"
-            className="py-2.5! text-[13px]! text-vigil-muted! hover:border-white/20! hover:text-white/70! transition[border-color, color]! duration-200! bg-transparent! border border-vigil-border hover:opacity-100!"
+            className="py-2.5! text-[13px]! text-vigil-muted! hover:border-vigil-text/20! hover:text-vigil-text/70! transition[border-color, color]! duration-200! bg-transparent! border border-vigil-border hover:opacity-100!"
           />
           <Button
             value={isEdit ? 'save' : 'create'}

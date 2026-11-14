@@ -18,13 +18,13 @@ export default function CrashPage({ resetErrorBoundary }: FallbackProps) {
           <button
             type="button"
             onClick={resetErrorBoundary}
-            className="h-10 cursor-pointer bg-vigil-blue px-4 text-xs font-semibold uppercase tracking-wider text-vigil-bg hover:opacity-85"
+            className="h-10 cursor-pointer bg-vigil-accent px-4 text-xs font-semibold uppercase tracking-wider text-vigil-bg hover:opacity-85"
           >
             Try again
           </button>
           <Link
             to="/overview"
-            className="grid h-10 place-items-center border border-vigil-border px-4 text-xs uppercase tracking-wider text-vigil-muted hover:text-[#ffffffc2]"
+            className="grid h-10 place-items-center border border-vigil-border px-4 text-xs uppercase tracking-wider text-vigil-muted hover:text-vigil-text-hover"
           >
             Overview
           </Link>

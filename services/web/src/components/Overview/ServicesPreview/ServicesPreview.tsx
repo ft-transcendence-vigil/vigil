@@ -12,8 +12,8 @@ const PREVIEW = 5;
 const chip =
   'border uppercase text-[10px] sm:text-[11px] tracking-wider h-6.5 sm:h-7.5 px-px md:px-2 cursor-pointer transition-[color, border-color] duration-300';
 const chipIdle =
-  'border-vigil-border text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80]';
-const chipActive = 'border-vigil-blue text-vigil-blue';
+  'border-vigil-border text-vigil-muted hover:text-vigil-text-hover hover:border-vigil-border-hover';
+const chipActive = 'border-vigil-accent text-vigil-accent';
 
 // 'issues' = every state but healthy (the services kpi card)
 export type ServicesFilter = ServiceState | 'issues' | null;
@@ -110,7 +110,7 @@ export default function ServicesPreview({
           <button
             type="button"
             onClick={() => onShowAll(!showAll)}
-            className="flex flex-col justify-center items-center border border-dotted p-2 border-vigil-border col-span-12 sm:col-span-6 xl:col-span-4 bg-[#0D1425] cursor-pointer hover:border-[#2195f369] transition-[border-color] duration-300 focus:border-vigil-blue"
+            className="flex flex-col justify-center items-center border border-dotted p-2 border-vigil-border col-span-12 sm:col-span-6 xl:col-span-4 bg-vigil-panel cursor-pointer hover:border-vigil-accent-border-hover transition-[border-color] duration-300 focus:border-vigil-accent"
           >
             {hidden > 0 && <span className="text-2xl">+{hidden}</span>}
             <span className="text-[12px] text-vigil-muted">

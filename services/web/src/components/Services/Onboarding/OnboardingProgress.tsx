@@ -18,16 +18,16 @@ export default function OnboardingProgress({
         <div key={step} className="contents">
           {index > 0 && (
             <div
-              className={`h-px flex-1 mx-2 ${index <= currentIndex ? 'bg-vigil-blue' : 'bg-vigil-border'}`}
+              className={`h-px flex-1 mx-2 ${index <= currentIndex ? 'bg-vigil-accent' : 'bg-vigil-border'}`}
             />
           )}
           <div className="flex items-center gap-2 min-w-0">
             <h1
               className={`w-7 h-7 shrink-0 border grid place-items-center text-[12px] tracking-widest ${
                 index < currentIndex
-                  ? 'bg-vigil-blue border-vigil-blue text-black font-bold'
+                  ? 'bg-vigil-accent border-vigil-accent text-vigil-on-accent font-bold'
                   : index === currentIndex
-                    ? 'border-vigil-blue text-vigil-blue'
+                    ? 'border-vigil-accent text-vigil-accent'
                     : 'border-vigil-border text-vigil-muted'
               }`}
             >

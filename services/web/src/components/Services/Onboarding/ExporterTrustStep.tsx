@@ -44,7 +44,7 @@ export default function ExporterTrustStep({
             {profile.caHelp}
           </p>
           {runtimeSetting && (
-            <div className="border border-vigil-border bg-[#070b14] mt-4">
+            <div className="border border-vigil-border bg-vigil-surface-code mt-4">
               <div className="flex justify-between items-center px-3 py-3 border-b border-vigil-border">
                 <span className="text-[12px] text-vigil-muted uppercase">
                   Bash
@@ -70,7 +70,7 @@ export default function ExporterTrustStep({
               If a Collector owns the connection to VIGIL, mount the CA into the
               Collector and configure tls.ca_file there.
             </p>
-            <div className="border border-vigil-border bg-[#070b14] mt-4">
+            <div className="border border-vigil-border bg-vigil-surface-code mt-4">
               <div className="flex justify-between items-center px-3 py-2 border-b border-vigil-border">
                 <span className="text-[10px] text-vigil-muted uppercase">
                   Collector

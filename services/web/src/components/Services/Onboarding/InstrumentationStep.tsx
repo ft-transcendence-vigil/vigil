@@ -46,7 +46,7 @@ export default function InstrumentationStep({
               {item.detail}
             </p>
             {item.code && (
-              <div className="mt-3 border border-vigil-border bg-[#070b14]">
+              <div className="mt-3 border border-vigil-border bg-vigil-surface-code">
                 <div className="flex justify-between items-center px-3 py-3 border-b border-vigil-border">
                   <span className="text-[12px] text-vigil-muted uppercase">
                     {item.language ?? 'Shell'}
@@ -67,7 +67,7 @@ export default function InstrumentationStep({
                 href={item.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block mt-3 text-[14px] text-vigil-blue hover:underline"
+                className="inline-block mt-3 text-[14px] text-vigil-accent hover:underline"
               >
                 {item.linkLabel}
               </a>
@@ -85,7 +85,7 @@ export default function InstrumentationStep({
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               onJavaAgentPathChange(e.target.value)
             }
-            className="w-full bg-vigil-card border border-vigil-border px-3 py-4 text-[15px] outline-none focus:border-[#2196f3] mono"
+            className="w-full bg-vigil-card border border-vigil-border px-3 py-4 text-[15px] outline-none focus:border-vigil-accent mono"
           />
         </div>
       )}
@@ -94,7 +94,7 @@ export default function InstrumentationStep({
           href={guide.docs}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block mt-5 text-[13px] text-vigil-blue hover:underline"
+          className="inline-block mt-5 text-[13px] text-vigil-accent hover:underline"
         >
           Official documentation ↗
         </a>

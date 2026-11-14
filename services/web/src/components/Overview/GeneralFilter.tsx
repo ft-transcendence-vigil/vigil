@@ -7,10 +7,10 @@ const RANGES: Range[] = ['1h', '24h', '7d', '30d', 'all', 'custom'];
 const btnBase =
   'h-6 sm:h-7 min-w-13 sm:min-w-15 grow sm:grow-0 border px-2 uppercase text-[10px] sm:text-[11px] tracking-wider cursor-pointer transition-[color,border-color] duration-300';
 const btnIdle =
-  'border-vigil-border text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80]';
-const btnActive = 'border-vigil-blue text-vigil-blue';
+  'border-vigil-border text-vigil-muted hover:text-vigil-text-hover hover:border-vigil-border-hover';
+const btnActive = 'border-vigil-accent text-vigil-accent';
 const dateInput =
-  'h-6 sm:h-7 border border-vigil-border bg-vigil-card px-2 text-[11px] text-white outline-none scheme-dark focus:border-vigil-blue';
+  'h-6 sm:h-7 border border-vigil-border bg-vigil-card px-2 text-[11px] text-vigil-text outline-none scheme-dark focus:border-vigil-accent';
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
@@ -109,7 +109,7 @@ export default function GeneralFilter({
           <FormInput
             type="search"
             placeholder="Search message, service, metric"
-            className="w-full border border-vigil-border px-2 py-1.5 text-[11px] sm:text-[14px] outline-none focus:border-vigil-blue"
+            className="w-full border border-vigil-border px-2 py-1.5 text-[11px] sm:text-[14px] outline-none focus:border-vigil-accent"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             error=""
@@ -125,7 +125,7 @@ export default function GeneralFilter({
           onClick={onExportLogs}
           className={`${btnBase} ${btnIdle}`}
         >
-          logs
+          logs csv
         </button>
         <button
           type="button"
@@ -133,7 +133,7 @@ export default function GeneralFilter({
           onClick={onExportPdf}
           className={`${btnBase} ${btnIdle}`}
         >
-          pdf
+          report pdf
         </button>
       </div>
     </div>

@@ -75,7 +75,7 @@ export default function AlertNotificationsPage() {
         onClick={() => setIsOpen((prev) => !prev)}
       />
       {isOpen && (
-        <div className="fixed left-3 right-3 top-16 z-99 max-h-[calc(100dvh-5rem)] overflow-y-auto sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-90 sm:max-h-[70vh] bg-[#0D1425]">
+        <div className="fixed left-3 right-3 top-16 z-99 max-h-[calc(100dvh-5rem)] overflow-y-auto sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-90 sm:max-h-[70vh] bg-vigil-panel">
           <AlertNotificationsHeader unseenCount={unseenCount} />
           <AlertNotificationsTabs tab={tab} onChange={setTab} />
           <div className="max-h-95 overflow-y-auto">
@@ -84,7 +84,7 @@ export default function AlertNotificationsPage() {
                 Loading notifications...
               </p>
             ) : isError ? (
-              <p className="px-4 py-9 text-center text-xs text-red-400">
+              <p className="px-4 py-9 text-center text-xs text-vigil-state-danger-text">
                 {error instanceof Error
                   ? error.message
                   : 'Unable to load notifications.'}

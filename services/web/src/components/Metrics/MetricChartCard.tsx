@@ -24,7 +24,7 @@ interface Data {
   period: Period;
 }
 //the numbers bollow and on the left color and font size
-const tick = { fill: '#4a5d7e', fontSize: 10 };
+const tick = { fill: 'var(--vigil-chart-tick)', fontSize: 10 };
 
 export default function MetricChartCard({ group, services, period }: Data) {
   const rows = chartRows(group);
@@ -47,7 +47,7 @@ export default function MetricChartCard({ group, services, period }: Data) {
             margin={{ top: 10, right: 0, bottom: 0, left: 0 }}
           >
             {/* those horizantal lines in the background */}
-            <CartesianGrid vertical={false} stroke="rgba(99,179,237,.08)" />
+            <CartesianGrid vertical={false} stroke="var(--vigil-chart-grid)" />
             {/* the horizantal line of time we give it dataKey="time" to place the points of data in chart type="number" type of the data scale="time" the numbers are timestamps in milliseconds  domain={['dataMin', 'dataMax']} the range the axis covers 'dataMin': a special word Recharts understands the smallest time in the data*/}
             {/* tickFormatter how to write the label under the axis give Recharts a function  each tick it’s about to draw Recharts calls function with that tick’s value */}
             {/* tick={tick} tick style 
@@ -81,14 +81,14 @@ export default function MetricChartCard({ group, services, period }: Data) {
             {/* contentStyle style of the whole box. labelStyle title style. itemStyle no padding between name value. cursor virtical line that appears when u hover labelFormatter how to write the title. formatter how to write name value*/}
             <Tooltip
               contentStyle={{
-                background: '#080d1a',
-                border: '1px solid rgba(99,179,237,.2)',
+                background: 'var(--vigil-surface)',
+                border: '1px solid var(--vigil-chart-border)',
                 borderRadius: 0,
                 fontSize: 12,
               }}
-              labelStyle={{ color: '#e8f0ff' }}
+              labelStyle={{ color: 'var(--vigil-text-code)' }}
               itemStyle={{ padding: 0 }}
-              cursor={{ stroke: '#6b7da8', strokeDasharray: '3' }}
+              cursor={{ stroke: 'var(--vigil-muted)', strokeDasharray: '3' }}
               labelFormatter={(time) => new Date(Number(time)).toLocaleString()}
               formatter={(value, name) => [
                 formatMetricValue(Number(value), group.unit, group.kind),
@@ -99,7 +99,7 @@ export default function MetricChartCard({ group, services, period }: Data) {
             <Legend
               iconType="circle"
               iconSize={7}
-              wrapperStyle={{ fontSize: 11, color: '#6b7da8' }}
+              wrapperStyle={{ fontSize: 11, color: 'var(--vigil-muted)' }}
             />
             {/* dataKey the values we wanna draw key is service and value is the data
                 key for react to know which line is whcih because map draw multiple Line

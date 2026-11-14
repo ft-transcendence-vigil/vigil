@@ -207,7 +207,7 @@ export default function LogsPage() {
           </span>
         </div>
         <button
-          className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border py-3 px-5 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-300"
+          className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border py-3 px-5 text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60 transition-[color,border-color] duration-300"
           onClick={() => handleExportCsv(filter.params)}
         >
           Export CSV
@@ -223,7 +223,7 @@ export default function LogsPage() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-250 border-collapse border border-vigil-border">
           <thead>
-            <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px] bg-[#0D1425] tracking-wide">
+            <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px] bg-vigil-panel tracking-wide">
               <th className="py-2 md:py-4 px-2 md:px-3">Time</th>
               <th className="py-2 md:py-4 px-2 md:px-3">Service</th>
               <th className="py-2 md:py-4 px-2 md:px-3">Severity</th>
@@ -242,13 +242,13 @@ export default function LogsPage() {
               <tr>
                 <td colSpan={4} className="py-15 text-center">
                   <h1 className="text-[20px] mb-1">Could not load logs</h1>
-                  <p className="text-red-400 text-[14px] tracking-wider">
+                  <p className="text-vigil-state-danger-text text-[14px] tracking-wider">
                     {error instanceof Error
                       ? error.message
                       : 'Something went wrong.'}
                   </p>
                   <button
-                    className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border mt-5 py-2 px-5 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-300"
+                    className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border mt-5 py-2 px-5 text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60 transition-[color,border-color] duration-300"
                     onClick={() => refetch()}
                   >
                     Retry

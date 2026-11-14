@@ -25,7 +25,7 @@ export default function LogsDetails({ attributes, message }: Data) {
               className="min-w-0 wrap-break-word text-vigil-muted-extra text-[13px]"
             >
               {key}:{' '}
-              <span className="text-white ms-1 text-[14px]">{value}</span>
+              <span className="text-vigil-text ms-1 text-[14px]">{value}</span>
             </p>
           ))}
         </div>

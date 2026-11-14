@@ -11,16 +11,16 @@ interface Data {
 
 const severityStyle: Record<Severity, { bar: string; text: string }> = {
   critical: {
-    bar: 'bg-[#ff4757]',
-    text: 'text-[#ff4757]',
+    bar: 'bg-vigil-critical',
+    text: 'text-vigil-critical',
   },
   warning: {
-    bar: 'bg-[#f59e0b]',
-    text: 'text-[#f59e0b]',
+    bar: 'bg-vigil-warning',
+    text: 'text-vigil-warning',
   },
   info: {
-    bar: 'bg-[#6b7da8]',
-    text: 'text-[#6b7da8]',
+    bar: 'bg-vigil-muted',
+    text: 'text-vigil-muted',
   },
 };
 
@@ -50,10 +50,10 @@ export default function AlertNotificationRow({
       role="button"
       tabIndex={0}
       onClick={() => onOpen(notification.alert_history_id)}
-      className={`group relative cursor-pointer border-b border-vigil-border py-3 pr-4 pl-4.75 transition-colors hover:bg-[#63b3ed0d] ${
+      className={`group relative cursor-pointer border-b border-vigil-border py-3 pr-4 pl-4.75 transition-colors hover:bg-vigil-notification-hover ${
         notification.seen
           ? 'text-vigil-muted-extra'
-          : 'bg-[#00e5ff0a] text-white'
+          : 'bg-vigil-notification-unread text-vigil-text'
       }`}
     >
       <span
@@ -90,7 +90,7 @@ export default function AlertNotificationRow({
             e.stopPropagation();
             onToggleSeen(notification.alert_history_id, !notification.seen);
           }}
-          className="cursor-pointer border border-vigil-border px-1.75 py-0.5 text-[.6rem] text-vigil-muted-extra opacity-0 transition-opacity group-hover:opacity-100 hover:border-vigil-blue hover:text-vigil-blue focus-visible:opacity-100 disabled:cursor-default disabled:opacity-50 [@media(hover:none)]:opacity-100"
+          className="cursor-pointer border border-vigil-border px-1.75 py-0.5 text-[.6rem] text-vigil-muted-extra opacity-0 transition-opacity group-hover:opacity-100 hover:border-vigil-accent hover:text-vigil-accent focus-visible:opacity-100 disabled:cursor-default disabled:opacity-50 [@media(hover:none)]:opacity-100"
         >
           {isUpdating
             ? 'Updating...'

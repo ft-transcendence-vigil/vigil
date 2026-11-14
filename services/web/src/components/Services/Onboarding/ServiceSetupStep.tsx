@@ -30,7 +30,7 @@ export default function ServiceSetupStep({
         onChange={(e: ChangeEvent<HTMLSelectElement>) =>
           onSetupChange(e.target.value as InstrumentationSetup)
         }
-        className="w-full bg-vigil-card border border-vigil-border px-3 py-4 text-[15px] outline-none focus:border-vigil-blue"
+        className="w-full bg-vigil-card border border-vigil-border px-3 py-4 text-[15px] outline-none focus:border-vigil-accent"
       >
         <option value="recommended">
           This service is not instrumented yet

@@ -24,7 +24,7 @@ export default function SessionCard({
 
   return (
     <div
-      className={`flex justify-between items-center border p-4 md:p-5 ${current ? 'border-blue-500/40' : 'border-vigil-border'}`}
+      className={`flex justify-between items-center border p-4 md:p-5 ${current ? 'border-vigil-state-info/40' : 'border-vigil-border'}`}
       id={id}
     >
       <div className="left-section flex items-center">
@@ -33,7 +33,7 @@ export default function SessionCard({
           <div className="flex items-center mb-1 text-[14px] md:text-[18px]">
             {userAgent.browser} {userAgent.os}
             {current && (
-              <span className="uppercase text-[9px] md:text-[11px] tracking-wider px-2 md:px-3 py-1 md:py-1.5 ms-5 text-vigil-blue bg-vigil-blue-100 border border-blue-400/20">
+              <span className="uppercase text-[9px] md:text-[11px] tracking-wider px-2 md:px-3 py-1 md:py-1.5 ms-5 text-vigil-accent bg-vigil-accent-soft border border-vigil-state-info-text/20">
                 this device
               </span>
             )}
@@ -45,7 +45,7 @@ export default function SessionCard({
       </div>
       {!current && (
         <button
-          className="outline-none text-[10px] md:text-[12px] tracking-widest uppercase p-2 md:p-3 border border-red-500/30  text-red-500/80 cursor-pointer hover:border-red-500/60 hover:text-red-500 transition-[border, text] duration-300"
+          className="outline-none text-[10px] md:text-[12px] tracking-widest uppercase p-2 md:p-3 border border-vigil-state-danger/30  text-vigil-state-danger/80 cursor-pointer hover:border-vigil-state-danger/60 hover:text-vigil-state-danger transition-[border, text] duration-300"
           type="button"
           onClick={() => onRevoke(id)}
         >

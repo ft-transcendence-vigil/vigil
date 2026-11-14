@@ -28,7 +28,7 @@ export default function KpiCard({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`${active ? 'border-[#2195f38c] before:opacity-100' : 'border-vigil-border before:opacity-0'} kpi-card cursor-pointer group text-left flex justify-between gap-3 p-5 bg-vigil-card col-span-12 md:col-span-6 xl:col-span-3 border h-45 overflow-hidden relative before:absolute before:w-full before:h-0.5 before:left-0 before:top-0 before:bg-vigil-blue hover:before:opacity-100 focus-visible:before:opacity-100 before:transition-opacity before:duration-300`}
+      className={`${active ? 'border-vigil-accent-border-selected before:opacity-100' : 'border-vigil-border before:opacity-0'} kpi-card cursor-pointer group text-left flex justify-between gap-3 p-5 bg-vigil-card col-span-12 md:col-span-6 xl:col-span-3 border h-45 overflow-hidden relative before:absolute before:w-full before:h-0.5 before:left-0 before:top-0 before:bg-vigil-accent hover:before:opacity-100 focus-visible:before:opacity-100 before:transition-opacity before:duration-300`}
     >
       <div className="right-section flex min-w-0 flex-col items-start justify-between">
         <h6 className="title uppercase flex items-center text-vigil-muted text-[12px] md:text-[13px] lg:text-[14px] xl:text-[15px] tracking-wider">

@@ -6,7 +6,7 @@ import { timeAgo } from '../../shared/utils/format';
 import { OTHER_CLASS, SEVERITY_CLASS, describeAlert } from '../overviewData';
 
 const actionBtn =
-  'border border-vigil-border uppercase text-[9px] sm:text-[10px] tracking-wider h-7 sm:h-8 w-14 sm:w-16 cursor-pointer text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80] transition-[color, border-color] duration-300';
+  'border border-vigil-border uppercase text-[9px] sm:text-[10px] tracking-wider h-7 sm:h-8 w-14 sm:w-16 cursor-pointer text-vigil-muted hover:text-vigil-text-hover hover:border-vigil-border-hover transition-[color, border-color] duration-300';
 
 interface Data {
   alert: AlertHistory;
@@ -35,7 +35,7 @@ export default function AlertsPreviewRow({
     <div className="alert-preview-row">
       <div
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex justify-between items-center gap-2 border-b border-b-vigil-border px-3 sm:px-5 py-3 mono hover:bg-[rgba(99,179,237,.03)] transition-[background-color] duration-300 cursor-pointer"
+        className="flex justify-between items-center gap-2 border-b border-b-vigil-border px-3 sm:px-5 py-3 mono hover:bg-vigil-preview-hover transition-[background-color] duration-300 cursor-pointer"
       >
         <div className="flex items-center min-w-0">
           <div
@@ -79,7 +79,7 @@ export default function AlertsPreviewRow({
         </div>
       </div>
       {isOpen && (
-        <div className="px-5 py-3 mono bg-[#0D1425]">
+        <div className="px-5 py-3 mono bg-vigil-panel">
           <p className="text-[11px] tracking-wide text-vigil-muted mb-2 whitespace-pre-wrap">
             {alert.llm_analysis ?? 'The AI analysis is not ready yet.'}
           </p>

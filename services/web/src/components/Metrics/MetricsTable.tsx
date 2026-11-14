@@ -35,7 +35,7 @@ export default function MetricsTable({
     <div className="overflow-x-auto">
       <table className="w-full min-w-180 border-collapse border border-vigil-border">
         <thead>
-          <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px] bg-[#0D1425] tracking-wide">
+          <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px] bg-vigil-panel tracking-wide">
             {COLUMNS.map((column, index) => (
               <th key={index} className="py-2 md:py-4 px-2 md:px-3">
                 {column}
@@ -55,7 +55,7 @@ export default function MetricsTable({
           {/* same as isloading but for error */}
           {error && (
             <tr>
-              <td colSpan={4} className="py-6 text-center text-red-400">
+              <td colSpan={4} className="py-6 text-center text-vigil-state-danger-text">
                 {error.message}
               </td>
             </tr>
@@ -97,7 +97,7 @@ export default function MetricsTable({
                       onClick={onLoadMore}
                       //disable button when its fetching points
                       disabled={isFetchingNextPage}
-                      className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border px-4 h-9 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-200"
+                      className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border px-4 h-9 text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60 transition-[color,border-color] duration-200"
                     >
                       {isFetchingNextPage ? 'Loading…' : 'Load more'}
                     </button>

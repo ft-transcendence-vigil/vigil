@@ -35,7 +35,7 @@ export default function Dropdown({
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className={`capitalize outline-none px-4 py-3 w-full border border-vigil-border focus:border-vigil-blue disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+        className={`capitalize outline-none px-4 py-3 w-full border border-vigil-border focus:border-vigil-accent disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
       >
         {options.map((option) => {
           const label = typeof option === 'string' ? option : option.label;

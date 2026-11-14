@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#050910" />
     <meta name="color-scheme" content="dark" />
-    <title>Vigil — Offline</title>
+    <title>Vigil - Offline</title>
+    <link rel="stylesheet" href="/colors.css" />
     <style>
       @font-face {
         font-family: 'Poppins';
@@ -13,15 +14,6 @@
         font-weight: 600;
         font-style: normal;
         font-display: swap;
-      }
-      :root {
-        --bg: #050910;
-        --surface: #080d1a;
-        --fg: #ffffff;
-        --muted: #6b7da8;
-        --accent: #2196f3;
-        --red: #ef4444;
-        --line: #1a2333;
       }
       * {
         box-sizing: border-box;
@@ -37,8 +29,8 @@
         flex-direction: column;
         min-height: 100dvh;
         overflow-x: hidden;
-        background-color: var(--bg);
-        color: var(--fg);
+        background-color: var(--vigil-bg);
+        color: var(--vigil-text);
         font-family:
           system-ui,
           -apple-system,
@@ -52,13 +44,13 @@
         text-align: center;
         z-index: 1;
         padding: 20px 24px;
-        border-bottom: 1px solid var(--line);
+        border-bottom: 1px solid var(--vigil-border);
       }
       .logo {
         display: inline-block;
         padding: 4px 18px;
-        background: var(--accent);
-        color: var(--surface);
+        background: var(--vigil-accent);
+        color: var(--vigil-surface);
         font-family: 'Poppins', system-ui, sans-serif;
         font-weight: 600;
         font-size: 24px;
@@ -84,12 +76,12 @@
         gap: 8px;
         margin-bottom: 20px;
         padding: 6px 10px;
-        border: 1px solid var(--red);
+        border: 1px solid var(--vigil-chart-error);
         font-family: ui-monospace, 'SF Mono', Menlo, monospace;
         font-size: 11px;
         letter-spacing: 0.1em;
         text-transform: uppercase;
-        color: var(--red);
+        color: var(--vigil-chart-error);
       }
       h1 {
         margin-bottom: 12px;
@@ -101,7 +93,7 @@
       p.msg {
         max-width: 400px;
         margin-bottom: 28px;
-        color: var(--muted);
+        color: var(--vigil-muted);
         font-size: 14px;
         line-height: 1.7;
       }
@@ -112,8 +104,8 @@
         font-weight: 500;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #000000;
-        background: var(--accent);
+        color: var(--vigil-on-accent);
+        background: var(--vigil-accent);
         border: 0;
         border-radius: 0;
         cursor: pointer;
@@ -123,7 +115,7 @@
         opacity: 0.7;
       }
       button:focus-visible {
-        outline: 2px solid var(--fg);
+        outline: 2px solid var(--vigil-text);
         outline-offset: 3px;
       }
       .watermark::before {
@@ -136,7 +128,7 @@
         font-weight: 700;
         letter-spacing: 0.06em;
         color: transparent;
-        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.025);
+        -webkit-text-stroke: 1px var(--vigil-watermark);
         pointer-events: none;
         user-select: none;
         white-space: nowrap;
