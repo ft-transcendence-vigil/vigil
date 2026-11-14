@@ -5,6 +5,19 @@ target/
 HELP.md
 .mvn/wrapper/maven-wrapper.jar
 
+# Compiled Java archives, JVM diagnostics, and local build caches
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.hprof
+*.jfr
+hs_err_pid*
+replay_pid*
+.gradle/
+.m2/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -66,3 +79,5 @@ dist-ssr/
 # === Markdown ===
 *.md
 !**/README.md
+!/services/api/HEYADMIN.md
+!/services/api/DEVELOPMENT.md

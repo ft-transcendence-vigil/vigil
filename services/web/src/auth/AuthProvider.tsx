@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { AuthContext } from './authContext';
 import {
   getCurrentUser,
@@ -23,17 +29,27 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(() => hasRefreshHint());
   const navigate = useNavigate();
+  const refreshing = useRef<ReturnType<typeof refresh> | null>(null);
 
   const clearAuthState = useCallback((): void => {
     setAccessToken(null);
     setUser(null);
   }, []);
 
+  const refreshOnce = useCallback(() => {
+    if (!refreshing.current) {
+      refreshing.current = refresh().finally(() => {
+        refreshing.current = null;
+      });
+    }
+    return refreshing.current;
+  }, []);
+
   useEffect(() => {
     if (!hasRefreshHint()) return;
     async function checkAuth() {
       try {
-        const data = await refresh();
+        const data = await refreshOnce();
         const user = await getCurrentUser(data.access_token);
         setAccessToken(data.access_token);
         setUser(user);
@@ -44,7 +60,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       }
     }
     checkAuth();
-  }, [clearAuthState]);
+  }, [clearAuthState, refreshOnce]);
 
   const signIn = async (email: string, password: string): Promise<void> => {
     const data = await login(email, password);
@@ -98,16 +114,18 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         if (!axios.isAxiosError(error) || error.response?.status !== 401)
           throw error;
       }
+      let data;
+
       try {
-        const data = await refresh();
-        setAccessToken(data.access_token);
-        return await requestWithToken<T>(data.access_token, url, options);
+        data = await refreshOnce();
       } catch (refreshError) {
         clearAuthState();
         throw new Error('Session expired', { cause: refreshError });
       }
+      setAccessToken(data.access_token);
+      return requestWithToken<T>(data.access_token, url, options);
     },
-    [accessToken, clearAuthState],
+    [accessToken, clearAuthState, refreshOnce],
   );
 
   return (

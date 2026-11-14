@@ -1,12 +1,9 @@
 package com.ft_transcendence.vigil.websocket;
 
 import com.ft_transcendence.vigil.domain.dtos.alerts.*;
-import com.ft_transcendence.vigil.domain.entities.UserPrincipal;
-import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import com.ft_transcendence.vigil.repositories.UsersAuth.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -15,7 +12,6 @@ import org.springframework.web.socket.handler.SessionLimitExceededException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.net.ContentHandler;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;

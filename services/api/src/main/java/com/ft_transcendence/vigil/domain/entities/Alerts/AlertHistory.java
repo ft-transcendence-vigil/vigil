@@ -1,6 +1,5 @@
 package com.ft_transcendence.vigil.domain.entities.Alerts;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ft_transcendence.vigil.domain.entities.UsersAuth.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -51,7 +50,7 @@ public class AlertHistory {
     @Enumerated(EnumType.STRING)
     private Severity severity;
 
-    @Column(nullable = true)
+    @Column(columnDefinition = "TEXT")
     private String llmAnalysis;
 
 

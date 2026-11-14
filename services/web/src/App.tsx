@@ -12,7 +12,6 @@ import LogsPage from './pages/Logs/LogsPage';
 import MetricsPage from './pages/Metrics/MetricsPage';
 import TracesPage from './pages/Traces/TracesPage';
 import AlertsRulesPage from './pages/AlertRules/AlertsRulesPage';
-import StatusPage from './pages/Status/StatusPage';
 import AppToaster from './components/shared/AppToaster';
 import PermissionRoute from './auth/PermissionRoute';
 import Legal from './components/Auth/Legal';
@@ -25,14 +24,15 @@ import WebhooksSettingsPage from './pages/Settings/WebhooksSettingsPage';
 import OnboardingLayout from './components/Services/OnboardingLayout';
 import ServicesOnboardingPage from './pages/Services/ServicesOnboardingPage';
 import AddServicePage from './pages/Services/AddServicePage';
+import NotFoundPage from './pages/errors/NotFoundPage';
 
 function App() {
   return (
     <>
       <AppToaster />
       <Routes>
+        <Route path="/legal" element={<Legal />} />
         <Route element={<PublicOnlyRoute />}>
-          <Route path="/legal" element={<Legal />} />
           <Route element={<AuthEntryGuard />}>
             <Route path="/auth/login" element={<LoginPage />} />
             <Route path="/auth/setup" element={<SetupPage />} />
@@ -53,7 +53,6 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/overview" element={<OverviewPage />} />
             <Route path="/alerts" element={<AlertsPage />} />
-            <Route path="/status" element={<StatusPage />} />
             <Route path="/logs" element={<LogsPage />} />
             <Route path="/metrics" element={<MetricsPage />} />
             <Route path="/traces" element={<TracesPage />} />
@@ -102,6 +101,7 @@ function App() {
                 }
               />
             </Route>
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
       </Routes>

@@ -10,7 +10,6 @@ export interface MetricGroup {
   name: string;
   unit: string;
   kind: MetricKind;
-  internal: boolean;
   series: MetricSeries[];
 }
 
@@ -37,14 +36,10 @@ export function groupByName(series: MetricSeries[]): MetricGroup[] {
         name: s.name,
         unit: s.unit,
         kind: s.kind,
-        internal: s.internal,
         series: [s],
       });
   }
-  return [...groups.values()].sort(
-    (a, b) =>
-      Number(a.internal) - Number(b.internal) || a.name.localeCompare(b.name),
-  );
+  return [...groups.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function serviceColor(services: string[], service: string): string {
@@ -52,7 +47,6 @@ export function serviceColor(services: string[], service: string): string {
   return SERVICE_COLORS[Math.max(0, index) % SERVICE_COLORS.length];
 }
 
-// One row per bucket with a column per service, the shape recharts expects.
 export function chartRows(group: MetricGroup): ChartRow[] {
   const rows = new Map<number, ChartRow>();
   for (const s of group.series) {
@@ -127,10 +121,9 @@ export function formatBucket(time: number, period: Period): string {
     : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
 
+//a metric point has no id like span_id so we glue its time service name and attributes into one string to make it unique
+//JSON.stringify turns the attributes object into text so it can be part of the string
+//we use it as the react key to remove duplicates when merging live points and to remember the open row
 export function metricKey(metric: Metric): string {
   return `${metric.timestamp}|${metric.service}|${metric.name}|${JSON.stringify(metric.attributes)}`;
-}
-
-export function isInternal(metric: Metric): boolean {
-  return metric.attributes.internal === 'true';
 }

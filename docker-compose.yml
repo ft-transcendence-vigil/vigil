@@ -16,7 +16,7 @@ services:
         condition: service_started
       telemetry-collector:
         condition: service_started
-      waf: {condition: service_started}
+      waf: {condition: service_healthy}
     networks:
       - default
     restart: unless-stopped
@@ -82,10 +82,24 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://${POSTGRES_HOST:-postgres}:5432/${POSTGRES_DB:-lopo}"
       SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}"
-      VIGIL_TLS_CA_PATH: /etc/vigil/ca/root.crt
       SPRING_CONFIG_IMPORT: "configtree:/run/secrets/"
+      VIGIL_FRONTEND_BASE_URL: "${VIGIL_FRONTEND_BASE_URL:-https://localhost}"
+      VIGIL_FRONT_END_URL: "${VIGIL_FRONT_END_URL:-${VIGIL_FRONTEND_BASE_URL:-https://localhost}}"
+      VIGIL_SILENCE_TIMEOUT_SECONDS: "${VIGIL_SILENCE_TIMEOUT_SECONDS:-300}"
+      VIGIL_LLM_BASE_URL: "${VIGIL_LLM_BASE_URL:-http://llm:8000}"
+      VIGIL_LLM_TIMEOUT_SECONDS: "${VIGIL_LLM_TIMEOUT_SECONDS:-30}"
+      VIGIL_TLS_CA_PATH: /etc/vigil/ca/root.crt
+
+      # Caddy opens upstream connections with its own IP; otherwise all clients share a rate-limit bucket.
+      # Let Tomcat resolve X-Forwarded-For from internal proxies so getRemoteAddr() returns the client IP.
+      # Keep the API port unpublished; only trusted containers may reach it (private IPs are trusted by default).
+      SERVER_FORWARD_HEADERS_STRATEGY: native
+
+      VIGIL_API_KEY_FILE: /var/lib/vigil/admin/api-key
+
     volumes:
       - caddy_public_ca:/etc/vigil/ca:ro
+      - api_admin_credentials:/var/lib/vigil/admin
       - vault_api_secrets:/run/secrets:ro
     depends_on:
       postgres:
@@ -201,7 +215,7 @@ services:
       context: ./security/waf
     restart: unless-stopped
     healthcheck:
-      test: [CMD-SHELL, "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/ | grep -q '^404$'"]
+      test: [CMD-SHELL, "curl --fail --silent --show-error http://127.0.0.1:8080/healthz >/dev/null"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -232,9 +246,9 @@ services:
   vault:
     image: hashicorp/vault:1.17
     restart: unless-stopped
-    cap_add: [IPC_LOCK]
-    entrypoint: [vault]
-    command: [server, -config=/vault/config/vault.hcl]
+    environment:
+      SKIP_SETCAP: "true"
+    command: [server]
     volumes:
       - vault_data:/vault/file
       - ./security/vault/config:/vault/config:ro
@@ -257,12 +271,18 @@ services:
       - vault_collector_credentials:/vault/credentials/collector
     depends_on: [vault]
     networks: [vault_internal]
+    healthcheck:
+      test: [CMD-SHELL, "test -f /vault/init/ready && vault status >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
   vault-agent-api:
     image: hashicorp/vault:1.17
     restart: unless-stopped
     user: "0:0"
     entrypoint: [/bin/sh, /vault/scripts/start-agent.sh]
-    depends_on: [vault-init]
+    depends_on:
+      vault-init: {condition: service_healthy}
     networks: [vault_internal]
     environment: {VAULT_ROLE: api}
     volumes:
@@ -272,7 +292,7 @@ services:
       - vault_api_credentials:/vault/credentials:ro
     healthcheck:
       test: [CMD-SHELL, "test -s /run/secrets/JWT_SECRET && test -s /run/secrets/SPRING_DATASOURCE_PASSWORD && test
-            -s /run/secrets/CLICKHOUSE_PASSWORD"]
+            -s /run/secrets/CLICKHOUSE_PASSWORD && test -s /run/secrets/VIGIL_INGESTION_KEY"]
       interval: 5s
       timeout: 3s
       retries: 40
@@ -282,7 +302,8 @@ services:
     restart: unless-stopped
     user: "0:0"
     entrypoint: [/bin/sh, /vault/scripts/start-agent.sh]
-    depends_on: [vault-init]
+    depends_on:
+      vault-init: {condition: service_healthy}
     networks: [vault_internal]
     environment: {VAULT_ROLE: postgres}
     volumes:
@@ -301,7 +322,8 @@ services:
     restart: unless-stopped
     user: "0:0"
     entrypoint: [/bin/sh, /vault/scripts/start-agent.sh]
-    depends_on: [vault-init]
+    depends_on:
+      vault-init: {condition: service_healthy}
     networks: [vault_internal]
     environment: {VAULT_ROLE: clickhouse}
     volumes:
@@ -321,7 +343,8 @@ services:
     restart: unless-stopped
     user: "0:0"
     entrypoint: [/bin/sh, /vault/scripts/start-agent.sh]
-    depends_on: [vault-init]
+    depends_on:
+      vault-init: {condition: service_healthy}
     networks: [vault_internal]
     environment: {VAULT_ROLE: collector}
     volumes:
@@ -330,12 +353,14 @@ services:
       - vault_collector_secrets:/run/secrets
       - vault_collector_credentials:/vault/credentials:ro
     healthcheck:
-      test: [CMD-SHELL, "test -s /run/secrets/collector-config.yaml"]
+      test: [CMD-SHELL, "test -s /run/secrets/collector-config.yaml && test -s /run/secrets/VIGIL_INGESTION_KEY"]
       interval: 5s
       timeout: 3s
       retries: 40
 
 volumes:
+
+  api_admin_credentials:
 
   postgres_data:
     name: postgres_data

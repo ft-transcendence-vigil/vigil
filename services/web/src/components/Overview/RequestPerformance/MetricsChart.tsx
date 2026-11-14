@@ -122,10 +122,12 @@ export default function MetricsChart<T extends Record<string, unknown>>({
           }
           formatter={(value, name) => {
             const unit = series.find((s) => s.name === name)?.unit;
-            return [
-              `${Math.round(Number(value))}${unit ? ` ${unit}` : ''}`,
-              name,
-            ];
+            if (value === null || value === undefined) return ['—', name];
+            // small rates like 0.4/s would round to 0, keep 2 decimals under 10
+            const n = Number(value);
+            const shown =
+              n >= 10 || Number.isInteger(n) ? Math.round(n) : n.toFixed(2);
+            return [`${shown}${unit ? ` ${unit}` : ''}`, name];
           }}
         />
 

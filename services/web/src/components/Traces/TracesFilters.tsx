@@ -22,14 +22,16 @@ const PERIODS: { value: Period; label: string }[] = [
 ];
 
 const LIVE_LABELS = {
-  paused: { text: 'Paused', dot: 'bg-[#4a5d7e]' },
-  connecting: { text: 'Connecting…', dot: 'bg-[#f59e0b]' },
-  live: { text: 'Live', dot: 'bg-[#00d68f] animate-pulse' },
-  failed: { text: 'Disconnected', dot: 'bg-[#ff4757]' },
+  paused: { text: 'Paused' },
+  connecting: { text: 'Connecting…' },
+  live: { text: 'Live' },
+  failed: { text: 'Disconnected' },
 };
-
-const fieldClass =
-  'outline-none px-3 py-2 text-[13px] bg-vigil-card border border-vigil-border focus:border-vigil-blue';
+// shared styles for the select and the input: full width, padding, border that turns blue on focus
+const selectClass =
+  'capitalize outline-none px-4 py-3 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]';
+const inputClass =
+  'placeholder:text-vigil-muted-extra outline-none px-4 py-2.5 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]';
 
 export default function TracesFilters({
   period,
@@ -50,45 +52,56 @@ export default function TracesFilters({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <select
-        value={period}
-        onChange={(e) => onPeriodChange(e.target.value as Period)}
-        className={fieldClass}
-      >
-        {PERIODS.map((p) => (
-          <option key={p.value} value={p.value} className="bg-vigil-card">
-            {p.label}
-          </option>
-        ))}
-      </select>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          applyService();
-        }}
-      >
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={applyService}
-          placeholder="Service"
-          className={`${fieldClass} w-40`}
-        />
-      </form>
-      <div className="flex items-center gap-2 text-[12px] text-vigil-muted uppercase tracking-wider">
-        <SwitchButton checked={live} onCheckedChange={onLiveChange} />
-        <span className={`inline-block w-1.5 h-1.5 rounded ${label.dot}`} />
-        {label.text}
+    // filter area: row 1 = live switch + export, row 2 = the filters grid
+    <div className="mb-9">
+      <div className="flex justify-between items-center mb-7">
+        <div className="flex items-center space-x-4">
+          <SwitchButton checked={live} onCheckedChange={onLiveChange} />
+          <span className="text-2xl text-vigil-muted">{label.text}</span>
+        </div>
+        <button
+     //label next to switch butten and switch button logix
+     //exporting button disable it when its exporting onclcik export
+          type="button"
+          onClick={onExport}
+          disabled={isExporting}
+          className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border py-3 px-5 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-300"
+        >
+          {isExporting ? 'Exporting…' : 'Export CSV'}
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={onExport}
-        disabled={isExporting}
-        className="ms-auto text-[12px] md:text-[13px] cursor-pointer border border-vigil-border px-4 h-9 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-200"
-      >
-        {isExporting ? 'Exporting…' : '↓ CSV export'}
-      </button>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-center">
+        <select
+          value={period}
+        //listen to change and set period change 
+          onChange={(e) => onPeriodChange(e.target.value as Period)}
+          className={selectClass}
+        >
+          {PERIODS.map((p) => (
+          //loop around periods and make them an <option> this is how we get the drop down menu
+          // it looks like this   <option value="1h">Last 1h</option>
+            <option key={p.value} value={p.value} className="bg-vigil-card">
+              {p.label}
+            </option>
+          ))}
+        </select>
+        <form
+          className="min-w-0"
+          onSubmit={(e) => {
+            e.preventDefault();
+            applyService();
+          }}
+        >
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+          // on blur (click away) apply the typed service enter does the same through the forms onSubmit only calls the setter if it changed
+            onBlur={applyService}
+            placeholder="Service"
+            className={inputClass}
+          />
+        </form>
+      </div>
     </div>
   );
 }

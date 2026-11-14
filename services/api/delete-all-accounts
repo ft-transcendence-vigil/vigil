@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+script_dir=${0%/*}
+if [ "$script_dir" = "$0" ]; then script_dir=.; fi
+exec "$script_dir/admin-command" delete-all-accounts "$@"

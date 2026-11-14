@@ -4,7 +4,6 @@ export const dashboardNavigation = [
     links: [
       { label: 'overview', path: '/overview' },
       { label: 'alerts', path: '/alerts' },
-      { label: 'status', path: '/status' },
     ],
   },
   {
@@ -30,5 +29,6 @@ export const getPageTitle = (pathname: string) => {
     const link = section.links.find((link) => link.path === pathname);
     if (link) return link.label;
   }
-  return 'settings';
+  if (pathname.startsWith('/settings/')) return 'settings';
+  return 'page not found';
 };

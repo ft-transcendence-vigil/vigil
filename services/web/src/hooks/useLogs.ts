@@ -1,6 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { exportLogsCsv, getLogs, type LogsParams } from '../api/logsApi';
 import { useAuth } from '../auth/authContext';
+import { toast } from 'sonner';
 
 export default function useLogs(params: LogsParams) {
   const { apiFetch } = useAuth();
@@ -11,7 +12,9 @@ export default function useLogs(params: LogsParams) {
     queryFn: ({ pageParam }) =>
       getLogs(apiFetch, {
         ...params,
-        before: isTimestampSort ? (pageParam as string | undefined) : undefined,
+        before: isTimestampSort
+          ? ((pageParam as string | undefined) ?? params.before)
+          : undefined,
         offset: !isTimestampSort
           ? ((pageParam as number | undefined) ?? 0)
           : undefined,
@@ -27,14 +30,23 @@ export default function useLogs(params: LogsParams) {
   });
 
   const handleExportCsv = async (params: LogsParams) => {
-    const blob = await exportLogsCsv(apiFetch, params);
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    try {
+      const blob = await exportLogsCsv(apiFetch, params);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
 
-    link.href = url;
-    link.download = 'logs.csv';
-    link.click();
-    URL.revokeObjectURL(url);
+      link.href = url;
+      link.download = 'logs.csv';
+      link.click();
+
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 0);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to export logs',
+      );
+    }
   };
 
   return {

@@ -68,6 +68,13 @@ final class ClickHouseQuery {
         return this;
     }
 
+    ClickHouseQuery between(Instant from, Instant to) {
+        conditions.add("timestamp >= ? AND timestamp <= ?");
+        params.add(Timestamp.from(from));
+        params.add(Timestamp.from(to));
+        return this;
+    }
+
     ClickHouseQuery where(String condition) {
         conditions.add(condition);
         return this;

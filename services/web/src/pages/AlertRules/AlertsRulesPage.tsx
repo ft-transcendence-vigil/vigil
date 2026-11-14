@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import AlertRulesRow from '../../components/AlertRules/AlertRulesRow';
 import Button from '../../components/shared/Button';
 import AlertModal from '../../components/AlertRules/AlertModal';
-import useAlertRules, { PAGE_SIZE } from '../../hooks/useAlertRules';
+import useAlertRulesList, { PAGE_SIZE } from '../../hooks/useAlertRulesList';
 import { useAuth } from '../../auth/authContext';
 import {
   deleteAlertRule,
@@ -29,9 +29,7 @@ export default function AlertsRulesPage() {
   const [modal, setModal] = useState<ModalState | null>(null);
   const { apiFetch } = useAuth();
   const queryClient = useQueryClient();
-  const { alertRulesQuery, offset, setOffset } = useAlertRules({
-    mode: 'create',
-  });
+  const { alertRulesQuery, offset, setOffset } = useAlertRulesList();
   const rules = alertRulesQuery.data?.data ?? [];
   const hasMore = alertRulesQuery.data?.hasMore ?? false;
   const [alertRuleToDelete, setAlertRuleToDelete] = useState<string | null>(

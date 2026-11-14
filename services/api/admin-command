@@ -1,0 +1,75 @@
+#!/bin/sh
+set -eu
+
+usage() {
+    printf '%s\n' 'Usage: reset-password <email> | delete-all-accounts | restore-api-user'
+}
+
+help() {
+    case ${1-} in
+        reset-password)
+            printf '%s\n' 'Usage: reset-password <email>' '' \
+                'Reset an account password. Prompts for a hidden new password and confirmation.' \
+                'The API backing account cannot be reset with this command.' ;;
+        delete-all-accounts)
+            printf '%s\n' 'Usage: delete-all-accounts' '' \
+                'Delete all human accounts while preserving the API backing account.' \
+                'Requires typing DELETE ALL HUMAN ACCOUNTS. Deletions commit separately.' ;;
+        restore-api-user)
+            printf '%s\n' 'Usage: restore-api-user' '' \
+                'Check the API backing account. Ask before creating it or repairing its admin role.' ;;
+        *) usage; printf '%s\n' 'Run any command with --help for details.' ;;
+    esac
+    printf '%s\n' '' \
+        'Authentication: reads the running API key from VIGIL_API_KEY_FILE.' \
+        'Default key file: /var/lib/vigil/admin/api-key (inside the container).' \
+        'Asks before restoring the API-key account through the database if authentication fails.' \
+        'Runs inside vigil-api; default API URL: http://localhost:8080.' \
+        'Honors SERVER_PORT, SERVER_SERVLET_CONTEXT_PATH and SERVER_SSL_ENABLED.' \
+        'Override the trusted origin with VIGIL_API_URL (remote HTTPS or loopback HTTP).' \
+        'HTTPS trust: Java defaults, or VIGIL_TLS_CA_PATH inside the container.'
+}
+
+if [ "$#" -eq 1 ]; then
+    case $1 in --help|-h) help; exit 0 ;; esac
+fi
+if [ "$#" -eq 2 ]; then
+    case $1 in
+        reset-password|delete-all-accounts|restore-api-user)
+            case $2 in --help|-h) help "$1"; exit 0 ;; esac ;;
+    esac
+fi
+case ${1-}:$# in
+    reset-password:2)
+        case $2 in
+            ''|*@*@*|@*|*@|*[[:space:]]*|[mM][uU][sS][tT][bB][eE]@[aA][pP][iI].[eE][mM][aA][iI][lL])
+                printf '%s\n' 'A valid human account email is required; the API backing account is reserved.' >&2
+                exit 2 ;;
+            *@*) ;;
+            *) printf '%s\n' 'A valid human account email is required; the API backing account is reserved.' >&2; exit 2 ;;
+        esac ;;
+    delete-all-accounts:1|restore-api-user:1) ;;
+    *) usage >&2; exit 2 ;;
+esac
+
+if ! command -v docker >/dev/null 2>&1; then
+    printf '%s\n' 'Docker is required; start the API container before running this command.' >&2
+    exit 1
+fi
+if [ ! -t 0 ] || [ ! -t 1 ]; then
+    printf '%s\n' 'An interactive terminal with hidden password input is required.' >&2
+    exit 1
+fi
+running=$(docker inspect --format '{{.State.Running}}' vigil-api 2>/dev/null) || running=false
+if [ "$running" != true ]; then
+    printf '%s\n' 'The vigil-api container must already be running.' >&2
+    exit 1
+fi
+set -- vigil-api java -jar /app/api.jar admin "$@"
+if [ "${VIGIL_API_URL+x}" = x ]; then
+    set -- --env "VIGIL_API_URL=$VIGIL_API_URL" "$@"
+fi
+if [ "${VIGIL_TLS_CA_PATH+x}" = x ]; then
+    set -- --env "VIGIL_TLS_CA_PATH=$VIGIL_TLS_CA_PATH" "$@"
+fi
+exec docker exec -it "$@"

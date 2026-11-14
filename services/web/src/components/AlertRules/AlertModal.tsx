@@ -5,7 +5,7 @@ import Button from '../shared/Button';
 import Dropdown from '../shared/Dropdown';
 import SwitchButton from '../shared/SwitchButton';
 import type { AlertRules } from '../../api/alertRulesApi';
-import useAlertRules from '../../hooks/useAlertRules';
+import useAlertRuleForm from '../../hooks/useAlertRuleForm';
 
 type AlertRulesOptions =
   | {
@@ -26,7 +26,7 @@ type Data = AlertRulesOptions & {
 };
 
 export default function AlertModal(props: Data) {
-  const form = useAlertRules(props);
+  const form = useAlertRuleForm(props);
   const { mode, onClose } = props;
   const isEdit = mode === 'edit';
 
