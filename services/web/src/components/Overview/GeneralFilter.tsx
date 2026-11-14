@@ -125,7 +125,7 @@ export default function GeneralFilter({
           onClick={onExportLogs}
           className={`${btnBase} ${btnIdle}`}
         >
-          logs
+          logs csv
         </button>
         <button
           type="button"
@@ -133,7 +133,7 @@ export default function GeneralFilter({
           onClick={onExportPdf}
           className={`${btnBase} ${btnIdle}`}
         >
-          pdf
+          report pdf
         </button>
       </div>
     </div>
