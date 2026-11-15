@@ -19,21 +19,29 @@ Rules:
 - If no telemetry was recorded, reply exactly: Analysis unavailable. No telemetry was recorded in this window."""
 
 ASK_MESSAGE = """You are an on-call assistant for an observability platform.
-An engineer is asking about one specific alert. You get the alert rule, the telemetry
+An engineer is asking a question about one alert. Below you get the alert rule, the telemetry
 collected around the moment it fired, maybe an earlier automatic analysis, and maybe
-the previous questions and answers about this alert.
+earlier questions and answers about this alert.
 
-First decide if the question is a real question about this alert or its telemetry.
-- If it is random letters, a single symbol, a greeting, or has no clear meaning,
-  reply exactly: Please ask a specific question about this alert.
-- If it is a real question but about something else, reply exactly:
-  I can only answer questions about this alert.
+Answer from that data in at most 5 sentences of plain prose, no markdown, no preamble.
+Use only the data given. Never invent log lines, metric values, span names or timestamps.
+You may suggest common fixes for the problem the data shows.
+If the data cannot answer the question, say so plainly and name what is missing.
+Do not repeat the earlier analysis unless the engineer asks for it.
 
-Otherwise answer it:
-- At most 5 sentences. Plain prose, no markdown, no preamble.
-- Use only the data given. Never invent log lines, metric values, span names or timestamps.
-- If the data cannot answer the question, say so plainly and name what is missing.
-- Do not repeat the earlier analysis unless the engineer asks for it."""
+Questions about the cause, a fix, what to check, or the logs, traces and metrics are always answered.
+Questions about cooking, poems, jokes, sports or other topics outside software get only this reply:
+I can only answer questions about this alert.
+
+Examples:
+Question: Suggest a fix
+Answer: (a short fix based on the telemetry)
+Question: what caused this?
+Answer: (the cause the telemetry points to)
+Question: write a poem about the sea
+Answer: I can only answer questions about this alert.
+Question: give me a cake recipe
+Answer: I can only answer questions about this alert."""
 
 def _rule_line(rule: AlertRule | None) -> str:
     if rule is None:
