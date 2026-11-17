@@ -37,8 +37,8 @@ export default function ChangePassword({
             value={value}
             placeholder="••••••••••"
             onChange={onChange}
-            className={`outline-none px-4 py-3 w-full focus:border-vigil-blue border border-vigil-border placeholder:text-vigil-muted ${
-              error ? 'border! border-red-400! focus:outline-0!' : ''
+            className={`outline-none px-4 py-3 w-full focus:border-vigil-accent border border-vigil-border placeholder:text-vigil-muted ${
+              error ? 'border! border-vigil-state-danger-text! focus:outline-0!' : ''
             }`}
           />
           <span className="show-btn" onClick={handleShowPassword}>
@@ -49,7 +49,7 @@ export default function ChangePassword({
           <Button value="save" onClick={onClick} disabled={disabled} />
         )}
       </div>
-      {error && <div className="text-xs text-red-400 mt-2">{error}</div>}
+      {error && <div className="text-xs text-vigil-state-danger-text mt-2">{error}</div>}
     </div>
   );
 }

@@ -97,7 +97,7 @@ export default function AlertsDetails({ alert }: Props) {
           {alert.signal_type && (
             <p className="lowercase text-vigil-muted text-[13px]">
               Signal:
-              <span className="text-white ms-1 text-[14px]">
+              <span className="text-vigil-text ms-1 text-[14px]">
                 {alert.signal_type}
               </span>
             </p>
@@ -105,7 +105,7 @@ export default function AlertsDetails({ alert }: Props) {
           {!isWatchdog && alert.threshold !== null && (
             <p className="lowercase text-vigil-muted text-[13px]">
               Threshold:
-              <span className="text-white ms-1 text-[14px]">
+              <span className="text-vigil-text ms-1 text-[14px]">
                 {alert.threshold}
               </span>
             </p>
@@ -113,7 +113,7 @@ export default function AlertsDetails({ alert }: Props) {
           {alert.aggregation && (
             <p className="lowercase text-vigil-muted text-[13px]">
               Aggregation:
-              <span className="text-white ms-1 text-[14px]">
+              <span className="text-vigil-text ms-1 text-[14px]">
                 {alert.aggregation}
               </span>
             </p>
@@ -121,7 +121,7 @@ export default function AlertsDetails({ alert }: Props) {
           {window && (
             <p className="lowercase text-vigil-muted text-[13px]">
               Window:
-              <span className="text-white ms-1 text-[14px]">{window}</span>
+              <span className="text-vigil-text ms-1 text-[14px]">{window}</span>
             </p>
           )}
         </div>

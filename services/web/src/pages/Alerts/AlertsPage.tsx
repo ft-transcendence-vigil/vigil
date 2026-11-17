@@ -307,12 +307,12 @@ export default function AlertsPage() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-250 border-collapse border border-vigil-border">
           <thead>
-            <tr className="border-b border-vigil-border bg-[#0D1425] text-left text-[12px] tracking-wide text-vigil-muted uppercase md:text-[13px]">
+            <tr className="border-b border-vigil-border bg-vigil-panel text-left text-[12px] tracking-wide text-vigil-muted uppercase md:text-[13px]">
               <th className="px-2 py-2 md:px-3 md:py-4">Severity</th>
               <th className="px-2 py-2 md:px-3 md:py-4">Service</th>
               <th className="px-2 py-2 md:px-3 md:py-4">Metric</th>
               <th className="px-2 py-2 md:px-3 md:py-4">Triggered</th>
-              <th className="px-2 py-2 md:px-3 md:py-4">Status</th>
+              <th className="px-2 py-2 md:px-3 md:py-4 w-[1%]">Status</th>
               <th className="px-2 py-2 md:px-3 md:py-4">Actions</th>
             </tr>
           </thead>
@@ -328,14 +328,14 @@ export default function AlertsPage() {
               <tr>
                 <td colSpan={6} className="py-15 text-center">
                   <h1 className="mb-1 text-[20px]">Could not load alerts</h1>
-                  <p className="text-[14px] tracking-wider text-red-400">
+                  <p className="text-[14px] tracking-wider text-vigil-state-danger-text">
                     {error instanceof Error
                       ? error.message
                       : 'Something went wrong.'}
                   </p>
                   <button
                     type="button"
-                    className="mt-5 cursor-pointer border border-vigil-border px-5 py-2 text-[12px] text-vigil-muted transition-[color,border-color] duration-300 hover:border-white/60 hover:text-white/60 md:text-[13px]"
+                    className="mt-5 cursor-pointer border border-vigil-border px-5 py-2 text-[12px] text-vigil-muted transition-[color,border-color] duration-300 hover:border-vigil-text/60 hover:text-vigil-text/60 md:text-[13px]"
                     onClick={() => refetch()}
                   >
                     Retry

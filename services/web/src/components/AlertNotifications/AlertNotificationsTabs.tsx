@@ -20,8 +20,8 @@ export default function AlertNotificationsTabs({ tab, onChange }: Data) {
           onClick={() => onChange(value)}
           className={`-mb-px cursor-pointer border-b-2 py-2 text-[.8rem] transition-colors ${
             tab === value
-              ? 'border-vigil-blue text-white'
-              : 'border-transparent text-vigil-muted-extra hover:text-white'
+              ? 'border-vigil-accent text-vigil-text'
+              : 'border-transparent text-vigil-muted-extra hover:text-vigil-text'
           }`}
         >
           {label}

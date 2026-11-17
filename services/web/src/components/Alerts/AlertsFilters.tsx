@@ -50,7 +50,7 @@ export default function AlertsFilters({
         ]}
         value={period}
         onChange={handlePeriodOnChange}
-        className="bg-[#0D1425]"
+        className="bg-vigil-panel"
         mb="mb-0"
       />
       <div className="w-120">
@@ -59,7 +59,7 @@ export default function AlertsFilters({
           placeholder="Filter by service"
           value={service}
           onChange={handleServiceOnChange}
-          className="w-full border border-vigil-border bg-[#0D1425] px-4 py-2.5 outline-none focus:border-vigil-blue"
+          className="w-full border border-vigil-border bg-vigil-panel px-4 py-2.5 outline-none focus:border-vigil-accent"
           error=""
           mb="mb-0"
         />
@@ -68,7 +68,7 @@ export default function AlertsFilters({
         <button
           type="button"
           onClick={handleClear}
-          className="cursor-pointer ml-auto flex items-center gap-1.5 text-[14px] tracking-[.4px] text-vigil-blue hover:underline"
+          className="cursor-pointer ml-auto flex items-center gap-1.5 text-[14px] tracking-[.4px] text-vigil-accent hover:underline"
         >
           <FontAwesomeIcon className="text-[12px]" icon={faXmark} />
           Clear all

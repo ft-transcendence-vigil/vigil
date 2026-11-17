@@ -20,7 +20,7 @@ export default function MetricsRow({
     <>
       <tr
         onClick={onSelect}
-        className={`border-b border-vigil-border hover:bg-[#0C1424] transition-colors duration-200 cursor-pointer relative after:absolute after:right-5 after:top-1/2 after:-translate-y-1/2 ${isSelected ? "after:content-['▴']" : "after:content-['▾']"} text-[12px] text-vigil-muted`}
+        className={`border-b border-vigil-border hover:bg-vigil-row-hover transition-colors duration-200 cursor-pointer relative after:absolute after:right-5 after:top-1/2 after:-translate-y-1/2 ${isSelected ? "after:content-['▴']" : "after:content-['▾']"} text-[12px] text-vigil-muted`}
       >
         <td
           //title shows the full date

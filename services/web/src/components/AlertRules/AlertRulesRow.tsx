@@ -18,7 +18,7 @@ export default function AlertRulesRow({
   ...rule
 }: Data) {
   return (
-    <tr className="border-b border-vigil-border hover:bg-[#0C1424] transition-colors duration-200">
+    <tr className="border-b border-vigil-border hover:bg-vigil-row-hover transition-colors duration-200">
       <td className="text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3">
         {rule.service}
       </td>
@@ -60,7 +60,7 @@ export default function AlertRulesRow({
         <span
           className={`${
             rule.is_default
-              ? 'bg-[#6b7da81a] border border-vigil-border-muted'
+              ? 'bg-vigil-status-muted-bg border border-vigil-border-muted'
               : 'font-bold text-[17px]'
           } capitalize text-vigil-muted-extra px-2 py-1 mono`}
         >
@@ -71,7 +71,7 @@ export default function AlertRulesRow({
         <button
           title="Edit"
           onClick={onEdit}
-          className="text-[10px] md:text-[12px] cursor-pointer border border-vigil-border w-8 h-8 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-200"
+          className="text-[10px] md:text-[12px] cursor-pointer border border-vigil-border w-8 h-8 text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60 transition-[color,border-color] duration-200"
         >
           <FontAwesomeIcon icon={faPenToSquare} />
         </button>
@@ -79,7 +79,7 @@ export default function AlertRulesRow({
           title={rule.is_default ? 'Default rules cannot be deleted' : 'Delete'}
           onClick={onDelete}
           disabled={rule.is_default}
-          className="text-[10px] md:text-[12px] cursor-pointer border border-red-500/40 w-8 h-8 text-red-500/70 hover:border-red-500/80 hover:text-red-500/80 transition-[color,border-color] duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-red-500/40 disabled:hover:text-red-500/70"
+          className="text-[10px] md:text-[12px] cursor-pointer border border-vigil-state-danger/40 w-8 h-8 text-vigil-state-danger/70 hover:border-vigil-state-danger/80 hover:text-vigil-state-danger/80 transition-[color,border-color] duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-vigil-state-danger/40 disabled:hover:text-vigil-state-danger/70"
         >
           <FontAwesomeIcon icon={faTrashCan} />
         </button>

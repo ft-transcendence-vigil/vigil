@@ -16,7 +16,7 @@ export default function AccountSettingsPage() {
         </h6>
         <div className="flex items-center">
           <p className="me-4 text-[17px]">{user?.email}</p>
-          <span className="uppercase text-[11px] tracking-wider px-2 py-1 text-vigil-blue bg-vigil-blue-100 border border-blue-400/20">
+          <span className="uppercase text-[11px] tracking-wider px-2 py-1 text-vigil-accent bg-vigil-accent-soft border border-vigil-state-info-text/20">
             {user?.role}
           </span>
         </div>
@@ -32,8 +32,8 @@ export default function AccountSettingsPage() {
             value={form.email}
             onChange={form.handleEmailChange}
             placeholder={user?.email}
-            className={`outline-none px-4 py-3 w-100 border border-vigil-border focus:border-vigil-blue placeholder:text-vigil-muted ${
-              form.emailError ? 'border! border-red-400! focus:outline-0!' : ''
+            className={`outline-none px-4 py-3 w-100 border border-vigil-border focus:border-vigil-accent placeholder:text-vigil-muted ${
+              form.emailError ? 'border! border-vigil-state-danger-text! focus:outline-0!' : ''
             }`}
           />
           <Button
@@ -43,7 +43,7 @@ export default function AccountSettingsPage() {
           />
         </div>
         {form.emailError && (
-          <div className="text-xs text-red-400 mt-2">{form.emailError}</div>
+          <div className="text-xs text-vigil-state-danger-text mt-2">{form.emailError}</div>
         )}
       </CardLayout>
       <CardLayout title="Change Password">
@@ -64,7 +64,7 @@ export default function AccountSettingsPage() {
             disabled={form.isPasswordSubmitting}
           />
           {form.passwordFieldError && (
-            <div className="text-xs text-red-400">
+            <div className="text-xs text-vigil-state-danger-text">
               {form.passwordFieldError}
             </div>
           )}

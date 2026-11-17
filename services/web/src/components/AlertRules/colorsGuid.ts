@@ -1,8 +1,8 @@
 export const colors = {
-  metrics: 'bg-blue-600/10 text-vigil-blue border border-blue-600/20',
-  logs: 'bg-[#7c3aed1f] text-[#b39bf0] border border-[#50466a]',
-  traces: 'bg-[#f59e0b1a] text-[#f59e0b] border border-[#cf83024d]',
-  critical: 'bg-[#ff47571a] text-[#ff4757] border border-[#ff475632]',
-  warning: 'bg-[#f59e0b1a] text-[#f59e0b] border border-[#cf830236]',
-  info: 'bg-[#6b7da81a] text-vigil-muted-extra border border-[#323b4b8a]',
+  metrics: 'bg-vigil-signal-metrics/10 text-vigil-accent border border-vigil-signal-metrics/20',
+  logs: 'bg-vigil-signal-logs-bg text-vigil-signal-logs-text border border-vigil-signal-logs-border',
+  traces: 'bg-vigil-warning-bg text-vigil-warning border border-vigil-warning-trace-border',
+  critical: 'bg-vigil-critical-bg text-vigil-critical border border-vigil-critical-border',
+  warning: 'bg-vigil-warning-bg text-vigil-warning border border-vigil-warning-border',
+  info: 'bg-vigil-status-muted-bg text-vigil-muted-extra border border-vigil-status-muted-border',
 };

@@ -69,21 +69,15 @@ flowchart TD
     CollectorSecrets --> Collector
 ```
 
-Vault Agents authenticate through AppRole and render secrets into dedicated Docker volumes.
-
-Applications read these generated files rather than retrieving secrets directly from Vault.
-
-The API uses Spring Boot `configtree`, PostgreSQL uses `POSTGRES_PASSWORD_FILE`, and ClickHouse and the telemetry collector use secret-aware startup configurations.
+Four AppRole-authenticated agents render files into dedicated volumes. The API reads Spring Boot `configtree`, PostgreSQL uses `POSTGRES_PASSWORD_FILE`, and ClickHouse and the collector use secret-aware startup configurations. The API and collector receive the same ingestion key; the collector reads it from a bearer-token file and uses a safely quoted writer password.
 
 Vault, bootstrap, and the four agents operate on a private Docker network without a publicly exposed Vault port. Consumer containers do not join that network; they receive files through their read-only secret mounts. Each agent mounts only its own AppRole credential volume. Caddy, WAF, the LLM service, and Ollama have no Vault secret mounts.
 
 ## 3. Initialization and Persistence
 
-On first deployment, the Vault initialization service imports six initial secrets from the root `.env` file.
+Bootstrap reads six initial secrets from plain or quoted `.env` values as data, not shell code. The API document marks the one-time import. Restarts reuse Vault state and AppRole files, creating only missing credential files. A missing API ingestion key is copied from the existing collector document without rotating other secrets. Bootstrap does not reconcile documents or replace revoked AppRole credentials automatically.
 
-Vault data and initialization information are stored in persistent Docker volumes. Subsequent restarts reuse the existing Vault data.
-
-The demonstration setup automatically initializes and unseals Vault. Startup also includes two one-shot application provisioning jobs:
+The demonstration setup initializes and unseals Vault automatically, then marks bootstrap ready for the agents. Startup also includes two one-shot application provisioning jobs:
 
 ```mermaid
 flowchart TD
@@ -124,16 +118,12 @@ flowchart TD
     PublicCA -->|Read-only trust certificate| Mock[Optional mock-telemetry-sender]
 ```
 
-The generated admin API key is not imported into Vault. Only Caddy's public root certificate is shared with consumers; its CA private key remains in Caddy's data volume. Back up Vault/bootstrap and database volumes consistently; replacing rendered secrets is not database password rotation.
+The generated admin API key is separate from Vault. Only Caddy's public root certificate is shared; its CA private key stays in Caddy's data volume. Preserve the existing database volume names and back up Vault/bootstrap and database state consistently. First-import credentials must match persisted databases; replacing rendered files is not password rotation. Do not delete volumes to migrate secret delivery.
 
 ## 4. Validation
 
-Fresh deployment and merged single-file Docker Compose startup were tested successfully.
-
-Verification included healthy Vault Agents and databases, successful API routing, and SQL injection blocking by the WAF.
+See [security checks](tests/README.md) for smoke checks, isolated WAF tests, and `test-fullstack.py`, which exercises real Compose startup, authentication, ingestion, streaming, and inference. The separate [TLS runtime suite](../services/reverse-proxy/README.md#tests) reuses that harness. Neither suite is an exhaustive Vault recovery or database-upgrade test.
 
 ## 5. Security Limitations
 
-This implementation is intended for coursework and demonstration.
-
-Vault uses a single node, file storage, internal HTTP communication, and locally stored initialization credentials. Production deployment would require stronger key protection, TLS, access-control review, and additional security testing.
+This is a coursework/demo design: single-node file storage, internal Vault HTTP, locally stored root/unseal credentials, reusable AppRole credentials, and root-run agents. Secret files are readable inside their role-specific mounts. Docker-host compromise defeats these boundaries; production requires independent key protection, supported patched images, encrypted internal transport, access-control review, and further testing.

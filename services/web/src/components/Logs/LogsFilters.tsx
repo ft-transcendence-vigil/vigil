@@ -27,7 +27,7 @@ export default function LogsFilters(filter: Data) {
         ]}
         value={filter.period}
         onChange={filter.handlePeriodOnChange}
-        className="bg-[#0D1425] w-full min-w-0"
+        className="bg-vigil-panel w-full min-w-0"
         mb="mb-0"
       />
       <FormInput
@@ -35,7 +35,7 @@ export default function LogsFilters(filter: Data) {
         placeholder="Service"
         value={filter.service}
         onChange={filter.handleServiceOnChange}
-        className="outline-none px-4 py-2.5 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]"
+        className="outline-none px-4 py-2.5 w-full min-w-0 border border-vigil-border focus:border-vigil-accent bg-vigil-panel"
         error=""
         mb="mb-0"
       />
@@ -49,7 +49,7 @@ export default function LogsFilters(filter: Data) {
         ]}
         value={filter.severity}
         onChange={filter.handleSeverityOnChange}
-        className="bg-[#0D1425] w-full min-w-0"
+        className="bg-vigil-panel w-full min-w-0"
         mb="mb-0"
       />
       <FormInput
@@ -57,7 +57,7 @@ export default function LogsFilters(filter: Data) {
         placeholder="Search message text"
         value={filter.search}
         onChange={filter.handleSearchOnChange}
-        className="outline-none px-4 py-2.5 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]"
+        className="outline-none px-4 py-2.5 w-full min-w-0 border border-vigil-border focus:border-vigil-accent bg-vigil-panel"
         error=""
         mb="mb-0"
       />
@@ -70,7 +70,7 @@ export default function LogsFilters(filter: Data) {
         ]}
         value={filter.sort}
         onChange={filter.handleSortOnChange}
-        className="bg-[#0D1425] w-full min-w-0"
+        className="bg-vigil-panel w-full min-w-0"
         mb="mb-0"
       />
     </div>

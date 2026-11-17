@@ -11,6 +11,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
       - caddy_public_ca:/public-ca
+      - caddy_tls_control:/run/vigil-tls
     depends_on:
       api:
         condition: service_started
@@ -99,6 +100,7 @@ services:
 
     volumes:
       - caddy_public_ca:/etc/vigil/ca:ro
+      - caddy_tls_control:/run/vigil-tls:ro
       - api_admin_credentials:/var/lib/vigil/admin
       - vault_api_secrets:/run/secrets:ro
     depends_on:
@@ -372,6 +374,8 @@ volumes:
     name: vigil_caddy_data
 
   caddy_public_ca:
+
+  caddy_tls_control:
 
   caddy_config:
     name: vigil_caddy_config

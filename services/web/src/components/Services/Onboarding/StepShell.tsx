@@ -17,7 +17,7 @@ export default function StepShell({
 }: Props) {
   return (
     <section className="flex-1 min-h-0 overflow-y-auto">
-      <p className="text-[11px] tracking-[0.18em] text-vigil-blue uppercase mb-2">
+      <p className="text-[11px] tracking-[0.18em] text-vigil-accent uppercase mb-2">
         step {String(stepNumber).padStart(2, '0')} /{' '}
         {String(totalSteps).padStart(2, '0')}
       </p>

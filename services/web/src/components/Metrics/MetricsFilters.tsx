@@ -30,9 +30,9 @@ const LIVE_LABELS = {
 
 // shared styles for the select and the input: full width, padding, border that turns blue on focus
 const selectClass =
-  'capitalize outline-none px-4 py-3 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]';
+  'capitalize outline-none px-4 py-3 w-full min-w-0 border border-vigil-border focus:border-vigil-accent bg-vigil-panel';
 const inputClass =
-  'placeholder:text-vigil-muted-extra outline-none px-4 py-2.5 w-full min-w-0 border border-vigil-border focus:border-vigil-blue bg-[#0D1425]';
+  'placeholder:text-vigil-muted-extra outline-none px-4 py-2.5 w-full min-w-0 border border-vigil-border focus:border-vigil-accent bg-vigil-panel';
 
 export default function MetricsFilters({
   period,
@@ -66,7 +66,7 @@ export default function MetricsFilters({
           type="button"
           onClick={onExport}
           disabled={isExporting}
-          className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border py-3 px-5 text-vigil-muted hover:border-white/60 hover:text-white/60 transition-[color,border-color] duration-300"
+          className="text-[12px] md:text-[13px] cursor-pointer border border-vigil-border py-3 px-5 text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60 transition-[color,border-color] duration-300"
         >
           {isExporting ? 'Exporting…' : 'Export CSV'}
         </button>

@@ -4,6 +4,7 @@ import App from './App.tsx';
 import { BrowserRouter } from 'react-router-dom';
 import AuthProvider from './auth/AuthProvider.tsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 const queryClient = new QueryClient();
 
@@ -21,8 +22,8 @@ createRoot(document.getElementById('root')!).render(
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((error) => {
-      console.error('Service worker registration failed:', error);
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      toast.warning('Offline mode could not be enabled.');
     });
   });
 }

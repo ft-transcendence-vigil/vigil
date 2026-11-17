@@ -31,7 +31,7 @@ export default function OnboardingNavigation({
       {!isLastStep && (
         <div className="ms-auto flex min-w-0 items-center gap-3">
           {issue && (
-            <p className="hidden text-right text-[11px] text-amber-400 md:block">
+            <p className="hidden text-right text-[11px] text-vigil-state-attention-text md:block">
               {issue}
             </p>
           )}

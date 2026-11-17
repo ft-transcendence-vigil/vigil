@@ -42,7 +42,7 @@ export default function CaAvailabilityStep({
           className={buttonAnimation}
         />
         {downloadCaError && (
-          <p className="mt-3 text-[13px] text-red-400">
+          <p className="mt-3 text-[13px] text-vigil-state-danger-text">
             {downloadCaError.message}
           </p>
         )}

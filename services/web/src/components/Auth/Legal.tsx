@@ -5,19 +5,19 @@ import Logo from '../shared/Logo';
 const CONTACT_EMAIL = 'privacy@vigil.com';
 const LAST_UPDATED = 'October 18, 2026';
 
-const link = 'text-blue-400 hover:underline';
+const link = 'text-vigil-state-info-text hover:underline';
 
 function H2({ children }: { children: ReactNode }) {
   return (
-    <h2 className="mt-8 mb-2 text-xl font-semibold text-white">{children}</h2>
+    <h2 className="mt-8 mb-2 text-xl font-semibold text-vigil-text">{children}</h2>
   );
 }
 function P({ children }: { children: ReactNode }) {
-  return <p className="mb-3 text-[#c3cae0] leading-7">{children}</p>;
+  return <p className="mb-3 text-vigil-text-legal leading-7">{children}</p>;
 }
 function UL({ items }: { items: string[] }) {
   return (
-    <ul className="mb-3 list-disc pl-6 text-[#c3cae0] leading-7">
+    <ul className="mb-3 list-disc pl-6 text-vigil-text-legal leading-7">
       {items.map((t) => (
         <li key={t}>{t}</li>
       ))}
@@ -37,7 +37,7 @@ function DocHeader({ title, intro }: { title: string; intro: string }) {
       <p className="mt-12 mb-2 text-xs uppercase tracking-[0.18em] text-vigil-muted">
         Vigil Observability · Legal
       </p>
-      <h1 className="mb-2 text-3xl sm:text-4xl font-semibold text-white">
+      <h1 className="mb-2 text-3xl sm:text-4xl font-semibold text-vigil-text">
         {title}
       </h1>
       <p className="mb-4 text-sm text-vigil-muted">
@@ -59,17 +59,17 @@ export default function LegalPage() {
   }, [hash]);
 
   return (
-    <div className="min-h-screen bg-[#0d111a] text-[#c3cae0]">
-      <header className="sticky top-0 z-10 border-b border-[#1b2236] bg-[#0d111a]/90 backdrop-blur py-2">
+    <div className="min-h-screen bg-vigil-surface-legal text-vigil-text-legal">
+      <header className="sticky top-0 z-10 border-b border-vigil-border-legal bg-vigil-surface-legal/90 backdrop-blur py-2">
         <div className="mx-auto flex max-w-205 flex-wrap items-center justify-between gap-4 px-6 py-3.5">
           <Link to="/">
             <Logo className="text-3xl px-4 py-1" />
           </Link>
           <nav className="flex gap-6 text-[13px] uppercase tracking-[0.12em] text-vigil-muted">
-            <a href="#privacy" className="hover:text-blue-400">
+            <a href="#privacy" className="hover:text-vigil-state-info-text">
               Privacy Policy
             </a>
-            <a href="#terms" className="hover:text-blue-400">
+            <a href="#terms" className="hover:text-vigil-state-info-text">
               Terms of Service
             </a>
           </nav>
@@ -207,7 +207,7 @@ export default function LegalPage() {
 
         <article
           id="terms"
-          className="mt-18 scroll-mt-20 border-t border-[#1b2236]"
+          className="mt-18 scroll-mt-20 border-t border-vigil-border-legal"
         >
           <DocHeader
             title="Terms of Service"
@@ -313,13 +313,13 @@ export default function LegalPage() {
         </article>
       </main>
 
-      <footer className="mx-auto flex max-w-205 flex-wrap justify-between gap-3 border-t border-[#1b2236] px-6 py-6 text-xs uppercase tracking-[0.14em] text-vigil-muted">
+      <footer className="mx-auto flex max-w-205 flex-wrap justify-between gap-3 border-t border-vigil-border-legal px-6 py-6 text-xs uppercase tracking-[0.14em] text-vigil-muted">
         <span>Vigil Observability · Secure Access</span>
         <nav className="flex gap-6">
-          <a href="#privacy" className="hover:text-blue-400">
+          <a href="#privacy" className="hover:text-vigil-state-info-text">
             Privacy Policy
           </a>
-          <a href="#terms" className="hover:text-blue-400">
+          <a href="#terms" className="hover:text-vigil-state-info-text">
             Terms of Service
           </a>
         </nav>

@@ -35,7 +35,7 @@ export default function TracesRow({
     <>
     <tr
       onClick={onSelect}
-      className={`border-b border-vigil-border hover:bg-[#0C1424] transition-colors duration-200 cursor-pointer relative after:absolute after:right-5 after:top-1/2 after:-translate-y-1/2 ${isSelected ? "after:content-['▴']" : "after:content-['▾']"} text-[12px] text-vigil-muted`}
+      className={`border-b border-vigil-border hover:bg-vigil-row-hover transition-colors duration-200 cursor-pointer relative after:absolute after:right-5 after:top-1/2 after:-translate-y-1/2 ${isSelected ? "after:content-['▴']" : "after:content-['▾']"} text-[12px] text-vigil-muted`}
     >
       <td
       //title shows the full date
@@ -54,7 +54,7 @@ export default function TracesRow({
       </td>
       <td className="text-[13px] py-1 md:py-3 px-2 md:px-3">
         <div className="flex items-center gap-2">
-          <div className="h-1 w-11 bg-[#0D1425]">
+          <div className="h-1 w-11 bg-vigil-panel">
             {/* duration of the bar yellow or red or green and duration width based on max duration then write duration of the trace  */}
             <div
               className={`h-full ${durationColor(trace.duration_ms)}`}
@@ -80,7 +80,7 @@ export default function TracesRow({
           type="button"
           title="Copy trace ID"
           onClick={copyTraceId}
-          className="me-2 cursor-pointer hover:text-vigil-blue transition-colors duration-200"
+          className="me-2 cursor-pointer hover:text-vigil-accent transition-colors duration-200"
         >
           {/* copy icon */}
           <FontAwesomeIcon icon={faCopy} />

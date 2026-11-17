@@ -32,7 +32,7 @@ export default function ServiceNameStep({
         placeholder="checkout-api"
         autoComplete="off"
         spellCheck={false}
-        className="w-full bg-vigil-card border border-vigil-border px-3 py-4 text-[15px] outline-none focus:border-[#2196f3]"
+        className="w-full bg-vigil-card border border-vigil-border px-3 py-4 text-[15px] outline-none focus:border-vigil-accent"
       />
       <p className="text-[13px] text-vigil-muted mt-2 leading-5">
         VIGIL uses the application service.name to identify and filter

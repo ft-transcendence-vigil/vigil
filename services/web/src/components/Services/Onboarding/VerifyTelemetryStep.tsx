@@ -28,7 +28,7 @@ function SignalStatus({ name, received }: SignalProps) {
     <div
       className={`border px-3 py-2 text-[12px] ${
         received
-          ? 'border-emerald-500/40 text-emerald-400'
+          ? 'border-vigil-state-verified/40 text-vigil-state-verified-text'
           : 'border-vigil-border text-vigil-muted'
       }`}
     >
@@ -64,7 +64,7 @@ export default function VerifyTelemetryStep({
       <div className="border border-vigil-border bg-vigil-card p-4">
         {missingToken ? (
           <>
-            <h3 className="text-[15px] font-semibold text-red-400">
+            <h3 className="text-[15px] font-semibold text-vigil-state-danger-text">
               Authentication unavailable
             </h3>
             <p className="mt-2 text-[13px] leading-5 text-vigil-muted">
@@ -74,7 +74,7 @@ export default function VerifyTelemetryStep({
           </>
         ) : hasAnyTelemetry ? (
           <>
-            <h3 className="text-[15px] font-semibold text-emerald-400">
+            <h3 className="text-[15px] font-semibold text-vigil-state-verified-text">
               Telemetry received from {serviceName}
             </h3>
             <p className="mt-2 text-[13px] leading-5 text-vigil-muted">
@@ -97,7 +97,7 @@ export default function VerifyTelemetryStep({
       </div>
       {hasStreamError && !hasAnyTelemetry && (
         <div className="mt-4">
-          <p className="mb-3 text-[13px] text-red-400">
+          <p className="mb-3 text-[13px] text-vigil-state-danger-text">
             One or more live telemetry streams could not connect. EventSource
             retries automatically, but you can also restart the check.
           </p>
@@ -113,19 +113,19 @@ export default function VerifyTelemetryStep({
           <div className="mt-5 grid gap-3 md:grid-cols-3">
             <Link
               to="/traces"
-              className="border border-vigil-border p-4 text-[13px] transition-colors hover:border-vigil-blue"
+              className="border border-vigil-border p-4 text-[13px] transition-colors hover:border-vigil-accent"
             >
               View traces →
             </Link>
             <Link
               to="/metrics"
-              className="border border-vigil-border p-4 text-[13px] transition-colors hover:border-vigil-blue"
+              className="border border-vigil-border p-4 text-[13px] transition-colors hover:border-vigil-accent"
             >
               View metrics →
             </Link>
             <Link
               to="/logs"
-              className="border border-vigil-border p-4 text-[13px] transition-colors hover:border-vigil-blue"
+              className="border border-vigil-border p-4 text-[13px] transition-colors hover:border-vigil-accent"
             >
               View logs →
             </Link>

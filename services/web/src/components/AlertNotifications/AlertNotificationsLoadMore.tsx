@@ -13,7 +13,7 @@ export default function AlertNotificationLoadMoreButton({
         type="button"
         disabled={isLoading}
         onClick={onClick}
-        className="cursor-pointer text-[.75rem] text-vigil-blue hover:underline disabled:cursor-default disabled:text-vigil-muted-extra"
+        className="cursor-pointer text-[.75rem] text-vigil-accent hover:underline disabled:cursor-default disabled:text-vigil-muted-extra"
       >
         {isLoading ? 'Loading...' : 'Load more'}
       </button>

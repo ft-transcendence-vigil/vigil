@@ -19,7 +19,7 @@ export default function ServicesPreviewCard({
       title="Filter alerts, logs and the chart by this service"
       aria-pressed={selected}
       onClick={onClick}
-      className={`flex flex-col col-span-12 sm:col-span-6 xl:col-span-4 border p-2 bg-[#0D1425] cursor-pointer hover:border-[#2195f369] transition-[border-color] duration-300 text-left ${selected ? 'border-vigil-blue' : 'border-vigil-border'}`}
+      className={`flex flex-col col-span-12 sm:col-span-6 xl:col-span-4 border p-2 bg-vigil-panel cursor-pointer hover:border-vigil-accent-border-hover transition-[border-color] duration-300 text-left ${selected ? 'border-vigil-accent' : 'border-vigil-border'}`}
     >
       <div className="flex justify-between items-center w-full gap-2">
         <p className="text-[13px] truncate" title={service.name}>

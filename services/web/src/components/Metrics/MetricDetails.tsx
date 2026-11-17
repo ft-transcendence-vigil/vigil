@@ -34,7 +34,7 @@ function isHidden(key: string) {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <p className="text-vigil-muted-extra text-[13px] break-all">
-      {label}: <span className="text-white ms-1 text-[14px]">{value}</span>
+      {label}: <span className="text-vigil-text ms-1 text-[14px]">{value}</span>
     </p>
   );
 }

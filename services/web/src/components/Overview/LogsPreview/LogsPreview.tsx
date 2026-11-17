@@ -9,8 +9,8 @@ const FILTERS: LogFilter[] = ['issues', 'all'];
 const chip =
   'border uppercase text-[10px] sm:text-[11px] tracking-wider h-6.5 sm:h-7.5 w-15 sm:w-17 cursor-pointer transition-[color, border-color] duration-300';
 const chipIdle =
-  'border-vigil-border text-vigil-muted hover:text-[#ffffffc2] hover:border-[#ffffff80]';
-const chipActive = 'border-vigil-blue text-vigil-blue';
+  'border-vigil-border text-vigil-muted hover:text-vigil-text-hover hover:border-vigil-border-hover';
+const chipActive = 'border-vigil-accent text-vigil-accent';
 
 interface Data {
   logs: Log[];
@@ -61,7 +61,7 @@ export default function LogsPreview({
       </div>
       <div className="overflow-y-auto scrollbar-vigil min-h-0 flex-1">
         {isLoading && <Empty>Loading logs...</Empty>}
-        {error && <Empty className="text-red-400">{error.message}</Empty>}
+        {error && <Empty className="text-vigil-state-danger-text">{error.message}</Empty>}
         {!isLoading && !error && logs.length === 0 && (
           <Empty>No matching logs in this range.</Empty>
         )}

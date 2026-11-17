@@ -16,14 +16,14 @@ export interface MetricGroup {
 export type ChartRow = Record<string, number | null>;
 
 const SERVICE_COLORS = [
-  '#2196F3',
-  '#00d68f',
-  '#f59e0b',
-  '#a855f7',
-  '#06b6d4',
-  '#ec4899',
-  '#84cc16',
-  '#6b7da8',
+  'var(--vigil-accent)',
+  'var(--vigil-success)',
+  'var(--vigil-warning)',
+  'var(--vigil-chart-purple)',
+  'var(--vigil-chart-cyan)',
+  'var(--vigil-chart-pink)',
+  'var(--vigil-chart-lime)',
+  'var(--vigil-muted)',
 ];
 //we store by metrics name all the services that have the same metric name so they would be in the same chart
 export function groupByName(series: MetricSeries[]): MetricGroup[] {

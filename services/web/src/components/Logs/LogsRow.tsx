@@ -30,7 +30,7 @@ export default function LogsRow({
   return (
     <>
       <tr
-        className={`border-b border-vigil-border hover:bg-[#0C1424] transition-colors duration-200 cursor-pointer relative after:absolute after:right-5 after:top-1/2 after:-translate-y-1/2 ${isOpen ? "after:content-['▴']" : "after:content-['▾']"} text-[12px] text-vigil-muted ${isLive ? 'animate-log-flash' : ''}`}
+        className={`border-b border-vigil-border hover:bg-vigil-row-hover transition-colors duration-200 cursor-pointer relative after:absolute after:right-5 after:top-1/2 after:-translate-y-1/2 ${isOpen ? "after:content-['▴']" : "after:content-['▾']"} text-[12px] text-vigil-muted ${isLive ? 'animate-log-flash' : ''}`}
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <td

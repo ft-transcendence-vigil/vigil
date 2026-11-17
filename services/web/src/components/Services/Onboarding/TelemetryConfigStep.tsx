@@ -68,7 +68,7 @@ export default function TelemetryConfigStep({
       description="Add these variables to the service runtime configuration and restart it. Treat the ingestion key as a secret."
     >
       <p className="text-[13px] text-vigil-muted mb-3">{profile.note}</p>
-      <div className="border border-vigil-border bg-[#070b14]">
+      <div className="border border-vigil-border bg-vigil-surface-code">
         <div className="flex justify-between items-center px-3 py-3 border-b border-vigil-border">
           <span className="text-[12px] text-vigil-muted uppercase">Bash</span>
           <Button
@@ -81,7 +81,7 @@ export default function TelemetryConfigStep({
           {config}
         </pre>
       </div>
-      <p className="text-[14px] text-amber-400 mt-4">
+      <p className="text-[14px] text-vigil-state-attention-text mt-4">
         Server-side only: never put the ingestion key in browser JavaScript.
       </p>
     </StepShell>

@@ -34,8 +34,8 @@ export default function SettingsLayout() {
                 before:duration-400
                 ${
                   isActive
-                    ? 'bg-[#2195f317] text-vigil-blue before:opacity-100 before:bg-vigil-blue'
-                    : 'text-vigil-muted hover:text-white hover:bg-vigil-blue-100 hover:before:opacity-100 hover:before:bg-white'
+                    ? 'bg-vigil-accent-selected text-vigil-accent before:opacity-100 before:bg-vigil-accent'
+                    : 'text-vigil-muted hover:text-vigil-text hover:bg-vigil-accent-soft hover:before:opacity-100 hover:before:bg-vigil-text'
                 }`
             }
           >

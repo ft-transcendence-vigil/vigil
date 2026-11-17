@@ -6,7 +6,7 @@ interface Props {
   error?: string;
 }
 
-const linkClass = 'text-blue-400 hover:underline';
+const linkClass = 'text-vigil-state-info-text hover:underline';
 
 export default function TermsCheckbox({ checked, onChange, error }: Props) {
   return (
@@ -14,7 +14,7 @@ export default function TermsCheckbox({ checked, onChange, error }: Props) {
       <label className="flex items-start gap-3 text-sm text-vigil-muted cursor-pointer">
         <input
           type="checkbox"
-          className="mt-1 accent-vigil-blue"
+          className="mt-1 accent-vigil-accent"
           checked={checked}
           onChange={onChange}
         />
@@ -39,7 +39,7 @@ export default function TermsCheckbox({ checked, onChange, error }: Props) {
           </Link>
         </span>
       </label>
-      {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+      {error && <p className="text-xs text-vigil-state-danger-text mt-2">{error}</p>}
     </div>
   );
 }

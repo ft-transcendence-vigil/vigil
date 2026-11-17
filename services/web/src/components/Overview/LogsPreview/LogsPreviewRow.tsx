@@ -3,7 +3,7 @@ import { OTHER_CLASS, SEVERITY_CLASS, formatLogTime } from '../overviewData';
 
 export default function LogsPreviewRow({ log }: { log: Log }) {
   return (
-    <div className="flex items-center border-b border-b-vigil-border px-3 sm:px-5 py-3 mono hover:bg-[rgba(99,179,237,.03)] transition-[background-color] duration-300">
+    <div className="flex items-center border-b border-b-vigil-border px-3 sm:px-5 py-3 mono hover:bg-vigil-preview-hover transition-[background-color] duration-300">
       <div
         className="shrink-0 text-[11px] me-4 text-vigil-muted-extra"
         title={new Date(log.timestamp).toLocaleString()}
