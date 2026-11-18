@@ -21,6 +21,10 @@ type Props = {
   profile: TelemetryProfile;
 };
 
+function shellQuote(value: string): string {
+  return "'" + value.replace(/'/g, "'\"'\"'") + "'";
+}
+
 export default function TelemetryConfigStep({
   stepNumber,
   totalSteps,
@@ -35,7 +39,7 @@ export default function TelemetryConfigStep({
   profile,
 }: Props) {
   const lines = [
-    `export OTEL_SERVICE_NAME="${serviceName}"`,
+    `export OTEL_SERVICE_NAME="${shellQuote(serviceName)}"`,
     `export OTEL_EXPORTER_OTLP_ENDPOINT="${address}/otlp"`,
     language === 'go' && setup === 'recommended'
       ? null
