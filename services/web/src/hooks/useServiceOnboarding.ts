@@ -181,7 +181,7 @@ export default function useServiceOnboarding(apiFetch: ApiFetch) {
       return 'No ingestion key is available.';
     }
 
-    if (step >= 8 && isLocalTls && !caPath.trim().startsWith('/')) {
+    if (step >= 5 && isLocalTls && !caPath.trim().startsWith('/')) {
       return 'Enter an absolute CA certificate path.';
     }
     return '';
