@@ -47,6 +47,7 @@ export default function useServiceOnboarding(apiFetch: ApiFetch) {
         setTlsMode('unknown');
         return;
       }
+      setAddress(result.address);
       setVerifiedAddress(result.address);
       setTlsMode(result.tls_mode);
     },
