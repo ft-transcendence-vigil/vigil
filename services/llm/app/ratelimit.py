@@ -48,10 +48,11 @@ class ConcurrencyLimiter:
     def __init__(self, max_concurrent: int, wait_seconds: float):
         self._semaphore = asyncio.Semaphore(max_concurrent)
         self.wait_seconds = wait_seconds
-
+# _semaphore.acquire() take the free place. If none is free, wait until one is asyncio.wait_for(..., timeout=0.5) wraps it with a time limit
     async def acquire(self) -> Slot | None:
         try:
             await asyncio.wait_for(self._semaphore.acquire(), timeout=self.wait_seconds)
         except TimeoutError:
             return None
+        #whoever takes the place must give it back later
         return Slot(self._semaphore)

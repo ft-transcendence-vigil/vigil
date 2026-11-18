@@ -42,12 +42,14 @@ Question: write a poem about the sea
 Answer: I can only answer questions about this alert.
 Question: give me a cake recipe
 Answer: I can only answer questions about this alert."""
-
+#_rule_line translates the alert rule from JSON fields into one English sentence so the model knows what fired the alert.
 def _rule_line(rule: AlertRule | None) -> str:
     if rule is None:
         return "rule: unknown"
     if rule.threshold is None:
         return "rule: the service went silent (no telemetry before the timeout)"
+     # how many values in the window become one number: avg, max, min, sum, count, latest, p95
+     #threshold = the limit the value reached
     what = rule.aggregation or "value"
     if rule.metric_name:
         what = f"{what}({rule.metric_name})"
