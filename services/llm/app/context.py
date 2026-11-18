@@ -1,7 +1,7 @@
 from datetime import datetime
 from app.config import settings
 from app.schemas import AlertsContext, LogRow, MetricsRow, TracesRow
-
+#turn thousends of metrics logs and traces into one compacted str with the most useful ones
 SEVERITY_LEVELS = {
     "critical" :0,
     "fatal" : 0,
@@ -37,7 +37,7 @@ def select_logs(logs: list[LogRow], alert_time: datetime) -> list[LogRow]:
     keep = rank[: settings.max_context_logs]
     #we sort by creticallity first then we sort by timing because we want chrononical order of the errors 
     return sorted(keep, key= lambda row: row.timestamp)
-
+#errors first, then slowest
 def select_traces(traces: list[TracesRow]) -> list[TracesRow]:
     rank = sorted(
         traces,
@@ -67,14 +67,13 @@ def select_metrics(Metrics: list[MetricsRow], alert_time: datetime) -> list[Metr
     best: dict[str, MetricsRow] = {}
     for row in Metrics :
         current = best.get(row.name)
-        #if distance in time is closer so row is the latest fire so we store it 
+        # keep the point closest to the alert time (before or after) for each metric name
         if current is None or _distance(current.timestamp, alert_time) > _distance(row.timestamp, alert_time):
             best[row.name] = row
     rank = sorted (
         best.values(),
         key= lambda row: (_distance(row.timestamp, alert_time)),
     )
-    #!!!!! important for now sorted by timestamp still need to know what the alert guy will give me
     return rank[: settings.max_context_metrics]
 
 def final_str(context: AlertsContext, alert_time: datetime) -> str:
@@ -83,7 +82,7 @@ def final_str(context: AlertsContext, alert_time: datetime) -> str:
     metrics = select_metrics(context.metrics, alert_time)
     if not (logs or traces or metrics):
         return f"Alert happened at {alert_time:%H:%M:%S}\n\nNo telemetry was recorded in this window."
-
+#the first \n ends the last row the second makes the blank line
     return "\n\n".join([
         f"Alert happened at {alert_time:%H:%M:%S}", 
         "LOGS\n" + "\n".join(f"{r.timestamp:%H:%M:%S} severity: {r.severity} message: {cut_message(r.message)}" for r in logs),

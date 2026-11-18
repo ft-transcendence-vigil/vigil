@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID
-
+#java sends JSON text FastAPI parses it into a dict pydantic checks and converts the dict into these class, and only if that works does the endpoint code run.
 #basemodel is a class we inhernt from for validation we dont use constructor and we specify the fields that we are filling in the class
 
 class TelemetryRow(BaseModel):

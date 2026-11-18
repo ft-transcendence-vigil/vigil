@@ -3,7 +3,7 @@ import httpx
 import time
 from app.config import settings
 from collections.abc import AsyncIterator
-
+#talk to Ollama over HTTP. Send the messages, receive the answer piece by piece, and hand each piece (token) to the caller as soon as it arrives. If anything goes wrong, raise one error type.
 class OllamaException(Exception):
     pass
 
@@ -24,7 +24,7 @@ async def stream_chat(messages: list[dict[str]]) -> AsyncIterator[str]:
         "stream": True,
         "options": _Options(),
     }
-# 1. open a TCP connection to the server        <- connect
+# 1. open a TCP connection to the server  5seconds value for timeout      <- connect
 # 2. send your request body                     <- write
 # 3. wait for response data to arrive           <- read
 # 4. (before all that) wait for a free slot     <- pool
@@ -37,6 +37,7 @@ async def stream_chat(messages: list[dict[str]]) -> AsyncIterator[str]:
         pool= 5.0,
 
     )
+
     deadline = time.monotonic() + settings.llm_timeout_seconds
 #     you call client.stream(...)
 #   ↓  request sent
@@ -67,6 +68,7 @@ async def stream_chat(messages: list[dict[str]]) -> AsyncIterator[str]:
                     )
                 #aiter_lines is an async iterator that yields each line of the response body as it arrives, without waiting for the entire body to be received.
                 async for line in response.aiter_lines():
+                    #monotonic time as it goes keeps updating
                     if time.monotonic() > deadline:
                         raise OllamaException(f"generation took longer than {settings.llm_timeout_seconds}s")
                     if not line.strip():
@@ -90,7 +92,7 @@ async def stream_chat(messages: list[dict[str]]) -> AsyncIterator[str]:
         ) from exc
     except httpx.RequestError as exc:
         raise OllamaException(f"cannot reach ollama at {settings.ollama_host}") from exc
-    
+#we send a hi at start up to avoid waiting later
 async def warmUp() -> None:
 
     payload={
