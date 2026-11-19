@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by mboutahir, jhamdaou, TODO_reda_login, TODO_elamrani_login, TODO_ismail_login.*
+*This project has been created as part of the 42 curriculum by mboutahi, mdaghouj, moel-amr, isel-mou, jhamdaou.*
 
 # Vigil
 
@@ -111,10 +111,10 @@ Data is kept in Docker volumes. `docker compose down -v` deletes all data **and*
 
 | Member | Login | Role(s) | Responsibilities |
 |---|---|---|---|
-| Mohammed Boutahir | mboutahir | Project Manager, Developer | Organizes meetings and planning, tracks progress and deadlines, keeps the team in sync and handles blockers. LLM microservice (Python, FastAPI, Ollama): prompts, context selection, streaming, error handling, rate limiting. Traces and Metrics pages in the frontend. |
-| Mohamed Reda Daghouj | TODO | Developer | Frontend (`services/web`): application structure, Overview dashboard, Logs and Alerts pages, design system, PWA, legal pages. |
-| Mohamed El Amrani | TODO | Technical Lead / Architect, Developer | Defines the architecture and technology choices, reviews critical changes and keeps code quality consistent. Backend API (`services/api`): authentication, users and roles, alert rules and evaluation, WebSocket and SSE, telemetry endpoints, LLM client. |
-| Ismail El Moufid | TODO | Product Owner, Developer | Defines the product vision, maintains and prioritizes the backlog, validates finished work and presents the product to evaluators. Infrastructure: Docker Compose, Caddy and TLS control, telemetry collector and its custom exporter, mock sender, full-stack tests. |
+| Mohammed Boutahir | mboutahi | Project Manager, Developer | Organizes meetings and planning, tracks progress and deadlines, keeps the team in sync and handles blockers. LLM microservice (Python, FastAPI, Ollama): prompts, context selection, streaming, error handling, rate limiting. Traces and Metrics pages in the frontend. |
+| Mohamed Reda Daghouj | mdaghouj | Developer | Frontend (`services/web`): application structure, Overview dashboard, Logs and Alerts pages, design system, PWA, legal pages. |
+| Mohamed El Amrani | moel-amr | Technical Lead / Architect, Developer | Defines the architecture and technology choices, reviews critical changes and keeps code quality consistent. Backend API (`services/api`): authentication, users and roles, alert rules and evaluation, WebSocket and SSE, telemetry endpoints, LLM client. |
+| Ismail El Moufid | isel-mou | Product Owner, Developer | Defines the product vision, maintains and prioritizes the backlog, validates finished work and presents the product to evaluators. Infrastructure: Docker Compose, Caddy and TLS control, telemetry collector and its custom exporter, mock sender, full-stack tests. |
 | Jihad Hamdaoui | jhamdaou | Developer | Cybersecurity: WAF (nginx + ModSecurity + OWASP CRS) and HashiCorp Vault secret management. |
 
 Required roles: **Product Owner:** Ismail El Moufid. **Project Manager / Scrum Master:** Mohammed Boutahir. **Technical Lead / Architect:** Mohamed El Amrani. All five members are **Developers**: they write, test, review and document their own features.
@@ -320,7 +320,7 @@ Total claimed: **21 points** (14 required, the rest counts as bonus).
 
 ## Individual Contributions
 
-### Mohammed Boutahir (mboutahir): Project Manager, Developer
+### Mohammed Boutahir (mboutahi): Project Manager, Developer
 - **As Project Manager:** organized team meetings and planning, tracked progress and deadlines, coordinated integration between services, and followed up on blockers.
 - **What he built:**
   - The whole LLM service in `services/llm`: configuration, request schemas shared with the API, context selection (most severe and closest logs, error and slowest traces, nearest metric points), the prompts for alert analysis and Ask AI, the streaming Ollama client, SSE responses, and the rate and concurrency limiters.
@@ -330,16 +330,16 @@ Total claimed: **21 points** (14 required, the rest counts as bonus).
   - Returning a real 503 instead of an empty 200 when the model is down: the service reads the first token before starting the response.
   - Keeping the whole answer within the API's 30-second timeout on a CPU.
 
-### Mohamed Reda Daghouj: Developer
+### Mohamed Reda Daghouj (mdaghouj): Developer
 - **What he built:** most of the frontend: the application structure and routing, auth and setup pages, the Overview dashboard and PDF report, the Logs and Alerts pages, the alert drawer and notification bell, the settings pages, the design system, the PWA, the legal pages, and testing in Firefox and Safari.
 - **Challenges:** TODO (for example keeping live charts smooth while data streams in, and one shared color system across all pages).
 
-### Mohamed El Amrani: Technical Lead / Architect, Developer
+### Mohamed El Amrani (moel-amr): Technical Lead / Architect, Developer
 - **As Technical Lead:** defined the service architecture and the contracts between services, made the backend technology choices, and reviewed critical changes.
 - **What he built:** the Spring Boot API: authentication with JWT and refresh tokens, sessions, users and roles, alert rules and their evaluation in ClickHouse, silence detection, alert history with acknowledgment, WebSocket and SSE, webhooks, telemetry query endpoints, and the client that calls the LLM service and re-streams its answers.
 - **Challenges:** TODO (for example two users acknowledging the same alert at once, solved with optimistic locking, and re-streaming the LLM's SSE to the browser).
 
-### Ismail El Moufid: Product Owner, Developer
+### Ismail El Moufid (isel-mou): Product Owner, Developer
 - **As Product Owner:** defined the product vision, prioritized features, and validated finished work.
 - **What he built:**
   - The Docker Compose deployment.
