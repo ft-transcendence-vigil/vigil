@@ -99,7 +99,6 @@ public class AlertsService {
     public AlertRulesPostDtoResponse rulesPostService(AlertRulesPostRequestDto alertRulesPostRequestDto) {
         CheckAlertParsingRules.validateTheMetrics(alertRulesPostRequestDto.getSignalType(), alertRulesPostRequestDto.getMetricName(), alertRulesPostRequestDto.getAggregation());
         AlertRules alertRules = alertRulesPostRequestMapper.map(alertRulesPostRequestDto);
-        alertRules.setDefault(false);
         alertRuleRepository.save(alertRules);
         return alertRulesPostResponseMapper.map(alertRules);
     }
@@ -169,11 +168,6 @@ public class AlertsService {
         AlertRules alertRules = alertRuleRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException("No alert rule with id: " + id));
 
-        if (alertRules.isDefault() && (dto.getService() != null || dto.getMetricName() != null
-                || dto.getAggregation() != null || dto.getWindowSeconds() != null
-                || dto.getThreshold() != null || dto.getSeverity() != null)) {
-            throw new ForbiddenException("only enabled can be changed on a default rule");
-        }
 
         if (dto.getMetricName() != null || dto.getAggregation() != null) {
             String finalMetricName = alertRules.getMetricName();
@@ -205,8 +199,6 @@ public class AlertsService {
 
     public void alertRulesDeleteService(UUID id) {
         AlertRules alertRules = alertRuleRepository.findById(id).orElseThrow(() -> new ResourcesNotFoundException("Invalid alert rule with id: " + id));
-        if (alertRules.isDefault())
-            throw new ForbiddenException("cannot delete a default rule");
         alertRuleRepository.deleteById(id);
     }
 

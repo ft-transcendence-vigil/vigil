@@ -535,7 +535,7 @@ class Stack:
                 "enabled": True}
         created, _ = self.http.request("/api/alerts/rules", "POST", rule, expected=201)
         self.rule_id = created["id"]
-        require(created["is_default"] is False and created["metric_name"] == rule["metric_name"], "created rule DTO")
+        require("is_default" not in created and created["metric_name"] == rule["metric_name"], "created rule DTO")
         n = time.time_ns() // 1000000 * 1000000
         resource = {"attributes": [{"key": "service.name", "value": {"stringValue": "fixture-service"}}]}
         trace_id, span_id = "00000000000000000000000000000001", "0000000000000001"
@@ -565,7 +565,8 @@ class Stack:
             require(row["attributes"]["service.name"] == "fixture-service" and
                     row["attributes"].get("vigil.notification_id"), kind + " collector metadata")
             if kind == "logs":
-                require(row["severity"] == "error" and row["trace_id"] == trace_id and
+                require(row["severity"] == "error" and "trace_id" not in row and
+                        row["attributes"]["trace_id"] == trace_id and
                         row["message"] == "Synthetic fixture request failed", "log normalization")
             elif kind == "traces":
                 require(row["trace_id"] == trace_id and row["span_id"] == span_id and row["status"] == "error"
