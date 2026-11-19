@@ -3,12 +3,14 @@ import { useAuth } from '../../../auth/authContext';
 import Logo from '../../shared/Logo';
 import SidebarSection from './SidebarSection';
 import { dashboardNavigation as sidebarSections } from './dashboardNavigation';
+import type { AlertsStreamStatus } from '../../../hooks/useAlertsWebSocket';
 
 interface Data {
-  isConnected: boolean;
+  status: AlertsStreamStatus;
+  onRetry: () => void;
 }
 
-export default function Sidebar({ isConnected }: Data) {
+export default function Sidebar({ status, onRetry }: Data) {
   const { user } = useAuth();
 
   return (
@@ -35,21 +37,30 @@ export default function Sidebar({ isConnected }: Data) {
             {user?.role}
           </h6>
         </div>
-        <p
-          className={`ws-stream mt-1 text-[10px] md:text-[11px] tracking-wider ${
-            isConnected ? 'text-vigil-success' : 'text-vigil-state-danger'
-          }`}
-        >
-          <span
-            className={`dot me-1 inline-block h-1.5 w-1.5 rounded ${
-              isConnected ? 'bg-vigil-success' : 'bg-vigil-state-danger'
-            }`}
-          />
-
-          {isConnected
-            ? 'Alerts stream connected'
-            : 'Alerts stream disconnected'}
-        </p>
+        <div className="ws-stream mt-1 flex items-center gap-2 text-[10px] md:text-[11px]">
+          <p
+            className={
+              {
+                connecting: 'text-vigil-muted',
+                connected: 'text-vigil-success',
+                disconnected: 'text-vigil-state-danger',
+              }[status]
+            }
+          >
+            <span className="me-1 inline-block h-1.5 w-1.5 rounded bg-current" />
+            Alerts stream {status}
+            {status === 'connecting' ? '…' : ''}
+          </p>
+          {status === 'disconnected' && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="underline cursor-pointer"
+            >
+              Retry
+            </button>
+          )}
+        </div>
         <Link
           to="/legal"
           target="_blank"

@@ -85,7 +85,7 @@ function DashboardContent() {
     }
   };
 
-  const { isConnected } = useAlertsWebSocket({
+  const { status, retry } = useAlertsWebSocket({
     onAlert: (alert) => {
       emitAlert(alert);
     },
@@ -135,9 +135,10 @@ function DashboardContent() {
 
   return (
     <div className="dashboard-layout flex h-dvh overflow-hidden">
-      <DesktopSidebar isConnected={isConnected} />
+      <DesktopSidebar status={status} onRetry={retry} />
       <MobileSidebar
-        isConnected={isConnected}
+        status={status}
+        onRetry={retry}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
@@ -150,7 +151,10 @@ function DashboardContent() {
           id="dashboard-scroll-container"
           className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-5"
         >
-          <ErrorBoundary FallbackComponent={CrashPage} resetKeys={[location.pathname]}>
+          <ErrorBoundary
+            FallbackComponent={CrashPage}
+            resetKeys={[location.pathname]}
+          >
             <Outlet />
           </ErrorBoundary>
         </div>
