@@ -123,8 +123,8 @@ Required roles: **Product Owner:** Ismail El Moufid. **Project Manager / Scrum M
 
 - **Work split:** the project was divided by service: frontend, backend API, LLM service, ingestion and infrastructure, security. Each member owns a service and its interface with the others. The interfaces (for example the JSON contract between the API and the LLM service) were agreed first so members could work in parallel.
 - **Git workflow:** one branch per feature or fix (`feat/...`, `fix/...`, `docs/...`), merged into `develop` through GitHub pull requests reviewed by another member. Commit messages follow the Conventional Commits style (`feat(llm): ...`, `fix(waf): ...`).
-- **Meetings:** a weekly meeting to review progress, update the Trello board, plan the next week's tasks and resolve blockers.
-- **Task tracking:** Trello. Tasks moved through To do, In progress, Review and Done columns, each card had an owner, and the board was reviewed at every meeting.
+- **Meetings:** a weekly meeting to review progress, update the task list, plan the next week's tasks and resolve blockers.
+- **Task tracking:** Discord, in a dedicated tasks channel. Each task was posted with its owner, its status moved through To do, In progress, Review and Done, and the list was reviewed at every meeting.
 - **Communication:** Discord, with a team server for daily messages, quick calls when integrating two services, and sharing pull request links for review.
 
 ## Technical Stack
@@ -221,7 +221,7 @@ Two restricted ClickHouse accounts enforce least privilege: `vigil_writer` (the 
 
 ## Modules
 
-Total claimed: **20 points** (14 required, the rest counts as bonus).
+Total claimed: **21 points** (14 required, the rest counts as bonus).
 
 | # | Module | Type | Pts | Member(s) |
 |---|---|---|---|---|
@@ -237,7 +237,8 @@ Total claimed: **20 points** (14 required, the rest counts as bonus).
 | 10 | DevOps: backend as microservices | Major | 2 | Ismail, El Amrani, Mohammed |
 | 11 | Data and Analytics: advanced analytics dashboard | Major | 2 | Reda, El Amrani |
 | 12 | Module of choice: custom telemetry ingestion pipeline | Major | 2 | Ismail |
-| | **Total** | | **20** | |
+| 13 | Web: support for additional browsers | Minor | 1 | Reda |
+| | **Total** | | **21** | |
 
 ### 1. Frameworks for frontend and backend (Major)
 - **Why:** a frontend framework and a backend framework give us routing, state, security and validation without reinventing them.
@@ -309,6 +310,14 @@ Total claimed: **20 points** (14 required, the rest counts as bonus).
 - **Value to the project:** zero-code onboarding for any OpenTelemetry-instrumented service, near-instant alerting, and no duplicate alerts.
 - **Why it deserves Major status:** it is a separate service written in a different language that extends a large external framework through its plugin API. It has its own tests (`*_test.go`, plus an integration test with a mock backend), and the whole alerting pipeline depends on it.
 
+### 13. Support for additional browsers (Minor)
+- **Why:** an on-call engineer opens the dashboard in whatever browser they already use.
+- **How:** besides Chrome, every feature was tested in Firefox and Safari: login and setup, the onboarding wizard, the Overview, Logs, Metrics and Traces pages, CSV and PDF export, live alerts over WebSocket, the notification bell, AI analysis and Ask AI streaming, and the settings pages. The UI and layout are the same in all three.
+- **Browser-specific limitations:**
+  - **Firefox** keeps its own certificate store. If it still warns about the certificate after the CA is trusted by the system, import `vigil-ca.crt` in Settings > Privacy & Security > Certificates > View Certificates > Authorities.
+  - **Firefox** on desktop doesn't offer to install Vigil as an app, so the PWA install is only available in Chrome, Edge and Safari. Everything else works the same.
+  - **Safari** uses the macOS keychain, so trusting the CA as shown in the Instructions is enough.
+
 ## Individual Contributions
 
 ### Mohammed Boutahir (mboutahir): Project Manager, Developer
@@ -322,7 +331,7 @@ Total claimed: **20 points** (14 required, the rest counts as bonus).
   - Keeping the whole answer within the API's 30-second timeout on a CPU.
 
 ### Mohamed Reda Daghouj: Developer
-- **What he built:** most of the frontend: the application structure and routing, auth and setup pages, the Overview dashboard and PDF report, the Logs and Alerts pages, the alert drawer and notification bell, the settings pages, the design system, the PWA and the legal pages.
+- **What he built:** most of the frontend: the application structure and routing, auth and setup pages, the Overview dashboard and PDF report, the Logs and Alerts pages, the alert drawer and notification bell, the settings pages, the design system, the PWA, the legal pages, and testing in Firefox and Safari.
 - **Challenges:** TODO (for example keeping live charts smooth while data streams in, and one shared color system across all pages).
 
 ### Mohamed El Amrani: Technical Lead / Architect, Developer
