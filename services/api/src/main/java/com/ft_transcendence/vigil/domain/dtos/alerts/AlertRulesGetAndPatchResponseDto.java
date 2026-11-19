@@ -20,7 +20,4 @@ public class AlertRulesGetAndPatchResponseDto {
     private Double threshold;
     private Severity severity;
     private boolean enabled;
-
-    @JsonProperty("is_default")
-    private boolean isDefault;
 }

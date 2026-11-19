@@ -26,7 +26,7 @@ public class TelemetryService {
 	private static final Set<String> PERIODS = Set.of("1h", "24h", "7d", "30d");
 
 	private static final Set<String> LOG_SORT_FIELDS =
-			Set.of("timestamp", "service", "severity", "message", "trace_id");
+			Set.of("timestamp", "service", "severity", "message");
 
 	private static final Set<String> TRACE_SORT_FIELDS = Set.of(
 			"timestamp", "trace_id", "span_id", "parent_span_id",

@@ -15,9 +15,7 @@ import java.util.function.Consumer;
 public class LogRepository {
 
     private static final String SELECT = """
-            SELECT service, timestamp,
-                   if(attributes['trace_id'] != '', attributes['trace_id'], attributes['otelTraceID']) AS trace_id,
-                   severity, message, attributes
+            SELECT service, timestamp, severity, message, attributes
             FROM logs
             """;
 
@@ -87,7 +85,6 @@ public class LogRepository {
         return new Log(
                 result.getString("service"),
                 result.getTimestamp("timestamp").toInstant(),
-                result.getString("trace_id"),
                 result.getString("severity"),
                 result.getString("message"),
                 ClickHouseQuery.attributes(result));
@@ -99,7 +96,6 @@ public class LogRepository {
             case "service" -> "service";
             case "severity" -> "severity";
             case "message" -> "message";
-            case "trace_id" -> "trace_id";
             default -> throw new IllegalArgumentException("unknown sort field");
         };
     }
