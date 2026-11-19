@@ -21,6 +21,7 @@ export default function useMetrics({ period, service }: Params) {
   const metricsQuery = useInfiniteQuery({
     //the cache name: every input that changes the request is in it, so a change means a new fetch
     queryKey: ['metrics', period, service],
+     staleTime: 60_000,
     //how do we want to return a page
     //Receives pageParam: undefined for the first page a timestamp for the next ones.
     //React Query then saves that page under the queryKey, and passes it to getNextPageParam to get the bookmark for the next one.
