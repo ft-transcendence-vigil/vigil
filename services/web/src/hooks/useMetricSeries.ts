@@ -22,6 +22,7 @@ export default function useMetricSeries({ period, service, live }: Params) {
     //cache name: a new period or service gives a new key so it fetches again automatically
     //live is not in the key because it doesnt change which data we want, only how often we refresh it
     queryKey: ['metric-series', period, service],
+    staleTime: 60_000,
     //func that gets us the data we specify in it how to fetch: no pageParam because there are no pages. empty service becomes undefined so its left out of the url
     queryFn: () =>
       getMetricSeries(apiFetch, { period, service: service || undefined }),
