@@ -21,17 +21,21 @@ async def lifespan(app: FastAPI):
     yield
 
 #router isnt an endpoint so we need to include the routes here
-app = FastAPI(title="Virgil llm service", version="0.1.0", lifespan=lifespan)
+#lifespan=lifespan tells FastAPI to run lifespan function at startup
+app = FastAPI(title="Vigil llm service", version="0.1.0", lifespan=lifespan)
+#copy the endpoint we have in router into app
 app.include_router(llm_router)
 
 
-#needs more attention!!!
+# fastapi answers bad requests with 422 and a big {"detail": [...]} list by default
+# we replace it with 400 {"message": "..."} so the whole project uses one error format (java reads "message")
 @app.exception_handler(RequestValidationError)
 async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
     first = exc.errors()[0]
     if first["type"] == "json_invalid":
         message = "invalid JSON body"
     else:
+        #loc has all details we cut the first one "body" and we join everying by a point
         field = ".".join(str(part) for part in first["loc"][1:]) or "request"
         message = f"invalid {field}: {first['msg']}"
     return JSONResponse(status_code=400, content={"message": message})
