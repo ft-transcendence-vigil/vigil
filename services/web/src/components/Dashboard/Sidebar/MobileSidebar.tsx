@@ -1,12 +1,19 @@
+import type { AlertsStreamStatus } from '../../../hooks/useAlertsWebSocket';
 import Sidebar from './Sidebar';
 
 interface Data {
   isOpen: boolean;
   onClose: () => void;
-  isConnected: boolean
+  status: AlertsStreamStatus;
+  onRetry: () => void;
 }
 
-export default function MobileSidebar({ isOpen, onClose, isConnected }: Data) {
+export default function MobileSidebar({
+  isOpen,
+  onClose,
+  status,
+  onRetry,
+}: Data) {
   return (
     <>
       <button
@@ -18,7 +25,7 @@ export default function MobileSidebar({ isOpen, onClose, isConnected }: Data) {
       <aside
         className={`fixed z-50 inset-y-0 left-0 h-screen transition-transform duration-300 lg:hidden ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <Sidebar isConnected={isConnected}/>
+        <Sidebar status={status} onRetry={onRetry} />
       </aside>
     </>
   );

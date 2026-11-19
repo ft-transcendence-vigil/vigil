@@ -67,7 +67,7 @@ export default function SecureConnectionStep({
         <Button
           value={verified && isBuiltin ? 'using localhost' : 'use localhost'}
           onClick={onUseLocalhost}
-          disabled={verified && isBuiltin}
+          disabled={isVerifyingAddress || (verified && isBuiltin)}
           className={`${buttonAnimation} whitespace-nowrap`}
         />
       </div>
@@ -80,6 +80,7 @@ export default function SecureConnectionStep({
         </span>
         <input
           value={hostValue}
+          disabled={isVerifyingAddress}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             onAddressChange(e.target.value)
           }
