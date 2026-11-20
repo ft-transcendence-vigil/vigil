@@ -17,7 +17,8 @@ flowchart TD
     subgraph Application[Compose default network]
         Caddy[reverse-proxy / Caddy] -->|Static files and SPA routes| Frontend[Frontend / served inside Caddy]
         Caddy -->|/api/* / HTTP, WebSocket, SSE| WAF[waf / Nginx + ModSecurity + CRS]
-        Caddy -->|/otlp/* / prefix stripped| Collector[telemetry-collector / port 4318]
+        Caddy -->|/otlp/*| WAF
+        WAF -->|Permitted OTLP / prefix stripped / port 4318| Collector[telemetry-collector]
         WAF -->|Permitted requests / port 8080| API[api / Spring Boot]
         Collector -->|Telemetry writes / vigil_writer| Clickhouse[clickhouse]
         Collector -->|Internal alert callback / port 8081| API
@@ -35,7 +36,7 @@ flowchart TD
     API -->|Outbound alert delivery| Webhooks[Configured webhook destinations]
 ```
 
-Caddy is the only published ingress. Frontend assets are built into its image, not served by a separate frontend container. API traffic passes through WAF; OTLP bypasses WAF and is authenticated by the collector. The optional mock sender runs on the host network and uses the same HTTPS ingress as real producers. The callback URL must target `http://api:8081/internal/alerts/trigger-evaluation`. Solid arrows show runtime requests or data access; dashed arrows show one-shot provisioning.
+Caddy is the only published ingress. Frontend assets are built into its image, not served by a separate frontend container. API and OTLP traffic pass through the WAF. Nginx strips the `/otlp` prefix before proxying to the collector, which authenticates requests using a bearer token. The optional mock sender runs on the host network and uses the same HTTPS ingress as real producers. The callback URL must target `http://api:8081/internal/alerts/trigger-evaluation`. Solid arrows show runtime requests or data access; dashed arrows show one-shot provisioning.
 
 **Secret management:**
 

@@ -65,7 +65,9 @@ class HTTP:
         if auth and self.token:
             headers.setdefault("Authorization", "Bearer " + self.token)
         data = None
-        if body is not None:
+        if isinstance(body, bytes):
+            data = body
+        elif body is not None:
             data = json.dumps(body).encode()
             headers["Content-Type"] = "application/json"
         req = urllib.request.Request(self.origin + path, data=data, headers=headers, method=method)
@@ -530,6 +532,11 @@ class Stack:
         time.sleep(2)
 
     def ingest(self):
+        # An empty Protobuf export is valid and leaves the fixture row counts unchanged.
+        self.http.request("/otlp/v1/logs", "POST", b"", auth=False, headers={
+            "Content-Type": "application/x-protobuf",
+            "Authorization": "Bearer " + self.values["VIGIL_INGESTION_KEY"],
+        })
         rule = {"signal_type": "metrics", "metric_name": "fixture.requests", "aggregation": "latest",
                 "window_seconds": 60, "threshold": 1, "service": "fixture-service", "severity": "warning",
                 "enabled": True}
