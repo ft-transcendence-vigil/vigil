@@ -1,0 +1,322 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1006" height="1257" viewBox="0 0 1006 1257" role="img" aria-labelledby="t d">
+<title id="t">Vigil PostgreSQL schema</title>
+<desc id="d">UML class diagram of the PostgreSQL tables, their columns with types, and the associations between them.</desc>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<path d="M 434.0 112.0 L 594.0 112.0" fill="none" stroke="#334155" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="442.0" y="105.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">1</text>
+<text x="586.0" y="105.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="end">0..*</text>
+<text x="481.1" y="130.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" font-style="italic" fill="#334155" text-anchor="start">receives</text>
+<polygon points="539.9,122.0 546.2,125.5 539.9,129.0" fill="#334155"/>
+<path d="M 434.0 162.0 L 492.0 162.0 L 492.0 336.0 L 594.0 336.0" fill="none" stroke="#334155" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="442.0" y="155.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">0..1</text>
+<text x="586.0" y="329.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="end">0..*</text>
+<text x="502.0" y="231.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" font-style="italic" fill="#334155" text-anchor="start">acknowledges</text>
+<polygon points="587.6,223.0 593.9,226.5 587.6,230.0" fill="#334155"/>
+<path d="M 275.0 184.0 L 275.0 270.0" fill="none" stroke="#334155" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="283.0" y="200.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">1</text>
+<text x="283.0" y="262.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">0..*</text>
+<text x="263.0" y="231.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" font-style="italic" fill="#334155" text-anchor="end">opens</text>
+<polygon points="264.5,226.5 271.5,226.5 268.0,232.8" fill="#334155"/>
+<path d="M 275.0 460.0 L 275.0 546.0" fill="none" stroke="#334155" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="283.0" y="476.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">1</text>
+<text x="283.0" y="538.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">0..*</text>
+<text x="263.0" y="507.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" font-style="italic" fill="#334155" text-anchor="end">issues</text>
+<polygon points="264.5,502.5 271.5,502.5 268.0,508.8" fill="#334155"/>
+<path d="M 116.0 112.0 L 66.0 112.0 L 66.0 622.0 L 116.0 622.0" fill="none" stroke="#334155" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="108.0" y="105.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="end">1</text>
+<text x="108.0" y="615.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="end">0..*</text>
+<text x="50.0" y="371.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" font-style="italic" fill="#334155" text-anchor="end">owns</text>
+<polygon points="51.5,366.5 58.5,366.5 55.0,372.8" fill="#334155"/>
+<path d="M 782.0 184.0 L 782.0 270.0" fill="none" stroke="#334155" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="790.0" y="200.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">0..*</text>
+<text x="790.0" y="262.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">1</text>
+<text x="770.0" y="231.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" font-style="italic" fill="#334155" text-anchor="end">is about</text>
+<polygon points="771.5,226.5 778.5,226.5 775.0,232.8" fill="#334155"/>
+<path d="M 782.0 712.0 L 782.0 798.0" fill="none" stroke="#334155" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="790.0" y="728.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">0..*</text>
+<text x="790.0" y="790.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">0..1</text>
+<text x="770.0" y="759.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" font-style="italic" fill="#334155" text-anchor="end">triggers</text>
+<polygon points="771.5,760.8 778.5,760.8 775.0,754.5" fill="#334155"/>
+<rect x="116" y="36" width="318" height="148" fill="#FFFFFF"/>
+<rect x="116" y="36" width="318" height="46" fill="#E8EEF7"/>
+<text x="275.0" y="53.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«table»</text>
+<text x="275.0" y="72.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">users</text>
+<line x1="116" y1="82" x2="434" y2="82" stroke="#1E293B" stroke-width="1.2"/>
+<rect x="130.0" y="94.0" width="22" height="15" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="0.9"/>
+<text x="141.0" y="105.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#92400E" text-anchor="middle">PK</text>
+<text x="160.0" y="106.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">id</text>
+<text x="269.8" y="106.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="284.0" y="106.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<text x="160.0" y="127.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">email</text>
+<text x="269.8" y="127.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="284.0" y="127.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="348.8" y="127.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">{unique}</text>
+<text x="160.0" y="148.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">password_hash</text>
+<text x="269.8" y="148.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="284.0" y="148.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="160.0" y="169.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">role</text>
+<text x="269.8" y="169.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="284.0" y="169.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#6D28D9" text-anchor="start">Role</text>
+<rect x="116" y="36" width="318" height="148" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+<rect x="116" y="270" width="318" height="190" fill="#FFFFFF"/>
+<rect x="116" y="270" width="318" height="46" fill="#E8EEF7"/>
+<text x="275.0" y="287.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«table»</text>
+<text x="275.0" y="306.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">sessions</text>
+<line x1="116" y1="316" x2="434" y2="316" stroke="#1E293B" stroke-width="1.2"/>
+<rect x="130.0" y="328.0" width="22" height="15" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="0.9"/>
+<text x="141.0" y="339.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#92400E" text-anchor="middle">PK</text>
+<text x="160.0" y="340.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">id</text>
+<text x="261.9" y="340.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="276.1" y="340.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<rect x="130.0" y="349.0" width="22" height="15" rx="3" fill="#E0F2FE" stroke="#0284C7" stroke-width="0.9"/>
+<text x="141.0" y="360.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#075985" text-anchor="middle">FK</text>
+<text x="160.0" y="361.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">user_id</text>
+<text x="261.9" y="361.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="276.1" y="361.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<text x="160.0" y="382.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">user_agent</text>
+<text x="261.9" y="382.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="276.1" y="382.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="372.5" y="382.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="160.0" y="403.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">ip_address</text>
+<text x="261.9" y="403.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="276.1" y="403.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="372.5" y="403.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="160.0" y="424.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">last_used_at</text>
+<text x="261.9" y="424.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="276.1" y="424.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">timestamptz</text>
+<text x="160.0" y="445.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">revoked</text>
+<text x="261.9" y="445.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="276.1" y="445.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">boolean</text>
+<rect x="116" y="270" width="318" height="190" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+<rect x="116" y="546" width="318" height="232" fill="#FFFFFF"/>
+<rect x="116" y="546" width="318" height="46" fill="#E8EEF7"/>
+<text x="275.0" y="563.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«table»</text>
+<text x="275.0" y="582.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">refresh_tokens</text>
+<line x1="116" y1="592" x2="434" y2="592" stroke="#1E293B" stroke-width="1.2"/>
+<rect x="130.0" y="604.0" width="22" height="15" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="0.9"/>
+<text x="141.0" y="615.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#92400E" text-anchor="middle">PK</text>
+<text x="160.0" y="616.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">id</text>
+<text x="246.1" y="616.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="260.3" y="616.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<rect x="130.0" y="625.0" width="22" height="15" rx="3" fill="#E0F2FE" stroke="#0284C7" stroke-width="0.9"/>
+<text x="141.0" y="636.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#075985" text-anchor="middle">FK</text>
+<text x="160.0" y="637.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">user_id</text>
+<text x="246.1" y="637.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="260.3" y="637.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<rect x="130.0" y="646.0" width="22" height="15" rx="3" fill="#E0F2FE" stroke="#0284C7" stroke-width="0.9"/>
+<text x="141.0" y="657.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#075985" text-anchor="middle">FK</text>
+<text x="160.0" y="658.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">session_id</text>
+<text x="246.1" y="658.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="260.3" y="658.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<text x="160.0" y="679.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">token_hash</text>
+<text x="246.1" y="679.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="260.3" y="679.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="356.7" y="679.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">{unique}</text>
+<text x="160.0" y="700.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">issued_at</text>
+<text x="246.1" y="700.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="260.3" y="700.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">timestamptz</text>
+<text x="160.0" y="721.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">expires_at</text>
+<text x="246.1" y="721.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="260.3" y="721.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">timestamptz</text>
+<text x="160.0" y="742.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">superseded</text>
+<text x="246.1" y="742.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="260.3" y="742.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">boolean</text>
+<text x="160.0" y="763.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">revoked</text>
+<text x="246.1" y="763.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="260.3" y="763.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">boolean</text>
+<rect x="116" y="546" width="318" height="232" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+<rect x="594" y="36" width="376" height="148" fill="#FFFFFF"/>
+<rect x="594" y="36" width="376" height="46" fill="#E8EEF7"/>
+<text x="782.0" y="53.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«table»</text>
+<text x="782.0" y="72.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">alert_notification</text>
+<line x1="594" y1="82" x2="970" y2="82" stroke="#1E293B" stroke-width="1.2"/>
+<rect x="608.0" y="94.0" width="22" height="15" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="0.9"/>
+<text x="619.0" y="105.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#92400E" text-anchor="middle">PK</text>
+<rect x="634.0" y="94.0" width="22" height="15" rx="3" fill="#E0F2FE" stroke="#0284C7" stroke-width="0.9"/>
+<text x="645.0" y="105.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#075985" text-anchor="middle">FK</text>
+<text x="664.0" y="106.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">user_id</text>
+<text x="797.5" y="106.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="811.7" y="106.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<rect x="608.0" y="115.0" width="22" height="15" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="0.9"/>
+<text x="619.0" y="126.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#92400E" text-anchor="middle">PK</text>
+<rect x="634.0" y="115.0" width="22" height="15" rx="3" fill="#E0F2FE" stroke="#0284C7" stroke-width="0.9"/>
+<text x="645.0" y="126.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#075985" text-anchor="middle">FK</text>
+<text x="664.0" y="127.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">alert_history_id</text>
+<text x="797.5" y="127.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="811.7" y="127.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<text x="664.0" y="148.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">seen</text>
+<text x="797.5" y="148.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="811.7" y="148.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">boolean</text>
+<text x="908.1" y="148.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="664.0" y="169.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">seen_at</text>
+<text x="797.5" y="169.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="811.7" y="169.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">timestamptz</text>
+<text x="908.1" y="169.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<rect x="594" y="36" width="376" height="148" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+<rect x="594" y="270" width="376" height="442" fill="#FFFFFF"/>
+<rect x="594" y="270" width="376" height="46" fill="#E8EEF7"/>
+<text x="782.0" y="287.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«table»</text>
+<text x="782.0" y="306.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">alert_history</text>
+<line x1="594" y1="316" x2="970" y2="316" stroke="#1E293B" stroke-width="1.2"/>
+<rect x="608.0" y="328.0" width="22" height="15" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="0.9"/>
+<text x="619.0" y="339.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#92400E" text-anchor="middle">PK</text>
+<text x="638.0" y="340.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">id</text>
+<text x="755.7" y="340.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="340.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<rect x="608.0" y="349.0" width="22" height="15" rx="3" fill="#E0F2FE" stroke="#0284C7" stroke-width="0.9"/>
+<text x="619.0" y="360.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#075985" text-anchor="middle">FK</text>
+<text x="638.0" y="361.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">rule_id</text>
+<text x="755.7" y="361.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="361.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<text x="905.8" y="361.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<rect x="608.0" y="370.0" width="22" height="15" rx="3" fill="#E0F2FE" stroke="#0284C7" stroke-width="0.9"/>
+<text x="619.0" y="381.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#075985" text-anchor="middle">FK</text>
+<text x="638.0" y="382.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">user_id</text>
+<text x="755.7" y="382.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="382.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<text x="905.8" y="382.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="638.0" y="403.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">version</text>
+<text x="755.7" y="403.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="403.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">bigint</text>
+<text x="638.0" y="424.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">service</text>
+<text x="755.7" y="424.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="424.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="638.0" y="445.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">triggered_at</text>
+<text x="755.7" y="445.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="445.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">timestamptz</text>
+<text x="638.0" y="466.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">signal_type</text>
+<text x="755.7" y="466.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="466.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#6D28D9" text-anchor="start">SignalType</text>
+<text x="905.8" y="466.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="638.0" y="487.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">metric_name</text>
+<text x="755.7" y="487.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="487.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="638.0" y="508.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">aggregation</text>
+<text x="755.7" y="508.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="508.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="905.8" y="508.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="638.0" y="529.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">window_seconds</text>
+<text x="755.7" y="529.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="529.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">integer</text>
+<text x="905.8" y="529.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="638.0" y="550.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">threshold</text>
+<text x="755.7" y="550.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="550.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">double precision</text>
+<text x="905.8" y="550.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="638.0" y="571.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">severity</text>
+<text x="755.7" y="571.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="571.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#6D28D9" text-anchor="start">Severity</text>
+<text x="638.0" y="592.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">status</text>
+<text x="755.7" y="592.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="592.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#6D28D9" text-anchor="start">Status</text>
+<text x="638.0" y="613.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">llm_analysis</text>
+<text x="755.7" y="613.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="613.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">text</text>
+<text x="905.8" y="613.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="638.0" y="634.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">acked_at</text>
+<text x="755.7" y="634.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="634.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">timestamptz</text>
+<text x="905.8" y="634.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="638.0" y="655.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">acked_by</text>
+<text x="755.7" y="655.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="655.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="905.8" y="655.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="638.0" y="676.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">resolved_at</text>
+<text x="755.7" y="676.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="676.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">timestamptz</text>
+<text x="905.8" y="676.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="638.0" y="697.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">resolved_by</text>
+<text x="755.7" y="697.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="697.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="905.8" y="697.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<rect x="594" y="270" width="376" height="442" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+<rect x="594" y="798" width="376" height="253" fill="#FFFFFF"/>
+<rect x="594" y="798" width="376" height="46" fill="#E8EEF7"/>
+<text x="782.0" y="815.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«table»</text>
+<text x="782.0" y="834.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">alert_rules</text>
+<line x1="594" y1="844" x2="970" y2="844" stroke="#1E293B" stroke-width="1.2"/>
+<rect x="608.0" y="856.0" width="22" height="15" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="0.9"/>
+<text x="619.0" y="867.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#92400E" text-anchor="middle">PK</text>
+<text x="638.0" y="868.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">id</text>
+<text x="755.7" y="868.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="868.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<text x="638.0" y="889.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">service</text>
+<text x="755.7" y="889.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="889.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="638.0" y="910.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">signal_type</text>
+<text x="755.7" y="910.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="910.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#6D28D9" text-anchor="start">SignalType</text>
+<text x="638.0" y="931.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">metric_name</text>
+<text x="755.7" y="931.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="931.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="638.0" y="952.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">aggregation</text>
+<text x="755.7" y="952.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="952.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="905.8" y="952.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">[0..1]</text>
+<text x="638.0" y="973.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">window_seconds</text>
+<text x="755.7" y="973.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="973.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">integer</text>
+<text x="638.0" y="994.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">threshold</text>
+<text x="755.7" y="994.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="994.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">double precision</text>
+<text x="638.0" y="1015.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">severity</text>
+<text x="755.7" y="1015.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="1015.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#6D28D9" text-anchor="start">Severity</text>
+<text x="638.0" y="1036.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">enabled</text>
+<text x="755.7" y="1036.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="769.9" y="1036.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">boolean</text>
+<rect x="594" y="798" width="376" height="253" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+<rect x="594" y="1115" width="376" height="106" fill="#FFFFFF"/>
+<rect x="594" y="1115" width="376" height="46" fill="#E8EEF7"/>
+<text x="782.0" y="1132.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«table»</text>
+<text x="782.0" y="1151.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">webhooks</text>
+<line x1="594" y1="1161" x2="970" y2="1161" stroke="#1E293B" stroke-width="1.2"/>
+<rect x="608.0" y="1173.0" width="22" height="15" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="0.9"/>
+<text x="619.0" y="1184.1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="9.5" font-weight="bold" font-style="normal" fill="#92400E" text-anchor="middle">PK</text>
+<text x="638.0" y="1185.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="start">id</text>
+<text x="668.8" y="1185.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="683.0" y="1185.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">uuid</text>
+<text x="638.0" y="1206.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">url</text>
+<text x="668.8" y="1206.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#94A3B8" text-anchor="start">:</text>
+<text x="683.0" y="1206.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#1D4ED8" text-anchor="start">varchar</text>
+<text x="747.8" y="1206.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="12" font-weight="normal" font-style="normal" fill="#64748B" text-anchor="start">{unique}</text>
+<rect x="594" y="1115" width="376" height="106" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+<path d="M 116 864 L 116 842 L 234 842 L 234 864" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.2"/>
+<rect x="116" y="864" width="318" height="302" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.2"/>
+<text x="126.0" y="857.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" font-style="normal" fill="#475569" text-anchor="start">enumerations</text>
+<rect x="132" y="880" width="135.0" height="106" fill="#FFFFFF"/>
+<rect x="132" y="880" width="135.0" height="46" fill="#EDE9FE"/>
+<text x="199.5" y="897.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«enumeration»</text>
+<text x="199.5" y="916.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">Role</text>
+<line x1="132" y1="926" x2="267.0" y2="926" stroke="#1E293B" stroke-width="1.2"/>
+<text x="146.0" y="950.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">ADMIN</text>
+<text x="146.0" y="971.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">VIEWER</text>
+<rect x="132" y="880" width="135.0" height="106" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+<rect x="283.0" y="880" width="135.0" height="127" fill="#FFFFFF"/>
+<rect x="283.0" y="880" width="135.0" height="46" fill="#EDE9FE"/>
+<text x="350.5" y="897.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«enumeration»</text>
+<text x="350.5" y="916.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">SignalType</text>
+<line x1="283.0" y1="926" x2="418.0" y2="926" stroke="#1E293B" stroke-width="1.2"/>
+<text x="297.0" y="950.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">logs</text>
+<text x="297.0" y="971.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">metrics</text>
+<text x="297.0" y="992.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">traces</text>
+<rect x="283.0" y="880" width="135.0" height="127" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+<rect x="132" y="1023" width="135.0" height="127" fill="#FFFFFF"/>
+<rect x="132" y="1023" width="135.0" height="46" fill="#EDE9FE"/>
+<text x="199.5" y="1040.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«enumeration»</text>
+<text x="199.5" y="1059.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">Severity</text>
+<line x1="132" y1="1069" x2="267.0" y2="1069" stroke="#1E293B" stroke-width="1.2"/>
+<text x="146.0" y="1093.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">info</text>
+<text x="146.0" y="1114.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">warning</text>
+<text x="146.0" y="1135.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">critical</text>
+<rect x="132" y="1023" width="135.0" height="127" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+<rect x="283.0" y="1023" width="135.0" height="127" fill="#FFFFFF"/>
+<rect x="283.0" y="1023" width="135.0" height="46" fill="#EDE9FE"/>
+<text x="350.5" y="1040.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" font-style="italic" fill="#475569" text-anchor="middle">«enumeration»</text>
+<text x="350.5" y="1059.0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="bold" font-style="normal" fill="#0F172A" text-anchor="middle">Status</text>
+<line x1="283.0" y1="1069" x2="418.0" y2="1069" stroke="#1E293B" stroke-width="1.2"/>
+<text x="297.0" y="1093.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">sent</text>
+<text x="297.0" y="1114.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">acknowledged</text>
+<text x="297.0" y="1135.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace" font-size="13" font-weight="normal" font-style="normal" fill="#0F172A" text-anchor="start">resolved</text>
+<rect x="283.0" y="1023" width="135.0" height="127" fill="none" stroke="#1E293B" stroke-width="1.5"/>
+</svg>

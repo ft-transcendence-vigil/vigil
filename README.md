@@ -21,7 +21,7 @@ The goal is a small, private alternative to tools like Grafana or Datadog: one `
 - **Webhooks** to forward alerts to other tools.
 - **Security:** HTTPS everywhere, a hardened WAF (ModSecurity + OWASP CRS) in front of the API, all secrets in HashiCorp Vault.
 - **Installable PWA** with an offline page.
-- **Privacy Policy and Terms of Service** at `/legal`, linked from the login page, the setup page and the sidebar.
+- **Privacy Policy and Terms of Service** at `/privacy` and `/terms`, linked from the login page, the setup page and the sidebar.
 
 ## Instructions
 
@@ -152,33 +152,23 @@ Required roles: **Product Owner:** Ismail El Moufid. **Project Manager / Scrum M
 
 ### PostgreSQL (managed by JPA/Hibernate)
 
-```
-users ─────────┬──────────────< sessions ──────< refresh_tokens
- (id, email,   │                (id, user_id,     (id, user_id, session_id,
-  password_hash│                 user_agent,       token_hash, issued_at,
-  role)        │                 ip_address,       expires_at, superseded,
-               │                 last_used_at,     revoked)
-               │                 revoked)
-               │
-               ├──────────────< alert_notification >──────────── alert_history
-               │                 (user_id, alert_history_id,       (id, rule_id → alert_rules, user_id,
-               │                  seen, seen_at)                     service, triggered_at, signal_type,
-               │                 composite primary key               metric_name, aggregation, window_seconds,
-               │                                                     threshold, severity, llm_analysis,
-               └──────────────────────────────────────────────<      status, acked_at/by, resolved_at/by,
-                                                                     version)
-alert_rules                                                         webhooks
- (id, service, signal_type, metric_name, aggregation,               (id, url unique)
-  window_seconds, threshold, severity, enabled, is_default)
-```
+![UML class diagram of the PostgreSQL schema](docs/postgres-schema.svg)
+
+Each class is a table, and each attribute is a column with its PostgreSQL type. `[0..1]` marks a nullable column, and every other column is NOT NULL. The lines are the foreign keys, with the multiplicity at each end. Enumerations are stored as `varchar` with a CHECK constraint.
+
+- `alert_notification` has a composite primary key (`user_id`, `alert_history_id`): one row per user per alert, holding that user's read state.
+- `alert_history.user_id` is the user who acknowledged the alert. Only that user can resolve it.
+- `alert_history.rule_id` is null for silence alerts, which don't come from a rule.
+- `alert_history.version` is the optimistic lock, so two users can't acknowledge the same alert at once.
+- `webhooks` has no relations.
 
 | Table | Key fields and types | Relations |
 |---|---|---|
 | `users` | `id` UUID PK, `email` varchar unique, `password_hash` varchar (BCrypt), `role` enum `ADMIN`/`VIEWER` | has many sessions, refresh tokens, notifications |
 | `sessions` | `id` UUID PK, `user_agent`, `ip_address`, `last_used_at` timestamptz, `revoked` boolean | many-to-one `users` |
 | `refresh_tokens` | `id` UUID PK, `token_hash` unique, `issued_at`, `expires_at` timestamptz, `superseded`, `revoked` boolean | many-to-one `users`, many-to-one `sessions` |
-| `alert_rules` | `id` UUID PK, `service`, `signal_type` enum, `metric_name`, `aggregation`, `window_seconds` int, `threshold` double, `severity` enum, `enabled`, `is_default` boolean | has many `alert_history` |
-| `alert_history` | `id` UUID PK, `version` bigint (optimistic lock), `service`, `triggered_at` timestamptz, `metric_name`, `threshold` double (null for silence alerts), `severity`, `llm_analysis` text, `status` enum `sent`/`acknowledged`/`resolved`, `acked_at`/`acked_by`, `resolved_at`/`resolved_by` | many-to-one `alert_rules` (null for silence alerts), many-to-one `users` |
+| `alert_rules` | `id` UUID PK, `service`, `signal_type` enum, `metric_name`, `aggregation`, `window_seconds` int, `threshold` double, `severity` enum, `enabled` boolean | has many `alert_history` |
+| `alert_history` | `id` UUID PK, `version` bigint (optimistic lock), `service`, `triggered_at` timestamptz, `metric_name`, `threshold` double (null for silence alerts), `severity`, `llm_analysis` text, `status` enum `sent`/`acknowledged`/`resolved`, `acked_at`/`acked_by`, `resolved_at`/`resolved_by` | many-to-one `alert_rules` (null for silence alerts), many-to-one `users` (the user who acknowledged it) |
 | `alert_notification` | PK (`user_id`, `alert_history_id`), `seen` boolean, `seen_at` timestamptz | many-to-one `users`, many-to-one `alert_history`: the per-user read state of each alert |
 | `webhooks` | `id` UUID PK, `url` unique | none |
 
