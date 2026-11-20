@@ -21,7 +21,7 @@ export default function TermsCheckbox({ checked, onChange, error }: Props) {
         <span>
           I agree to the{' '}
           <Link
-            to="/legal#terms"
+            to="/terms"
             target="_blank"
             rel="noopener noreferrer"
             className={linkClass}
@@ -30,7 +30,7 @@ export default function TermsCheckbox({ checked, onChange, error }: Props) {
           </Link>
           {' and '}
           <Link
-            to="/legal#privacy"
+            to="/privacy"
             target="_blank"
             rel="noopener noreferrer"
             className={linkClass}

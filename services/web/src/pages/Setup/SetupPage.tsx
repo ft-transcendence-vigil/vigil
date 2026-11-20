@@ -28,7 +28,7 @@ export default function SetupPage() {
             </div>
             <div className="footer-text">
               <Link
-                to="/legal#terms"
+                to="/terms"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline hover:text-vigil-accent"
@@ -36,7 +36,7 @@ export default function SetupPage() {
                 Terms of Service
               </Link>
               <Link
-                to="/legal#privacy"
+                to="/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline hover:text-vigil-accent ms-10"
