@@ -13,16 +13,13 @@
 			respond 404
 		}
 
-		handle /api/* {
+		@waf path /api/* /otlp/*
+		handle @waf {
 			reverse_proxy waf:8080 {
 				# Caddy is the public trust boundary; never accept a client-chosen IP.
 				header_up X-Forwarded-For {remote_host}
 				header_up -Forwarded
 			}
-		}
-
-		handle_path /otlp/* {
-			reverse_proxy telemetry-collector:4318
 		}
 
 		handle {
