@@ -2,7 +2,7 @@
 
 ## 1. Ingress and Application Services
 
-The WAF protects the API route within the wider application and telemetry pipeline:
+The WAF protects the public API and OTLP ingestion routes.
 
 ```mermaid
 flowchart TD
@@ -10,7 +10,8 @@ flowchart TD
     Producers[Instrumented services and optional mock sender] -->|HTTPS OTLP| Caddy
     Caddy -->|SPA routes| Frontend[Frontend assets inside Caddy]
     Caddy -->|/api/*| WAF[waf / Nginx + ModSecurity + CRS]
-    Caddy -->|/otlp/* / strip prefix| Collector[telemetry-collector / port 4318]
+    Caddy -->|/otlp/*| WAF
+    WAF -->|OTLP / prefix stripped / port 4318| Collector[telemetry-collector]
     WAF -->|HTTP, WebSocket, SSE / port 8080| API[api / Spring Boot]
     Collector -->|Telemetry writes| Clickhouse[clickhouse / telemetry storage]
     Collector -->|Alert evaluation callback / port 8081| API
@@ -21,7 +22,7 @@ flowchart TD
     API -->|Alert notifications| Webhooks[External webhook destinations]
 ```
 
-Caddy remains the only public HTTPS entry point. The WAF inspects `/api/*` traffic before forwarding permitted requests to the API; WebSocket and SSE traffic use the same protected path. Frontend assets are served directly by Caddy, while OTLP is forwarded separately to the bearer-authenticated collector. The frontend is not a separate runtime container.
+Caddy remains the only public HTTPS entry point and serves the frontend assets directly. The WAF inspects requests to `/api/*` and `/otlp/*`. WebSocket and SSE use the API path. For OTLP, Nginx removes the `/otlp` prefix and forwards permitted requests to the collector, which validates the bearer token.
 
 The collector writes telemetry as `vigil_writer`, while API telemetry queries use `vigil_api`. Its callback must be configured as `http://api:8081/internal/alerts/trigger-evaluation`; Caddy blocks `/internal` paths, and API port 8081 is not published. The API also calls the internal LLM service, which delegates inference to Ollama, and delivers notifications to configured external webhooks.
 
