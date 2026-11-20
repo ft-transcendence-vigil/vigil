@@ -53,7 +53,6 @@ export default function useAlertRuleForm({
   const { apiFetch } = useAuth();
   const queryClient = useQueryClient();
   const isEdit = mode === 'edit';
-  const isDefault = mode === 'edit' && rule.is_default;
   const [service, setService] = useState(isEdit ? rule.service : '');
   const [serviceError, setServiceError] = useState('');
   const [signalType, setSignalType] = useState<SignalType>(
@@ -85,7 +84,7 @@ export default function useAlertRuleForm({
     isLoading: isLoadingTelemetryAttributes,
     isError: isTelemetryAttributesError,
     error: telemetryAttributesError,
-  } = useTelemetryAttributes(signalType === 'metrics' && !isDefault);
+  } = useTelemetryAttributes(signalType === 'metrics');
 
   const telemetryMetricOptions = telemetryAttributes.map(
     (attribute) => attribute.key,
@@ -142,7 +141,6 @@ export default function useAlertRuleForm({
   const isFormSubmitting = addMutation.isPending || updateMutation.isPending;
 
   const handleServiceChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (isDefault) return;
     setService(e.target.value);
     setServiceError('');
     setFormError('');
@@ -163,34 +161,29 @@ export default function useAlertRuleForm({
   const handleMetricNameChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    if (isDefault) return;
     setMetricName(e.target.value);
     setMetricNameError('');
     setFormError('');
   };
 
   const handleAggregationChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (isDefault) return;
     setAggregation(e.target.value as Aggregation);
     setFormError('');
   };
 
   const handleWindowSecondsChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (isDefault) return;
     setWindowSeconds(e.target.value);
     setWindowSecondsError('');
     setFormError('');
   };
 
   const handleThresholdChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (isDefault) return;
     setThreshold(e.target.value);
     setThresholdError('');
     setFormError('');
   };
 
   const handleSeverityChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (isDefault) return;
     setSeverity(e.target.value as Severity);
     setFormError('');
   };
@@ -208,10 +201,6 @@ export default function useAlertRuleForm({
     setWindowSecondsError('');
     setThresholdError('');
     setFormError('');
-
-    if (isDefault) {
-      return true;
-    }
 
     if (service.trim().length === 0) {
       setServiceError('Service is required');
@@ -298,30 +287,28 @@ export default function useAlertRuleForm({
       changes.enabled = enabled;
     }
 
-    if (!rule.is_default) {
-      if (service.trim() !== rule.service) {
-        changes.service = service.trim();
-      }
+    if (service.trim() !== rule.service) {
+      changes.service = service.trim();
+    }
 
-      if (metricName.trim() !== rule.metric_name) {
-        changes.metric_name = metricName.trim();
-      }
+    if (metricName.trim() !== rule.metric_name) {
+      changes.metric_name = metricName.trim();
+    }
 
-      if (rule.signal_type === 'metrics' && aggregation !== rule.aggregation) {
-        changes.aggregation = aggregation;
-      }
+    if (rule.signal_type === 'metrics' && aggregation !== rule.aggregation) {
+      changes.aggregation = aggregation;
+    }
 
-      if (Number(windowSeconds) !== rule.window_seconds) {
-        changes.window_seconds = Number(windowSeconds);
-      }
+    if (Number(windowSeconds) !== rule.window_seconds) {
+      changes.window_seconds = Number(windowSeconds);
+    }
 
-      if (Number(threshold) !== rule.threshold) {
-        changes.threshold = Number(threshold);
-      }
+    if (Number(threshold) !== rule.threshold) {
+      changes.threshold = Number(threshold);
+    }
 
-      if (severity !== rule.severity) {
-        changes.severity = severity;
-      }
+    if (severity !== rule.severity) {
+      changes.severity = severity;
     }
 
     if (Object.keys(changes).length === 0) {
@@ -335,7 +322,6 @@ export default function useAlertRuleForm({
   return {
     formError,
     isFormSubmitting,
-    isDefault,
     metricOptions,
     isLoadingTelemetryAttributes,
     isTelemetryAttributesError,

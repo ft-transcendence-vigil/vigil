@@ -65,7 +65,6 @@ export default function AlertsRulesPage() {
   });
 
   const handleDelete = (rule: AlertRules) => {
-    if (rule.is_default) return;
     setAlertRuleToDelete(rule.id);
   };
 
@@ -88,21 +87,20 @@ export default function AlertsRulesPage() {
               <th className="py-2 md:py-4 px-2 md:px-3">Threshold</th>
               <th className="py-2 md:py-4 px-2 md:px-3">Severity</th>
               <th className="py-2 md:py-4 px-2 md:px-3">Enabled</th>
-              <th className="py-2 md:py-4 px-2 md:px-3">Default</th>
               <th className="py-2 md:py-4 px-2 md:px-3">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-vigil-card">
             {alertRulesQuery.isLoading && (
               <tr>
-                <td colSpan={10} className="py-6 text-center text-vigil-muted">
+                <td colSpan={9} className="py-6 text-center text-vigil-muted">
                   Loading…
                 </td>
               </tr>
             )}
             {alertRulesQuery.isError && (
               <tr>
-                <td colSpan={10} className="py-6 text-center text-vigil-state-danger-text">
+                <td colSpan={9} className="py-6 text-center text-vigil-state-danger-text">
                   {errorMessage(alertRulesQuery.error)}
                 </td>
               </tr>
@@ -112,7 +110,7 @@ export default function AlertsRulesPage() {
               rules.length === 0 && (
                 <tr>
                   <td
-                    colSpan={10}
+                    colSpan={9}
                     className="py-6 text-center text-vigil-muted"
                   >
                     No alert rules.
@@ -131,7 +129,7 @@ export default function AlertsRulesPage() {
               />
             ))}
             <tr>
-              <td colSpan={10}>
+              <td colSpan={9}>
                 <div className="flex justify-between items-center p-3">
                   <span className="text-vigil-muted text-[15px]">
                     {`Showing ${rules.length} results`}

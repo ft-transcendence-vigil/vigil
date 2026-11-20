@@ -50,11 +50,6 @@ export default function AlertModal(props: Data) {
           </button>
         </div>
         <div className="px-6 py-5 flex-1">
-          {form.isDefault && (
-            <p className="mb-3.5 text-[13px] text-vigil-muted-extra">
-              Default rule: only “Enabled” can be changed.
-            </p>
-          )}
           <FormInput
             mb="mb-3.5"
             title="Service"
@@ -81,10 +76,9 @@ export default function AlertModal(props: Data) {
             onChange={form.handleMetricNameChange}
             value={form.metricName}
             disabled={
-              form.isDefault ||
-              (form.signalType === 'metrics' &&
-                (form.isLoadingTelemetryAttributes ||
-                  form.metricOptions.length === 0))
+              form.signalType === 'metrics' &&
+              (form.isLoadingTelemetryAttributes ||
+                form.metricOptions.length === 0)
             }
           />
           {form.metricNameError && (
@@ -170,7 +164,9 @@ export default function AlertModal(props: Data) {
             </span>
           </div>
           {form.formError && (
-            <p className="mt-3 text-sm text-vigil-state-danger-text">{form.formError}</p>
+            <p className="mt-3 text-sm text-vigil-state-danger-text">
+              {form.formError}
+            </p>
           )}
         </div>
         <div className="border-t border-t-vigil-border px-6 py-3.5 text-right space-x-3">
