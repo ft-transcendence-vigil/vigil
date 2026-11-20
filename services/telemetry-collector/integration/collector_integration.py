@@ -1,3 +1,4 @@
+# Exercise OTLP authentication, ClickHouse writes, and callbacks for all three signals.
 import base64
 import json
 import time
@@ -5,6 +6,7 @@ import urllib.error
 import urllib.request
 
 
+# Send a JSON POST when data is supplied, or a GET for a read-only probe.
 def request(url, data=None, headers=None):
     body = None if data is None else json.dumps(data).encode()
     req = urllib.request.Request(
@@ -16,6 +18,7 @@ def request(url, data=None, headers=None):
     with urllib.request.urlopen(req, timeout=5) as response:
         return response.status, response.read().decode().strip()
 
+# Verify the receiver rejects submissions that omit the ingestion bearer token.
 try:
     request(
         "http://collector:4318/v1/logs",
@@ -31,6 +34,7 @@ headers = {
     "Content-Type": "application/json",
 }
 timestamp = "1893456000000000000"
+# Give each signal one record with the same service name and event timestamp.
 payloads = {
     "logs": {
         "resourceLogs": [
@@ -124,6 +128,7 @@ for signal, payload in payloads.items():
         ) from error
     assert status == 200, (signal, status)
 
+# Allow time for Collector batching before requiring one visible row in each table.
 basic = base64.b64encode(b"vigil_writer:integration-writer-password").decode()
 for table in ("logs", "metrics", "traces"):
     query = (
@@ -142,6 +147,7 @@ for table in ("logs", "metrics", "traces"):
     else:
         raise AssertionError(f"missing {table} row")
 
+# The mock counts only requests that passed its callback contract checks.
 count = ""
 for _ in range(30):
     _, count = request("http://backend:8081/count")

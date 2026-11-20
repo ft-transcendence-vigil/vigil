@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// TestConfig_Validate changes one field at a time and checks shared and endpoint-specific URL rules.
 func TestConfig_Validate(tester *testing.T) {
 
 	baselineValidConfig := Config{
@@ -284,6 +285,7 @@ func TestConfig_Validate(tester *testing.T) {
 
 }
 
+// TestCreateDefaultConfigDedup checks the default window, overrides, and fresh config instances.
 func TestCreateDefaultConfigDedup(tester *testing.T) {
 
 	config := createDefaultConfig().(*Config)

@@ -9,6 +9,7 @@ import (
 	collexporter "go.opentelemetry.io/collector/exporter"
 )
 
+// TestExporterSources checks the real clock and UUID generator and their replaceable test hooks.
 func TestExporterSources(tester *testing.T) {
 
 	config := &Config{

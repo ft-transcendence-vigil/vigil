@@ -1,9 +1,11 @@
+# Default image configuration. The main Compose stack selects a Vault-rendered config.
 extensions:
   bearertokenauth:
     scheme: Bearer
     token: ${env:VIGIL_INGESTION_KEY}
 
 receivers:
+  # Accept all three OTLP signals over HTTP using the configured bearer token.
   otlp:
     protocols:
       http:
@@ -12,6 +14,7 @@ receivers:
           authenticator: bearertokenauth
 
 processors:
+  # Each pipeline limits memory before buffering telemetry for export.
   memory_limiter:
     check_interval: 1s
     limit_mib: ${env:COLLECTOR_MEMORY_LIMIT_MIB}
@@ -22,6 +25,7 @@ processors:
     send_batch_max_size: 5000
 
 exporters:
+  # Use the ClickHouse writer account and notify the backend after rows become visible.
   vigilclickhouse:
     clickhouse_endpoint: ${env:CLICKHOUSE_ENDPOINT}
     clickhouse_database: ${env:CLICKHOUSE_DATABASE}
@@ -33,6 +37,7 @@ exporters:
 
 service:
   extensions: [bearertokenauth]
+  # Each signal follows the same component order through a separate pipeline.
   pipelines:
     logs:
       receivers: [otlp]

@@ -27,6 +27,7 @@ const deliveryID = "00000000-0000-4000-8000-000000000001"
 
 var eventTime = time.Date(2026, 10, 4, 12, 0, 0, 0, time.UTC)
 
+// fakeDeliveryStorage records insert and visibility calls in order and injects independent failures.
 type fakeDeliveryStorage struct {
 
 	events					[]string
@@ -88,6 +89,7 @@ type deliveryInput struct {
 
 }
 
+// signalInput supplies equivalent valid, empty, and invalid fixtures through each public consumer.
 func signalInput(signal string) deliveryInput {
 
 	var result deliveryInput
@@ -214,6 +216,7 @@ func signalInput(signal string) deliveryInput {
 	return result
 
 }
+// deliveryExporter uses fake storage, a local callback server, and controlled time and IDs.
 func deliveryExporter(tester *testing.T, handler http.HandlerFunc) (*Exporter, *fakeDeliveryStorage) {
 
 	tester.Helper()
@@ -237,6 +240,7 @@ func deliveryExporter(tester *testing.T, handler http.HandlerFunc) (*Exporter, *
 	return exporter, storage
 
 }
+// TestDeliverySignals checks insert and callback order, metadata, duplicate handling, and input ownership.
 func TestDeliverySignals(tester *testing.T) {
 
 	for _, signal := range []string{"logs", "metrics", "traces"} {
@@ -363,6 +367,8 @@ func TestDeliverySignals(tester *testing.T) {
 
 }
 
+// TestDeliveryFailuresAndRecovery distinguishes pre-insert failures from visibility failures
+// that can be resumed by a retry.
 func TestDeliveryFailuresAndRecovery(tester *testing.T) {
 
 	for _, signal := range []string{"logs", "metrics", "traces"} {
@@ -448,6 +454,7 @@ func TestDeliveryFailuresAndRecovery(tester *testing.T) {
 
 }
 
+// TestSerializedByteBoundary measures the exact stamped JSON size before deduplication.
 func TestSerializedByteBoundary(tester *testing.T) {
 
 	exporter, storage := deliveryExporter(tester, func(responseWriter http.ResponseWriter, request *http.Request) {
@@ -491,6 +498,7 @@ func TestSerializedByteBoundary(tester *testing.T) {
 
 }
 
+// TestPendingAndBusyDelivery checks the retryable error for a reserved key or a busy exporter.
 func TestPendingAndBusyDelivery(tester *testing.T) {
 
 	exporter, storage := deliveryExporter(tester, func(responseWriter http.ResponseWriter, request *http.Request) {
@@ -538,6 +546,7 @@ func (counter *counterRecorder) Add(context.Context, int64, ...metric.AddOption)
 
 }
 
+// TestCallbackDeliveryRetries checks status handling, payload reuse, backoff, and failure reporting.
 func TestCallbackDeliveryRetries(tester *testing.T) {
 
 	tests := []struct {
@@ -632,6 +641,7 @@ func (transport transportFunc) RoundTrip(request *http.Request) (*http.Response,
 
 }
 
+// TestCallbackTransportErrors injects network and timeout errors and checks the request deadline.
 func TestCallbackTransportErrors(tester *testing.T) {
 
 	tests := []struct {
@@ -686,6 +696,7 @@ func TestCallbackTransportErrors(tester *testing.T) {
 
 }
 
+// TestCallbackCancellation checks that cancellation stops waiting without resubmitting stored rows.
 func TestCallbackCancellation(tester *testing.T) {
 
 	exporter, _ := deliveryExporter(tester, func(responseWriter http.ResponseWriter, request *http.Request) {
@@ -711,6 +722,7 @@ func TestCallbackCancellation(tester *testing.T) {
 
 }
 
+// TestVisibilityRecoveryWithNewRows mixes a retried row with fresh input and checks both notifications.
 func TestVisibilityRecoveryWithNewRows(tester *testing.T) {
 
 	var notifications []notification
@@ -780,6 +792,7 @@ func TestVisibilityRecoveryWithNewRows(tester *testing.T) {
 
 }
 
+// TestDeliveryExpiryNewNotification checks that a duplicate accepted after expiry receives a new ID.
 func TestDeliveryExpiryNewNotification(tester *testing.T) {
 
 	var ids []string
@@ -843,6 +856,7 @@ func (provider providerRecorder) Meter(string, ...metric.MeterOption) metric.Met
 	return meterRecorder{counter: provider.counter}
 
 }
+// TestCollectorCallbackCounter verifies that the Collector meter receives callback failures.
 func TestCollectorCallbackCounter(tester *testing.T) {
 
 	exporter, _ := deliveryExporter(tester, func(responseWriter http.ResponseWriter, request *http.Request) {

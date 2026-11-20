@@ -14,6 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// notification is the JSON contract for a visible batch, including one summary per service.
 type notification struct {
 
 	NotificationID	string					`json:"notification_id"`
@@ -23,6 +24,7 @@ type notification struct {
 
 }
 
+// notificationService pairs a service with the newest event timestamp in its stored rows.
 type notificationService struct {
 
 	Service			string		`json:"service"`
@@ -30,6 +32,7 @@ type notificationService struct {
 
 }
 
+// serviceMetadata converts event timestamps to UTC and sorts services for deterministic JSON.
 func serviceMetadata(latest map[string]time.Time) []notificationService {
 
 	services := make([]notificationService, 0, len(latest))
@@ -38,6 +41,7 @@ func serviceMetadata(latest map[string]time.Time) []notificationService {
 		services = append(services, notificationService{service, timestamp.UTC()})
 	}
 
+	// The comparison function closes over services and supplies the sort order.
 	sort.Slice(services, func(i, j int) bool {
 
 		return services[i].Service < services[j].Service
@@ -48,10 +52,12 @@ func serviceMetadata(latest map[string]time.Time) []notificationService {
 
 }
 
+// waitForCallback lets cancellation interrupt a retry delay.
 func waitForCallback(ctx context.Context, delay time.Duration) error {
 
 	timer := time.NewTimer(delay)
 	defer timer.Stop()
+	// Receive from whichever channel is ready. A canceled context closes Done.
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -61,6 +67,7 @@ func waitForCallback(ctx context.Context, delay time.Duration) error {
 
 }
 
+// sendCallback encodes the metadata once so every attempt posts the same notification.
 func (exporter *Exporter) sendCallback(ctx context.Context, metadata notification) error {
 
 	payload, err := json.Marshal(metadata)
@@ -71,6 +78,7 @@ func (exporter *Exporter) sendCallback(ctx context.Context, metadata notificatio
 
 	for attempt := range 3 {
 
+		// Give each HTTP attempt its own deadline derived from the delivery context.
 		attemptCtx, cancel	:= context.WithTimeout(ctx, 10*time.Second)
 		request, err		:= http.NewRequestWithContext(attemptCtx, http.MethodPost, exporter.Config.BackendCallbackURL, bytes.NewReader(payload))
 
@@ -98,12 +106,16 @@ func (exporter *Exporter) sendCallback(ctx context.Context, metadata notificatio
 			}
 		}
 
+		// Release this attempt's timeout resources before sleeping or retrying.
 		cancel()
 
+		// Transport errors and HTTP 5xx responses can retry while the parent context is active.
 		if !retry || attempt == 2 || ctx.Err() != nil {
 			return err
 		}
 
+		// Shifting 1 left by attempt gives the power of two used for the backoff.
+		// The random term adds less than 250 milliseconds of jitter.
 		delay := time.Second*time.Duration(1<<attempt) + time.Duration(rand.Int64N(int64(250*time.Millisecond)))
 
 		if err := exporter.wait(ctx, delay); err != nil {
@@ -114,6 +126,7 @@ func (exporter *Exporter) sendCallback(ctx context.Context, metadata notificatio
 	return nil
 
 }
+// recordCallbackFailure reports a failed notification without causing another insert.
 func (exporter *Exporter) recordCallbackFailure(ctx context.Context, metadata notification, err error) {
 
 	if exporter.callbackFailures != nil {

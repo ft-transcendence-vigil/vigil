@@ -8,10 +8,13 @@ import (
 	"time"
 )
 
+// A dedupKey is a SHA-256 digest of the identity fields for one telemetry row.
 type dedupKey [sha256.Size]byte
 
 var errDedupInFlight = errors.New("matching telemetry is awaiting storage; retry export")
 
+// A pending entry belongs to an active insert reservation. A committed entry expires
+// after the configured deduplication window.
 type dedupEntry struct {
 
 	pending		bool
@@ -19,6 +22,8 @@ type dedupEntry struct {
 
 }
 
+// deduplicator tracks recent identities in process memory. mu protects entries
+// and the done flag of reservations owned by this deduplicator.
 type deduplicator struct {
 
 	mu		sync.Mutex
@@ -27,6 +32,7 @@ type deduplicator struct {
 
 }
 
+// dedupReservation owns the newly accepted keys until storage succeeds or fails.
 type dedupReservation struct {
 
 	owner	*deduplicator
@@ -41,6 +47,8 @@ func newDeduplicator(window time.Duration) *deduplicator {
 
 }
 
+// reserve prunes expired entries, skips committed duplicates, and returns the indices
+// of each newly claimed row. A pending conflict rejects the reservation as a whole.
 func (deduplicator *deduplicator) reserve(keys []dedupKey, now time.Time) (*dedupReservation, []int, error) {
 
 	deduplicator.mu.Lock()
@@ -62,6 +70,7 @@ func (deduplicator *deduplicator) reserve(keys []dedupKey, now time.Time) (*dedu
 
 	}
 
+	// Claim keys after the conflict scan so a blocked batch makes no partial reservation.
 	reservation := &dedupReservation{owner: deduplicator}
 
 	var retained []int
@@ -82,8 +91,10 @@ func (deduplicator *deduplicator) reserve(keys []dedupKey, now time.Time) (*dedu
 
 }
 
+// commit starts the retention window after an accepted insert.
 func (reservation *dedupReservation) commit(now time.Time) {
 
+	// Use the owner's lock so commit and release update the map and done together.
 	reservation.owner.mu.Lock()
 	defer reservation.owner.mu.Unlock()
 
@@ -99,6 +110,7 @@ func (reservation *dedupReservation) commit(now time.Time) {
 
 }
 
+// release frees uncommitted keys so a later attempt can claim them again.
 func (reservation *dedupReservation) release() {
 
 	reservation.owner.mu.Lock()
@@ -122,8 +134,10 @@ func keyFrom(value any) dedupKey {
 
 }
 
+// logDedupKey uses the entire normalized log row before delivery stamps its notification ID.
 func logDedupKey(row LogRow) dedupKey {
 
+	// An anonymous struct defines the exact fields JSON encodes before hashing.
 	return keyFrom(struct {
 
 		Signal	string
@@ -133,6 +147,7 @@ func logDedupKey(row LogRow) dedupKey {
 
 }
 
+// metricDedupKey identifies a point by series, timestamps, and normalized payload.
 func metricDedupKey(row MetricRow) dedupKey {
 
 	return keyFrom(struct {
@@ -147,6 +162,7 @@ func metricDedupKey(row MetricRow) dedupKey {
 
 }
 
+// traceDedupKey keeps the same identity when a retry changes other span fields.
 func traceDedupKey(row TraceRow) dedupKey {
 
 	return keyFrom(struct {

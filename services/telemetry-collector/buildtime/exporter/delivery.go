@@ -10,6 +10,7 @@ import (
 	"go.opentelemetry.io/collector/consumer/consumererror"
 )
 
+// pendingDelivery remembers an accepted insert that still needs visibility confirmation.
 type pendingDelivery struct {
 
 	metadata	notification
@@ -18,25 +19,30 @@ type pendingDelivery struct {
 
 }
 
+// byteCounter measures the JSON stream without keeping a second copy of the request body.
 type byteCounter int
 
 func (counter *byteCounter) Write(bytesWritten []byte) (int, error) {
 
+	// The pointer receiver updates the same counter on every encoder write.
 	*counter += byteCounter(len(bytesWritten))
 	return len(bytesWritten), nil
 
 }
 
+// Check at compile time that *byteCounter implements io.Writer.
 var _ io.Writer = (*byteCounter)(nil)
 
-// Serializing delivery keeps visibility recovery and dedup retention atomic.
-// Busy callers retry rather than waiting behind up to three callback attempts.
+// deliver uses the row type inferred from []T. The function arguments supply the
+// signal-specific key, metadata, and storage operations for that same row type.
+// The delivery lock makes visibility recovery and dedup retention one critical section.
 func deliver[T any](ctx context.Context, exporter *Exporter, signal string, rows []T, key func(T) dedupKey, fields func(T) (string, time.Time, map[string]string), insert func(context.Context, []T) error) error {
 
 	if len(rows) == 0 {
 		return nil
 	}
 
+	// A concurrent call returns immediately when another call owns delivery.
 	if !exporter.deliveryMu.TryLock() {
 		return errDedupInFlight
 	}
@@ -49,7 +55,10 @@ func deliver[T any](ctx context.Context, exporter *Exporter, signal string, rows
 	encoder := json.NewEncoder(&size)
 	for i, row := range rows {
 
+		// Hash the normalized row before replacing the notification ID. Measure the stamped
+		// JSON rows, including duplicates and each encoder newline.
 		keys[i] = key(row)
+		// Copying the row copies the map reference, so this updates the row's own map.
 		_, _, attributes := fields(row)
 		attributes["vigil.notification_id"] = id
 
@@ -69,6 +78,8 @@ func deliver[T any](ctx context.Context, exporter *Exporter, signal string, rows
 		incoming[currentKey] = true
 	}
 
+	// Only overlapping input can retry visibility for a pending batch. Recovery uses the
+	// original batch ID, count, and per-service metadata.
 	recovered := make(map[dedupKey]bool)
 
 	for i := 0; i < len(exporter.pending); {
@@ -94,6 +105,7 @@ func deliver[T any](ctx context.Context, exporter *Exporter, signal string, rows
 		for _, currentKey := range pending.keys {
 			recovered[currentKey] = true
 		}
+		// Splice out the recovered entry. The next item shifts into index i.
 		exporter.pending = append(exporter.pending[:i], exporter.pending[i+1:]...)
 
 	}
@@ -114,12 +126,15 @@ func deliver[T any](ctx context.Context, exporter *Exporter, signal string, rows
 		return err
 	}
 
+	// A failed insert frees the keys on return. Commit makes this cleanup a no-op.
+	// Because defer runs in reverse order, cleanup finishes before deliveryMu unlocks.
 	defer reservation.release()
 
 	if len(retained) == 0 {
 		return nil
 	}
 
+	// Build the insert and the callback summary from the same retained rows.
 	stored	:= make([]T, 0, len(retained))
 	latest	:= make(map[string]time.Time)
 
@@ -134,12 +149,15 @@ func deliver[T any](ctx context.Context, exporter *Exporter, signal string, rows
 		}
 
 	}
+	// Copy the keys into their own slice for later visibility recovery.
 	pending := &pendingDelivery{metadata: notification{NotificationID: id, SignalType: signal, Services: serviceMetadata(latest)}, keys: append([]dedupKey(nil), reservation.keys...), count: len(stored)}
 
 	if err := insert(ctx, stored); err != nil {
 		return fmt.Errorf("insert %s: %w", signal, err)
 	}
 
+	// An accepted insert gets committed keys and a pending record before the visibility check.
+	// If that check fails, a matching retry can resume without inserting the rows again.
 	reservation.commit(exporter.now())
 	exporter.pending = append(exporter.pending, pending)
 
@@ -152,6 +170,8 @@ func deliver[T any](ctx context.Context, exporter *Exporter, signal string, rows
 
 }
 
+// finishDelivery confirms the exact row count, timestamps the notification, and attempts
+// the callback. Callback failure is recorded after storage has succeeded.
 func (exporter *Exporter) finishDelivery(ctx context.Context, pending *pendingDelivery) error {
 
 	if err := exporter.Storage.ConfirmVisible(ctx, pending.metadata.SignalType, pending.metadata.NotificationID, pending.count); err != nil {
@@ -160,7 +180,8 @@ func (exporter *Exporter) finishDelivery(ctx context.Context, pending *pendingDe
 
 	pending.metadata.StoredAt = exporter.now().UTC()
 
-	// Refresh retention after potentially delayed visibility recovery.
+	// While holding deliveryMu, take the dedup lock briefly to refresh key expiry.
+	// Release the dedup lock before making the callback request.
 	exporter.dedup.mu.Lock()
 
 	for _, currentKey := range pending.keys {

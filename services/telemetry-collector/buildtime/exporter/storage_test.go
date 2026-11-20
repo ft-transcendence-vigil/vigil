@@ -15,6 +15,7 @@ import (
 	collexporter "go.opentelemetry.io/collector/exporter"
 )
 
+// TestClickHouseStorageInsert checks the request headers, SQL settings, and row JSON for each table.
 func TestClickHouseStorageInsert(tester *testing.T) {
 
 	for _, signal := range []string{"logs", "metrics", "traces"} {
@@ -100,6 +101,7 @@ func TestClickHouseStorageInsert(tester *testing.T) {
 
 }
 
+// TestClickHouseStorageVisibility checks the bound ID, exact count, and error responses.
 func TestClickHouseStorageVisibility(tester *testing.T) {
 
 	for _, test := range []struct {
@@ -152,6 +154,7 @@ func TestClickHouseStorageVisibility(tester *testing.T) {
 
 }
 
+// TestClickHouseStorageFailures covers no-op inputs, cancellation, and ClickHouse failures.
 func TestClickHouseStorageFailures(tester *testing.T) {
 
 	calls		:= 0
@@ -228,6 +231,7 @@ func TestClickHouseStorageFailures(tester *testing.T) {
 
 }
 
+// TestNewExporterStorage verifies production dependency wiring and invalid constructor inputs.
 func TestNewExporterStorage(tester *testing.T) {
 
 	config := &Config{

@@ -1,3 +1,4 @@
+# Isolated integration stack for the built Collector, real ClickHouse, and a mock callback API.
 services:
   clickhouse:
     image: clickhouse/clickhouse-server:26.8.6.5-distroless
@@ -6,6 +7,7 @@ services:
       CLICKHOUSE_PASSWORD: integration-admin-password
       CLICKHOUSE_DB: default
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+    # Keep the database and logs disposable across test runs.
     tmpfs:
       - /var/lib/clickhouse:uid=101,gid=101,mode=0755
       - /var/log/clickhouse-server:uid=101,gid=101,mode=0755
@@ -29,6 +31,7 @@ services:
       start_period: 10s
 
   clickhouse-init:
+    # Create the tables and writer account before the Collector accepts traffic.
     image: clickhouse/clickhouse-server:26.8.6.5
     environment:
       CLICKHOUSE_ADMIN_USER: integration_admin
@@ -70,6 +73,7 @@ services:
         condition: service_started
 
   readiness:
+    # Probe reachability before sending test data. An HTTP error also proves the port is open.
     image: python:3.13-alpine
     depends_on:
       backend:
@@ -97,6 +101,7 @@ services:
                 raise RuntimeError(f"timed out waiting for {url}")
 
   otlp-test:
+    # The Python runner checks authentication, stored rows, and the three callbacks.
     image: python:3.13-alpine
     volumes:
       - ./collector_integration.py:/collector_integration.py:ro

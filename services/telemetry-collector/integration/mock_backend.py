@@ -1,13 +1,17 @@
+# Minimal backend for checking the Collector callback payload and counting accepted batches.
 import json
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 callbacks = []
+# ThreadingHTTPServer can run GET and POST concurrently. The lock protects the
+# shared callback list and is held only while taking its length or appending.
 lock = threading.Lock()
 
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        # Expose the count so the integration runner can poll for delivered callbacks.
         if self.path == "/count":
             with lock:
                 body = str(len(callbacks)).encode()
@@ -19,6 +23,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_error(404)
 
     def do_POST(self):
+        # Mirror the production route and HTTP 204 acknowledgement.
         if self.path != "/internal/alerts/trigger-evaluation":
             self.send_error(404)
             return

@@ -1,3 +1,5 @@
+// Package exporter implements the Vigil OpenTelemetry Collector exporter for ClickHouse
+// and sends a backend notification after each stored batch becomes queryable.
 package exporter
 
 import (
@@ -19,6 +21,9 @@ import (
 	collptrace "go.opentelemetry.io/collector/pdata/ptrace"
 )
 
+// Exporter holds one Collector signal consumer, its external clients, and its delivery state.
+// deliveryMu guards pending deliveries and serializes delivery on this instance.
+// The clock, ID generator, and wait function can be replaced in tests.
 type Exporter struct {
 
 	Config				*Config
@@ -35,12 +40,14 @@ type Exporter struct {
 
 }
 
+// Start satisfies the Collector lifecycle. The clients connect on demand during delivery.
 func (exporter *Exporter) Start(ctx context.Context, _ collcomponent.Host) error {
 
 	return nil
 
 }
 
+// Shutdown closes idle callback connections and releases the storage client.
 func (exporter *Exporter) Shutdown(ctx context.Context) error {
 
 	if exporter.callbackClient != nil {
@@ -55,12 +62,15 @@ func (exporter *Exporter) Shutdown(ctx context.Context) error {
 
 }
 
+// Capabilities reports that conversion leaves the Collector-owned input unchanged.
 func (exporter *Exporter) Capabilities() collconsumer.Capabilities {
 
 	return collconsumer.Capabilities{}
 
 }
 
+// ConsumeLogs validates and flattens logs, then hands their identity and storage mapping
+// to the shared delivery path. Invalid input is a permanent consumer error.
 func (exporter *Exporter) ConsumeLogs(ctx context.Context, incomingLogs collplog.Logs) error {
 
 	rows, err := logsToRows(incomingLogs)
@@ -69,6 +79,8 @@ func (exporter *Exporter) ConsumeLogs(ctx context.Context, incomingLogs collplog
 		return consumererror.NewPermanent(err)
 	}
 
+	// []LogRow determines T. The anonymous function extracts the row fields and
+	// the bound InsertLogs method carries the current Storage as its receiver.
 	return deliver(ctx, exporter, "logs", rows, logDedupKey, func(row LogRow) (string, time.Time, map[string]string) {
 
 		return row.ServiceName, row.Timestamp, row.Attributes
@@ -77,6 +89,7 @@ func (exporter *Exporter) ConsumeLogs(ctx context.Context, incomingLogs collplog
 
 }
 
+// ConsumeMetrics flattens metric points and delivers them with metric-specific dedup keys.
 func (exporter *Exporter) ConsumeMetrics(ctx context.Context, incomingMetrics collpmetric.Metrics) error {
 
 	rows, err := metricsToRows(incomingMetrics)
@@ -93,6 +106,7 @@ func (exporter *Exporter) ConsumeMetrics(ctx context.Context, incomingMetrics co
 
 }
 
+// ConsumeTraces flattens spans and delivers them with identity based on trace and span IDs.
 func (exporter *Exporter) ConsumeTraces(ctx context.Context, incomingTraces collptrace.Traces) error {
 
 	rows, err := tracesToRows(incomingTraces)
@@ -109,6 +123,8 @@ func (exporter *Exporter) ConsumeTraces(ctx context.Context, incomingTraces coll
 
 }
 
+// newExporter validates settings, wires the production clients, and registers the callback
+// failure counter when the Collector supplies a meter provider.
 func newExporter(config *Config, settings collexporter.Settings) (*Exporter, error) {
 
 	if config == nil {
@@ -129,6 +145,7 @@ func newExporter(config *Config, settings collexporter.Settings) (*Exporter, err
 		newNotificationID:	newNotificationID,
 
 	}
+	// Expose redirects as responses so the callback only posts to the configured URL.
 	instance.callbackClient = &http.Client{Timeout: 10 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error {
 
 		return http.ErrUseLastResponse
@@ -154,6 +171,7 @@ func newNotificationID() string {
 
 	rand.Read(id[:])
 
+	// & clears the version and variant bits. | sets them to 0100 and 10 respectively.
 	id[6] = (id[6] & 0x0f) | 0x40
 	id[8] = (id[8] & 0x3f) | 0x80
 

@@ -15,6 +15,7 @@ import (
 	collptrace "go.opentelemetry.io/collector/pdata/ptrace"
 )
 
+// LogRow is the JSON representation of one ClickHouse logs row.
 type LogRow struct {
 
 	ServiceName	string				`json:"service"`
@@ -25,6 +26,8 @@ type LogRow struct {
 
 }
 
+// MetricRow holds one data point. Pointer fields encode JSON null for values that are
+// absent or inapplicable. DedupPayload stays in memory and is excluded from JSON.
 type MetricRow struct {
 
 	ServiceName				string				`json:"service"`
@@ -44,6 +47,7 @@ type MetricRow struct {
 
 }
 
+// TraceRow stores the start time and whole-millisecond duration of one span.
 type TraceRow struct {
 
 	TraceID			string				`json:"trace_id"`
@@ -58,6 +62,8 @@ type TraceRow struct {
 
 }
 
+// logsToRows walks resource and scope groups and flattens their records. A validation
+// error discards the rows already converted from the same input.
 func logsToRows(logs collplog.Logs) ([]LogRow, error) {
 
 	rows := make([]LogRow, 0, logs.LogRecordCount())
@@ -106,6 +112,8 @@ func logsToRows(logs collplog.Logs) ([]LogRow, error) {
 
 }
 
+// metricsToRows builds a row per supported data point and preserves each series identity
+// across changes in point value or timestamp.
 func metricsToRows(metrics collpmetric.Metrics) ([]MetricRow, error) {
 
 	rows := make([]MetricRow, 0, metrics.DataPointCount())
@@ -131,6 +139,8 @@ func metricsToRows(metrics collpmetric.Metrics) ([]MetricRow, error) {
 					return nil, fmt.Errorf("metric name must not be empty")
 				}
 
+				// Keep the typed resource and scope metadata separate from the flattened attributes
+				// so it can participate in the series hash.
 				metricType, temporality, monotonic	:= metricMetadata(metric)
 				seriesBase							:= map[string]any{
 					"service": serviceName.Str(), "resource_attributes": resourceAttributes.AsRaw(),
@@ -186,6 +196,7 @@ func metricsToRows(metrics collpmetric.Metrics) ([]MetricRow, error) {
 
 							sum = &value
 						}
+						// Bucket layout contributes to deduplication. The row stores the count and optional sum.
 						payload	:= map[string]any{"count": count, "sum": sum, "bucket_counts": point.BucketCounts().AsRaw(), "explicit_bounds": point.ExplicitBounds().AsRaw(), "attributes": point.Attributes().AsRaw()}
 						rows	= append(rows, newMetricRow(serviceName.Str(), metric, seriesBase, point.Timestamp(), point.StartTimestamp(), point.Attributes(), nil, nil, sum, &count, payload))
 
@@ -208,6 +219,7 @@ func metricsToRows(metrics collpmetric.Metrics) ([]MetricRow, error) {
 
 							sum = &value
 						}
+						// Include the exponential bucket layout and zero bucket in point identity.
 						payload	:= map[string]any{"count": count, "sum": sum, "scale": point.Scale(), "zero_count": point.ZeroCount(), "zero_threshold": point.ZeroThreshold(), "positive_offset": point.Positive().Offset(), "positive_buckets": point.Positive().BucketCounts().AsRaw(), "negative_offset": point.Negative().Offset(), "negative_buckets": point.Negative().BucketCounts().AsRaw(), "attributes": point.Attributes().AsRaw()}
 						rows	= append(rows, newMetricRow(serviceName.Str(), metric, seriesBase, point.Timestamp(), point.StartTimestamp(), point.Attributes(), nil, nil, sum, &count, payload))
 
@@ -225,6 +237,7 @@ func metricsToRows(metrics collpmetric.Metrics) ([]MetricRow, error) {
 
 }
 
+// metricMetadata maps OTLP kinds and aggregation settings to the values stored in ClickHouse.
 func metricMetadata(metric collpmetric.Metric) (string, string, *bool) {
 
 	switch metric.Type() {
@@ -256,6 +269,8 @@ func temporalityName(value collpmetric.AggregationTemporality) string {
 
 }
 
+// numericValue converts integers within the exact Float64 range and rejects missing or
+// non-finite values before JSON encoding.
 func numericValue(point collpmetric.NumberDataPoint, name string) (float64, error) {
 
 	var value float64
@@ -288,6 +303,8 @@ func finite(value float64) bool {
 
 }
 
+// newMetricRow adds the point attributes to a copy of the shared series metadata, then
+// builds the stored row and the separate hash used for point deduplication.
 func newMetricRow(service string, metric collpmetric.Metric, seriesBase map[string]any, timestamp, start pcommon.Timestamp, pointAttributes pcommon.Map, monotonic *bool, value, histogramSum *float64, histogramCount *uint64, payload any) MetricRow {
 
 	series := make(map[string]any, len(seriesBase)+1)
@@ -300,6 +317,7 @@ func newMetricRow(service string, metric collpmetric.Metric, seriesBase map[stri
 		converted	:= start.AsTime().UTC().Truncate(time.Millisecond)
 		startTime	= &converted
 	}
+	// The type assertions unwrap the known concrete values stored in map[string]any.
 	return MetricRow{
 
 		ServiceName:	service, Timestamp: timestamp.AsTime().UTC().Truncate(time.Millisecond), Name: metric.Name(), Value: value,
@@ -311,6 +329,8 @@ func newMetricRow(service string, metric collpmetric.Metric, seriesBase map[stri
 
 }
 
+// stableHash uses JSON with sorted map keys to make the SHA-256 digest independent of
+// map iteration order. A marshal error panics in this helper.
 func stableHash(value any) string {
 
 	encoded, err := json.Marshal(value)
@@ -324,6 +344,8 @@ func stableHash(value any) string {
 
 }
 
+// tracesToRows validates span identity, timestamp ordering, duration, and status before
+// converting spans to the ClickHouse trace schema.
 func tracesToRows(traces collptrace.Traces) ([]TraceRow, error) {
 
 	rows := make([]TraceRow, 0, traces.SpanCount())
@@ -415,6 +437,8 @@ func tracesToRows(traces collptrace.Traces) ([]TraceRow, error) {
 
 }
 
+// normalizeSeverity uses the OTLP severity number when it falls in a defined range.
+// Otherwise it looks for recognized severity text.
 func normalizeSeverity(record collplog.LogRecord) string {
 
 	severity := record.SeverityNumber()
@@ -446,6 +470,7 @@ func normalizeSeverity(record collplog.LogRecord) string {
 
 }
 
+// attributesAsString applies the shared conversion to attributes on a single OTLP item.
 func attributesAsString(record interface {
 
 	Attributes() pcommon.Map
@@ -454,6 +479,8 @@ func attributesAsString(record interface {
 	return mergeAttributes(nil, record.Attributes())
 }
 
+// mergeAttributes creates the row-owned string map. Record attributes take precedence
+// over resource attributes with the same key.
 func mergeAttributes(resource map[string]any, record pcommon.Map) map[string]string {
 
 	result := make(map[string]string, len(resource)+record.Len())

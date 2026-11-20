@@ -1,3 +1,4 @@
+# OpenTelemetry Collector Builder manifest for the vigcol binary.
 dist:
   name: vigcol
   version: 0.160.0
@@ -15,6 +16,7 @@ processors:
   - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.160.0
 
 exporters:
+  # OCB uses the module version for its generated build and the local source via replaces.
   - gomod: github.com/ft-transcendence-vigil/vigil/services/telemetry-collector/buildtime/exporter v1.3.3-7
     name: vigilclickhouseexporter
 
@@ -22,4 +24,5 @@ extensions:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/bearertokenauthextension v0.160.0
 
 replaces:
+  # Match the exporter directory copied by the build stage.
   - github.com/ft-transcendence-vigil/vigil/services/telemetry-collector/buildtime/exporter => /home/ocb/exporter

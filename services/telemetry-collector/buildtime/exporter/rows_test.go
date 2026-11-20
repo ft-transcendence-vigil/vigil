@@ -24,6 +24,7 @@ func boolPointer(value bool) *bool {
 
 }
 
+// TestNormalizeSeverity checks numeric severity precedence, text fallback, and input ownership.
 func TestNormalizeSeverity(tester *testing.T) {
 
 	labels := [...]string{"trace", "debug", "info", "warning", "error", "critical"}
@@ -105,6 +106,7 @@ func TestNormalizeSeverity(tester *testing.T) {
 
 }
 
+// TestAttributesAsString checks the string representation of scalar and structured attributes.
 func TestAttributesAsString(tester *testing.T) {
 
 	record		:= collplog.NewLogRecord()
@@ -157,6 +159,7 @@ func TestAttributesAsString(tester *testing.T) {
 
 }
 
+// TestLogsToRowsAttributes checks that both resource and record attributes appear on a log row.
 func TestLogsToRowsAttributes(tester *testing.T) {
 
 	logs		:= collplog.NewLogs()
@@ -186,6 +189,7 @@ func TestLogsToRowsAttributes(tester *testing.T) {
 
 }
 
+// TestMetricsToRows exercises gauge and sum values, identity metadata, and nullable fields.
 func TestMetricsToRows(tester *testing.T) {
 
 	for _, sum := range []bool{false, true} {
@@ -268,6 +272,7 @@ func TestMetricsToRows(tester *testing.T) {
 
 }
 
+// TestHistogramMetricsToRows checks the aggregate columns for both histogram formats.
 func TestHistogramMetricsToRows(tester *testing.T) {
 
 	metrics		:= collpmetric.NewMetrics()
@@ -321,6 +326,7 @@ func TestHistogramMetricsToRows(tester *testing.T) {
 
 }
 
+// TestMetricsToRowsInvalid checks rejection of unsupported, missing, and invalid metric values.
 func TestMetricsToRowsInvalid(tester *testing.T) {
 
 	tests := []struct {
@@ -401,6 +407,7 @@ func TestMetricsToRowsInvalid(tester *testing.T) {
 
 }
 
+// TestTracesToRows checks span conversion, parent IDs, status, and merged attributes.
 func TestTracesToRows(tester *testing.T) {
 
 	for _, status := range []collptrace.StatusCode{collptrace.StatusCodeUnset, collptrace.StatusCodeOk, collptrace.StatusCodeError} {
@@ -466,6 +473,7 @@ func TestTracesToRows(tester *testing.T) {
 
 }
 
+// TestTracesToRowsInvalid checks that invalid span identity, timing, or status rejects the input.
 func TestTracesToRowsInvalid(tester *testing.T) {
 
 	tests := []struct {
@@ -546,6 +554,7 @@ func TestTracesToRowsInvalid(tester *testing.T) {
 
 }
 
+// TestLogsToRowsConversion covers log body rendering, timestamp precision, and severity mapping.
 func TestLogsToRowsConversion(tester *testing.T) {
 
 	tests := []struct {
@@ -671,6 +680,7 @@ func TestLogsToRowsConversion(tester *testing.T) {
 
 }
 
+// TestLogsToRowsMissingTimestamp checks that an invalid record discards partial results.
 func TestLogsToRowsMissingTimestamp(tester *testing.T) {
 
 	logs		:= collplog.NewLogs()
@@ -689,6 +699,7 @@ func TestLogsToRowsMissingTimestamp(tester *testing.T) {
 
 }
 
+// TestRowsServiceNameValidation applies the same resource name requirements to all signals.
 func TestRowsServiceNameValidation(tester *testing.T) {
 
 	tests := []struct {
@@ -774,6 +785,7 @@ func TestRowsServiceNameValidation(tester *testing.T) {
 
 }
 
+// TestRowsEmptyBatches checks that empty signals yield zero rows without error.
 func TestRowsEmptyBatches(tester *testing.T) {
 
 	if rows, err := logsToRows(collplog.NewLogs()); err != nil || rows == nil || len(rows) != 0 {
@@ -790,6 +802,7 @@ func TestRowsEmptyBatches(tester *testing.T) {
 
 }
 
+// TestRowsResourceScopeGroups checks traversal across multiple resources and scopes.
 func TestRowsResourceScopeGroups(tester *testing.T) {
 
 	logs	:= collplog.NewLogs()
@@ -878,6 +891,7 @@ func TestRowsResourceScopeGroups(tester *testing.T) {
 
 }
 
+// TestMetricsToRowsNoRecordedValue checks rejection of the OTLP no-recorded-value flag.
 func TestMetricsToRowsNoRecordedValue(tester *testing.T) {
 
 	metrics		:= collpmetric.NewMetrics()
@@ -901,6 +915,7 @@ func TestMetricsToRowsNoRecordedValue(tester *testing.T) {
 
 }
 
+// TestTracesToRowsDurationBoundaries checks millisecond truncation and UInt32 overflow.
 func TestTracesToRowsDurationBoundaries(tester *testing.T) {
 
 	tests := []struct {
@@ -964,6 +979,7 @@ func TestTracesToRowsDurationBoundaries(tester *testing.T) {
 
 }
 
+// TestAttributesAsStringSignalTypes applies the same attribute conversion to different signal items.
 func TestAttributesAsStringSignalTypes(tester *testing.T) {
 
 	tests := []struct {

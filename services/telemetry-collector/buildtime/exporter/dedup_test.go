@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// TestDedupKeys checks which field changes affect the identity of each signal.
 func TestDedupKeys(tester *testing.T) {
 
 	timestamp	:= time.Unix(100, 0)
@@ -49,6 +50,7 @@ func TestDedupKeys(tester *testing.T) {
 
 }
 
+// TestDedupLifecycle checks duplicate suppression, conflicts, release, commit, and expiry.
 func TestDedupLifecycle(tester *testing.T) {
 
 	now							:= time.Unix(100, 0)
@@ -96,13 +98,16 @@ func TestDedupLifecycle(tester *testing.T) {
 
 }
 
+// TestDedupConcurrentReservations verifies that only one goroutine can claim the same key.
 func TestDedupConcurrentReservations(tester *testing.T) {
 
 	deduplicator	:= newDeduplicator(time.Minute)
 	key				:= keyFrom("same telemetry")
 	var waitGroup sync.WaitGroup
+	// The buffer can hold every result even if the test's single-winner assumption fails.
 	winners := make(chan *dedupReservation, 32)
 	for range 32 {
+		// Go starts a goroutine and tracks its completion in the wait group.
 		waitGroup.Go(func() {
 
 			reservation, indices, err := deduplicator.reserve([]dedupKey{key}, time.Now())
@@ -117,6 +122,8 @@ func TestDedupConcurrentReservations(tester *testing.T) {
 
 		})
 	}
+	// Wait for all senders before closing the channel. Keep the reservations
+	// active until all goroutines have tried to claim the key.
 	waitGroup.Wait()
 	close(winners)
 	count := 0

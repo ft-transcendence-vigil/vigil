@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Config maps the vigilclickhouse YAML block to ClickHouse, callback, and delivery settings.
 type Config struct {
 
 	ClickHouseEndpoint		string			`mapstructure:"clickhouse_endpoint"`
@@ -21,6 +22,7 @@ type Config struct {
 
 }
 
+// Validate checks required values and URL structure before the exporter creates its clients.
 func (config *Config) Validate() error {
 
 	if config.ClickHouseDatabase == "" {
@@ -57,6 +59,7 @@ func (config *Config) Validate() error {
 		return fmt.Errorf("backend callback url must include a hostname")
 	}
 
+	// The callback uses the configured route as-is, with all notification data in the body.
 	if callbackURL.RawQuery != "" || callbackURL.ForceQuery || callbackURL.Fragment != "" {
 		return fmt.Errorf("backend callback url must not include a query or fragment")
 	}
@@ -75,6 +78,7 @@ func (config *Config) Validate() error {
 		return fmt.Errorf("clickhouse endpoint must include a hostname")
 	}
 
+	// ClickHouse credentials are sent in headers from the dedicated config fields.
 	if ClickHouseURL.User != nil {
 		return fmt.Errorf("clickhouse endpoint must not include credentials")
 	}

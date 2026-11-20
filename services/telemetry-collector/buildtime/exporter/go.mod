@@ -1,5 +1,7 @@
+// The Collector Builder imports this local module to register Vigil’s custom exporter.
 module github.com/ft-transcendence-vigil/vigil/services/telemetry-collector/buildtime/exporter
 
+// Use the toolchain version required by the Collector dependencies.
 go 1.26.0
 
 require (

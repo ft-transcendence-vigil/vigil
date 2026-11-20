@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// NewFactory registers vigilclickhouse as a Collector exporter for logs, metrics, and traces.
 func NewFactory() collexporter.Factory {
 
 	return collexporter.NewFactory(
@@ -19,6 +20,8 @@ func NewFactory() collexporter.Factory {
 
 }
 
+// createDefaultConfig supplies the byte limit and deduplication window. Deployment
+// configuration provides the ClickHouse connection details and backend callback URL.
 func createDefaultConfig() collcomponent.Config {
 
 	return &Config{
@@ -30,6 +33,8 @@ func createDefaultConfig() collcomponent.Config {
 
 }
 
+// Each factory receives a component.Config interface containing the *Config
+// from createDefaultConfig. The type assertion extracts that pointer.
 func createLogs(ctx context.Context, settings collexporter.Settings, config collcomponent.Config) (collexporter.Logs, error) {
 
 	return newExporter(config.(*Config), settings)

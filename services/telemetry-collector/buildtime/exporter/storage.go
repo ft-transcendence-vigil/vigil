@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+// Storage separates delivery from the ClickHouse HTTP API so tests can substitute storage.
 type Storage interface {
 	InsertLogs(context.Context, []LogRow) error
 	InsertMetrics(context.Context, []MetricRow) error
@@ -31,6 +32,8 @@ type clickHouseStorage struct {
 
 }
 
+// newClickHouseStorage asserts that the default RoundTripper is an *http.Transport,
+// then clones it so storage owns its connection pool.
 func newClickHouseStorage(config *Config) *clickHouseStorage {
 
 	return &clickHouseStorage{client: &http.Client{Timeout: 10 * time.Second, Transport: http.DefaultTransport.(*http.Transport).Clone()}, endpoint: config.ClickHouseEndpoint, database: config.ClickHouseDatabase, username: config.ClickHouseUsername, password: config.ClickHousePassword}
@@ -53,6 +56,7 @@ func (storage *clickHouseStorage) InsertTraces(ctx context.Context, rows []Trace
 
 }
 
+// insertRows accepts a slice of any row type and uses the same JSONEachRow encoding.
 func insertRows[T any](ctx context.Context, storage *clickHouseStorage, table string, rows []T) error {
 
 	if len(rows) == 0 {
@@ -73,6 +77,8 @@ func insertRows[T any](ctx context.Context, storage *clickHouseStorage, table st
 
 }
 
+// ConfirmVisible verifies that ClickHouse can read exactly the inserted rows by their
+// notification ID. It restricts table names and binds the ID as a query parameter.
 func (storage *clickHouseStorage) ConfirmVisible(ctx context.Context, signalType, notificationID string, expectedRows int) error {
 
 	switch signalType {
@@ -106,6 +112,7 @@ func (storage *clickHouseStorage) ConfirmVisible(ctx context.Context, signalType
 
 }
 
+// query sends a context-bound HTTP POST and checks the status and bounded response body.
 func (storage *clickHouseStorage) query(ctx context.Context, query string, body io.Reader, notificationID string) ([]byte, error) {
 
 	endpoint, err := url.Parse(storage.endpoint)
@@ -117,6 +124,7 @@ func (storage *clickHouseStorage) query(ctx context.Context, query string, body 
 	parameters := endpoint.Query()
 	parameters.Set("database", storage.database)
 	parameters.Set("query", query)
+	// Use synchronous inserts and wait for ClickHouse to finish the query before replying.
 	parameters.Set("async_insert", "0")
 	parameters.Set("wait_end_of_query", "1")
 	parameters.Set("date_time_input_format", "best_effort")
@@ -157,6 +165,8 @@ func (storage *clickHouseStorage) query(ctx context.Context, query string, body 
 		return nil, fmt.Errorf("ClickHouse response exceeds size limit")
 	}
 
+	// A successful insert has an empty or whitespace-only body. Text after HTTP 200
+	// can indicate a late query failure.
 	if notificationID == "" && len(bytes.TrimSpace(result)) != 0 {
 		return nil, fmt.Errorf("unexpected ClickHouse insert response")
 	}
@@ -165,6 +175,7 @@ func (storage *clickHouseStorage) query(ctx context.Context, query string, body 
 
 }
 
+// Close releases idle ClickHouse connections.
 func (storage *clickHouseStorage) Close() error {
 
 	storage.client.CloseIdleConnections()
