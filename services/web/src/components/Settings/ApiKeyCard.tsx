@@ -37,13 +37,13 @@ export default function ApiKeyCard({ title, apiKey, info }: Data) {
       <h1 className="text-vigil-muted text-[12px] md:text-[14px] uppercase">
         {title}
       </h1>
-      <div className="bg-vigil-surface-inset flex justify-between items-center border border-vigil-border px-2 md:px-4 py-2.5 md:py-3.5 mt-2 mb-1">
+      <div className="bg-vigil-surface-inset flex flex-col sm:flex-row justify-between sm:items-center gap-3 border border-vigil-border px-2 md:px-4 py-2.5 md:py-3.5 mt-2 mb-1">
         <p
-          className={`mono text-[12px] md:text-[15px] ${!showed && 'blur-sm select-none'}`}
+          className={`mono min-w-0 flex-1 break-all text-[12px] md:text-[15px] ${!showed && 'blur-sm select-none'}`}
         >
           {apiKey}
         </p>
-        <div className="flex items-center space-x-1 md:space-x-2">
+        <div className="flex shrink-0 self-end sm:self-auto items-center space-x-1 md:space-x-2">
           <button
             className="cursor-pointer px-2 md:px-3 py-1.5 border border-vigil-border text-vigil-muted text-[11px] md:text-[12px] hover:border-vigil-text/50 hover:text-vigil-text/60 transition-[color,border-color] duration-200"
             onClick={() => setShowed((prev) => !prev)}

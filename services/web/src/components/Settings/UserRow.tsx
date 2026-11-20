@@ -16,6 +16,8 @@ export default function UserRow({
   onEdit,
   onDelete,
 }: Data) {
+  const isApiKeyUser = email === 'mustbe@api.email';
+
   return (
     <tr className="border-b border-vigil-border hover:bg-vigil-row-hover transition-colors duration-200">
       <td className="text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3">
@@ -23,6 +25,11 @@ export default function UserRow({
         {isCurrent && (
           <span className="ms-3 uppercase text-[10px] tracking-wider text-vigil-warning border border-vigil-warning-badge-border bg-vigil-warning-badge-bg px-2 py-1">
             you
+          </span>
+        )}
+        {isApiKeyUser && (
+          <span className="ms-3 uppercase text-[10px] tracking-wider text-vigil-signal-logs-text border border-vigil-signal-logs-border bg-vigil-signal-logs-bg px-2 py-1">
+            API key identity
           </span>
         )}
       </td>
@@ -37,15 +44,17 @@ export default function UserRow({
           {role}
         </span>
       </td>
-      <td className="py-2 md:py-3 px-2 md:px-3 space-x-2">
+      <td className="py-2 md:py-3 px-2 md:px-3 space-x-2 whitespace-nowrap">
         {!isCurrent && (
           <>
-            <button
-              onClick={onEdit}
-              className="text-[11px] md:text-[13px] cursor-pointer border border-vigil-border w-8 h-8 text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60 transition-[color,border-color] duration-200"
-            >
-              <FontAwesomeIcon icon={faPenToSquare} />
-            </button>
+            {!isApiKeyUser && (
+              <button
+                onClick={onEdit}
+                className="text-[11px] md:text-[13px] cursor-pointer border border-vigil-border w-8 h-8 text-vigil-muted hover:border-vigil-text/60 hover:text-vigil-text/60 transition-[color,border-color] duration-200"
+              >
+                <FontAwesomeIcon icon={faPenToSquare} />
+              </button>
+            )}
             <button
               onClick={onDelete}
               className="text-[11px] md:text-[13px] cursor-pointer border border-vigil-state-danger/40 w-8 h-8 text-vigil-state-danger/70 hover:border-vigil-state-danger/80 hover:text-vigil-state-danger/80 transition-[color,border-color] duration-200"
