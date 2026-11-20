@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { InstrumentationGuide } from '../../../data/serviceOnboarding';
 import Button from '../../shared/Button';
 import StepShell from './StepShell';
@@ -16,10 +17,13 @@ export default function LaunchServiceStep({
   guide,
 }: Props) {
   const launch = guide?.launch;
+  const [copied, setCopied] = useState(false);
 
   async function copy() {
     if (!launch?.code) return;
     await navigator.clipboard.writeText(launch.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   }
 
   return (
@@ -42,7 +46,7 @@ export default function LaunchServiceStep({
                   {launch.language ?? 'Shell'}
                 </span>
                 <Button
-                  value="copy launch command"
+                  value={copied ? '✓' : 'copy launch command'}
                   onClick={copy}
                   className={`${buttonAnimation} py-1! px-3! text-[11px]!`}
                 />
