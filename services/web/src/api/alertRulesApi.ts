@@ -14,7 +14,6 @@ export interface AlertRules {
   threshold: number;
   severity: Severity;
   enabled: boolean;
-  is_default: boolean;
 }
 
 export interface CreateAlertRules {

@@ -14,7 +14,8 @@ import TracesPage from './pages/Traces/TracesPage';
 import AlertsRulesPage from './pages/AlertRules/AlertsRulesPage';
 import AppToaster from './components/shared/AppToaster';
 import PermissionRoute from './auth/PermissionRoute';
-import Legal from './components/Auth/Legal';
+import PrivacyPage from './pages/Legal/PrivacyPage';
+import TermsPage from './pages/Legal/TermsPage';
 import SettingsLayout from './components/Settings/SettingsLayout';
 import AccountSettingsPage from './pages/Settings/AccountSettingsPage';
 import SessionsSettingsPage from './pages/Settings/SessionsSettingsPage';
@@ -34,7 +35,8 @@ function App() {
     <>
       <AppToaster />
       <Routes>
-        <Route path="/legal" element={<Legal />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route element={<PublicOnlyRoute />}>
           <Route element={<AuthEntryGuard />}>
             <Route path="/auth/login" element={<LoginPage />} />

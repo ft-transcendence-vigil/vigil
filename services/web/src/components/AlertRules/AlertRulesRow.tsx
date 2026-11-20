@@ -56,17 +56,6 @@ export default function AlertRulesRow({
           onCheckedChange={() => onToggle(!rule.enabled)}
         />
       </td>
-      <td className="text-[13px] py-1 md:py-3 px-2 md:px-3">
-        <span
-          className={`${
-            rule.is_default
-              ? 'bg-vigil-status-muted-bg border border-vigil-border-muted'
-              : 'font-bold text-[17px]'
-          } capitalize text-vigil-muted-extra px-2 py-1 mono`}
-        >
-          {rule.is_default ? 'default' : '_'}
-        </span>
-      </td>
       <td className="text-[14px] md:text-[16px] py-1 md:py-3 px-2 md:px-3 space-x-2">
         <button
           title="Edit"
@@ -76,9 +65,8 @@ export default function AlertRulesRow({
           <FontAwesomeIcon icon={faPenToSquare} />
         </button>
         <button
-          title={rule.is_default ? 'Default rules cannot be deleted' : 'Delete'}
+          title="Delete"
           onClick={onDelete}
-          disabled={rule.is_default}
           className="text-[10px] md:text-[12px] cursor-pointer border border-vigil-state-danger/40 w-8 h-8 text-vigil-state-danger/70 hover:border-vigil-state-danger/80 hover:text-vigil-state-danger/80 transition-[color,border-color] duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-vigil-state-danger/40 disabled:hover:text-vigil-state-danger/70"
         >
           <FontAwesomeIcon icon={faTrashCan} />

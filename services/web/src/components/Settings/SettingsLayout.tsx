@@ -7,8 +7,8 @@ export default function SettingsLayout() {
   const {user} = useAuth();
   const navigation = filterNavigation(settingsNavigation, user?.role === 'admin');
   return (
-    <div className="flex flex-col">
-      <aside className="flex text-center mb-7">
+    <div className="flex flex-col min-w-0">
+      <aside className="flex overflow-x-auto text-center mb-7">
         {navigation.map((nav) => (
           <NavLink
             key={nav.path}
@@ -16,6 +16,7 @@ export default function SettingsLayout() {
             className={({ isActive }) =>
               `relative
                 block
+                shrink-0
                 tracking-wide
                 capitalize
                 py-2.5
@@ -43,7 +44,7 @@ export default function SettingsLayout() {
           </NavLink>
         ))}
       </aside>
-      <main className="w-full">
+      <main className="min-w-0 w-full">
         <Outlet />
       </main>
     </div>

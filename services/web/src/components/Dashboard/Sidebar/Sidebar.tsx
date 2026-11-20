@@ -61,13 +61,25 @@ export default function Sidebar({ status, onRetry }: Data) {
             </button>
           )}
         </div>
-        <Link
-          to="/legal"
-          target="_blank"
-          className="text-[10px] text-vigil-muted hover:text-vigil-state-muted-text block mt-2"
-        >
-          Privacy · Terms
-        </Link>
+        <div className="flex gap-1 mt-2 text-[10px] text-vigil-muted">
+          <Link
+            to="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-vigil-state-muted-text"
+          >
+            Privacy
+          </Link>
+          <span>·</span>
+          <Link
+            to="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-vigil-state-muted-text"
+          >
+            Terms
+          </Link>
+        </div>
       </div>
     </div>
   );

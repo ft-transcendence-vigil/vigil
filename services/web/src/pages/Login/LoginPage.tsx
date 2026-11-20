@@ -26,7 +26,7 @@ export default function LoginPage() {
             </div>
             <div className="footer-text">
               <Link
-                to="/legal#terms"
+                to="/terms"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline hover:text-vigil-accent"
@@ -34,7 +34,7 @@ export default function LoginPage() {
                 Terms of Service
               </Link>
               <Link
-                to="/legal#privacy"
+                to="/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline hover:text-vigil-accent ms-3 md:ms-5 lg:ms-10"

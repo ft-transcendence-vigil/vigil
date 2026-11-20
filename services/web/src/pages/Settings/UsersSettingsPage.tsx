@@ -50,6 +50,10 @@ export default function UsersSettingsPage() {
 
   const users = usersQuery.data ?? [];
 
+  const isApiKeyUser =
+    users.find((user) => user.id === userToDelete)?.email ===
+    'mustbe@api.email';
+
   const sortedUsers = [...users].sort(
     (a, b) =>
       Number(b.id === currentUser?.id) - Number(a.id === currentUser?.id),
@@ -75,32 +79,34 @@ export default function UsersSettingsPage() {
         {!usersQuery.isLoading && !usersQuery.isError && users.length === 0 && (
           <StateMessage text="No users found." />
         )}
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px]">
-              <th className="py-2 md:py-4 px-2 md:px-3">Email</th>
-              <th className="py-2 md:py-4 px-2 md:px-3">Role</th>
-              <th className="py-2 md:py-4 px-2 md:px-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedUsers.map((user) => (
-              <UserRow
-                key={user.id}
-                email={user.email}
-                role={user.role}
-                isCurrent={user.email === currentUser?.email}
-                onEdit={() =>
-                  setModal({
-                    mode: 'edit',
-                    user,
-                  })
-                }
-                onDelete={() => setUserToDelete(user.id)}
-              />
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-120 border-collapse">
+            <thead>
+              <tr className="border-b border-vigil-border uppercase text-left text-vigil-muted text-[12px] md:text-[13px]">
+                <th className="py-2 md:py-4 px-2 md:px-3">Email</th>
+                <th className="py-2 md:py-4 px-2 md:px-3">Role</th>
+                <th className="py-2 md:py-4 px-2 md:px-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedUsers.map((user) => (
+                <UserRow
+                  key={user.id}
+                  email={user.email}
+                  role={user.role}
+                  isCurrent={user.email === currentUser?.email}
+                  onEdit={() =>
+                    setModal({
+                      mode: 'edit',
+                      user,
+                    })
+                  }
+                  onDelete={() => setUserToDelete(user.id)}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </CardLayout>
       {modal?.mode === 'create' && (
         <UserModal
@@ -124,7 +130,11 @@ export default function UsersSettingsPage() {
           open={userToDelete != null}
           onOpenChange={(o) => !o && setUserToDelete(null)}
           title="Delete user?"
-          description="They will lose access immediately and their sessions will be ended. This cannot be undone."
+          description={
+            isApiKeyUser
+              ? 'This account is used to authenticate API keys. Deleting it will stop API keys from working.'
+              : 'They will lose access immediately and their sessions will be ended. This cannot be undone.'
+          }
           confirmLabel="Delete"
           onConfirm={() => {
             if (userToDelete) deleteMutation.mutate(userToDelete);
