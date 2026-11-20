@@ -26,6 +26,14 @@ server {
         client_max_body_size 13m;
         include includes/proxy_backend.conf;
     }
+    location /otlp/ {
+        client_max_body_size 13m;
+        resolver 127.0.0.11 valid=10s ipv6=off;
+        set $vigil_collector http://telemetry-collector:4318;
+        proxy_set_header Proxy "";
+        rewrite ^/otlp(/.*)$ $1 break;
+        proxy_pass $vigil_collector;
+    }
     location / { return 404; }
     include includes/location_common.conf;
 }
